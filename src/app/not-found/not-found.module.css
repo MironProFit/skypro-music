@@ -1,0 +1,23 @@
+/* src/app/not-found/not-found.module.css */
+.notFound {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: #181818;
+    color: white;
+    text-align: center;
+    padding: 20px;
+}
+
+.notFound h1 {
+    font-size: 64px;
+    margin-bottom: 16px;
+}
+
+.notFound a {
+    margin-top: 24px;
+    color: #ad61ff;
+    text-decoration: none;
+}
