@@ -1,0 +1,52 @@
+/* styles/buttons.module.css */
+
+/* Базовая кнопка */
+.btn {
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    padding: 0;
+    outline: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Кнопка-иконка (круглая, без текста) */
+.btnIcon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    cursor: pointer;
+    border: none;
+    padding: 0;
+}
+
+.btnIcon:hover {
+    opacity: 0.8;
+}
+
+.btnIcon:active {
+    opacity: 1;
+}
+
+/* Пример цветовых вариаций (опционально) */
+.btnPrimary {
+    background-color: #ad61ff;
+    color: white;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-weight: 500;
+}
+
+.btnSecondary {
+    background-color: transparent;
+    border: 1px solid #696969;
+    color: #ffffff;
+    border-radius: 8px;
+    padding: 8px 16px;
+}
