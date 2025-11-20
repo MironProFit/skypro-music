@@ -1,9 +1,9 @@
 import Link from 'next/link'
-import styles from './not-found.module.css'
+import styles from './notFound.module.css'
 
 export default function NotFoundPage() {
     return (
-        <div className={styles['not - found']}>
+        <div className={styles.notFound}>
             <h1>404 Привет</h1>
             <p>Страница не найдена</p>
             <Link href="/">Вернуться на главную</Link>
