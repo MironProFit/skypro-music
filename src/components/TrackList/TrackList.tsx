@@ -1,21 +1,13 @@
 import clsx from 'clsx'
 import styles from './TrackList.module.css'
 import Link from 'next/link'
+import Search from '@components/Search/Search'
+import { dataTrack } from 'src/data'
 
 export default function TrackList() {
     return (
         <div className={styles.centerblock}>
-            <div className={styles.centerblock__search}>
-                <svg className={styles.search__svg}>
-                    <use xlinkHref="/img/icon/sprite.svg#icon-search" />
-                </svg>
-                <input
-                    className={styles.search__text}
-                    type="search"
-                    placeholder="Поиск"
-                    name="search"
-                />
-            </div>
+            <Search />
             <h2 className={styles.centerblock__h2}>Треки</h2>
             <div className={styles.centerblock__filter}>
                 <div className={styles.filter__title}>Искать по:</div>
@@ -63,40 +55,7 @@ export default function TrackList() {
                 </div>
 
                 <div className={styles.content__playlist}>
-                    {[
-                        {
-                            title: 'Guilt',
-                            author: 'Nero',
-                            album: 'Welcome Reality',
-                            time: '4:44',
-                        },
-                        {
-                            title: 'Elektro',
-                            author: 'Dynoro, Outwork, Mr. Gee',
-                            album: 'Elektro',
-                            time: '2:22',
-                        },
-                        {
-                            title: 'I’m Fire',
-                            author: 'Ali Bakgor',
-                            album: 'I’m Fire',
-                            time: '2:22',
-                        },
-                        {
-                            title: 'Non Stop',
-                            author: 'Стоункат, Psychopath',
-                            album: 'Non Stop',
-                            time: '4:12',
-                            span: '(Remix)',
-                        },
-                        {
-                            title: 'Run Run',
-                            author: 'Jaded, Will Clarke, AR/CO',
-                            album: 'Run Run',
-                            time: '2:54',
-                            span: '(feat. AR/CO)',
-                        },
-                    ].map((track, index) => (
+                    {dataTrack.map((track, index) => (
                         <div key={index} className={styles.playlist__item}>
                             <div className={styles.playlist__track}>
                                 <div className={styles.track__title}>
@@ -110,8 +69,8 @@ export default function TrackList() {
                                             className={styles.track__titleLink}
                                             href=""
                                         >
-                                            {track.title}
-                                            {track.span && (
+                                            {track.name}
+                                            {/* {track.span && (
                                                 <span
                                                     className={
                                                         styles.track__titleSpan
@@ -119,7 +78,7 @@ export default function TrackList() {
                                                 >
                                                     {track.span}
                                                 </span>
-                                            )}
+                                            )} */}
                                         </Link>
                                     </div>
                                 </div>
@@ -144,7 +103,7 @@ export default function TrackList() {
                                         <use xlinkHref="/img/icon/sprite.svg#icon-like" />
                                     </svg>
                                     <span className={styles.track__timeText}>
-                                        {track.time}
+                                        {track.duration_in_seconds}
                                     </span>
                                 </div>
                             </div>
