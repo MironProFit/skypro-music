@@ -8,9 +8,7 @@ export default function Search() {
     const onSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchInput(e.target.value)
     }
-    useEffect(() => {
-        console.log(searchInput)
-    }, [searchInput])
+
     return (
         <div className={styles.centerblock__search}>
             <svg className={styles.search__svg}>

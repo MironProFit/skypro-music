@@ -7,7 +7,7 @@ import Search from '@components/Search/Search'
 import { dataTrack } from 'src/data'
 import SortDropdown from '@components/SortDropdown/SortDropdown'
 import { useEffect, useState } from 'react'
-import { TrackType } from 'src/sharedTypes/sharedTypes'
+import { FiltersTagType, TrackType } from 'src/sharedTypes/sharedTypes'
 
 export default function TrackList() {
   const [typeFilter, setTypeFilter] = useState('')
@@ -16,7 +16,10 @@ export default function TrackList() {
     setTypeFilter(typeFilter === filter ? '' : filter)
   }
 
-  const filters: { label: string; value: keyof TrackType }[] = [
+  const filters: {
+    label: string
+    value: FiltersTagType
+  }[] = [
     { label: 'исполнителю', value: 'author' },
     { label: 'году выпуска', value: 'release_date' },
     { label: 'жанру', value: 'genre' },
@@ -50,43 +53,6 @@ export default function TrackList() {
             )}
           </div>
         ))}
-
-        {/* <div style={{ position: 'relative' }}>
-          <div
-            onClick={() => {
-              handleTypeFilter('artist')
-            }}
-            className={styles.filter__button}
-          >
-            исполнителю
-          </div>
-          {typeFilter === 'artist' && <SortDropdown typeFilter={typeFilter} />}
-        </div>
-
-        <div style={{ position: 'relative' }}>
-          <div
-            onClick={() => {
-              handleTypeFilter('release_date')
-            }}
-            className={styles.filter__button}
-          >
-            году выпуска
-          </div>
-          <SortDropdown typeFilter={typeFilter} />
-        </div>
-
-        <div style={{ position: 'relative' }}>
-          <div
-            //   style={{ position: 'relative' }}
-            onClick={() => {
-              handleTypeFilter('genre')
-            }}
-            className={styles.filter__button}
-          >
-            жанру
-          </div>
-          <SortDropdown typeFilter={typeFilter} />
-        </div> */}
       </div>
 
       <div className={styles.centerblock__content}>

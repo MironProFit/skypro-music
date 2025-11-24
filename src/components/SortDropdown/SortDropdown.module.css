@@ -1,8 +1,9 @@
 .modalWrap {
   margin-top: 10px;
   position: absolute;
-  width: 248px;
-  height: 305px;
+  width: max-content;
+  /* height: 305px; */
+  height: max-content;
   padding: 34px;
   background: red;
   border-radius: 12px;
@@ -14,6 +15,7 @@
   flex-direction: column;
   gap: 28px;
   max-height: 232px;
+  padding-right: 24px;
   overflow-y: auto;
 }
 

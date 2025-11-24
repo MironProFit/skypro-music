@@ -11,5 +11,4 @@ export interface TrackType {
   stared_user: string[]
 }
 
-
-
+export type FiltersTagType = 'author' | 'release_date' | 'genre'
