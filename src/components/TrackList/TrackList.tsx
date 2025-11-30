@@ -8,7 +8,7 @@ import { dataTrack } from 'src/data'
 import SortDropdown from '@components/SortDropdown/SortDropdown'
 import { useState } from 'react'
 import { FiltersTagType, TrackType } from 'src/sharedTypes/sharedTypes'
-import { setCurrentTrack } from 'src/store/features/trackSlise'
+import { setCurrentTrack, setIsPlayTrack } from 'src/store/features/trackSlise'
 import { useAppDispatch, useAppSelector } from 'src/store/store'
 
 export default function TrackList() {
@@ -33,6 +33,7 @@ export default function TrackList() {
 
   const onClickTrack = (track: TrackType) => {
     dispatch(setCurrentTrack(track))
+    dispatch(setIsPlayTrack(true))
   }
 
   return (
@@ -96,9 +97,17 @@ export default function TrackList() {
                   {/* === Обновлённая иконка с анимацией === */}
                   <div className={styles.track__titleImage}>
                     <svg
-                      className={clsx(styles.track__titleSvg, {
-                        [styles.active]: track._id === playTrack && isPlayTrack,
-                      })}
+                      className={clsx(
+                        styles.track__titleSvg,
+                        {
+                          [styles.active]:
+                            track._id === playTrack && isPlayTrack,
+                        },
+                        {
+                          [styles.selected__active]:
+                            track._id === playTrack && !isPlayTrack,
+                        }
+                      )}
                       viewBox="0 0 20 19"
                       xmlns="http://www.w3.org/2000/svg"
                     >

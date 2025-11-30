@@ -5,7 +5,7 @@ import styles from './Bar.module.css'
 import Link from 'next/link'
 import { useAppDispatch, useAppSelector } from 'src/store/store'
 import { setIsPlayTrack } from 'src/store/features/trackSlise'
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 
 export default function Bar() {
   const currentTrack = useAppSelector((state) => state.track.currentTrack)
@@ -13,31 +13,46 @@ export default function Bar() {
   const dispatch = useAppDispatch()
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
+  // Синхронизация состояния воспроизведения с аудиоэлементом
+  useEffect(() => {
+    const audio = audioRef.current
+    if (!audio || !currentTrack) return
+
+    if (isPlayTrack) {
+      ;(audio.play() as Promise<void>).catch((err) => {
+        console.warn('Ошибка воспроизведения:', err)
+        dispatch(setIsPlayTrack(false))
+      })
+    } else {
+      audio.pause()
+    }
+  }, [currentTrack, isPlayTrack, dispatch])
+
   const togglePlay = () => {
     if (currentTrack) {
-      const audio = audioRef.current
-      if (isPlayTrack) {
-        audio?.pause()
-      } else {
-        audio?.play()
-      }
       dispatch(setIsPlayTrack(!isPlayTrack))
     }
   }
 
+  // Не рендерим плеер, если нет выбранного трека
+  if (!currentTrack) return null
+
   return (
     <div className={styles.bar}>
+      {/* Аудиоэлемент (скрыт) */}
       <audio
         style={{ display: 'none' }}
         ref={audioRef}
-        src={currentTrack?.track_file}
+        src={currentTrack.track_file}
       />
 
       <div className={styles.bar__content}>
+        {/* Прогресс-бар (заглушка) */}
         <div className={styles.bar__playerProgress}></div>
 
         <div className={styles.bar__playerBlock}>
           <div className={styles.bar__player}>
+            {/* Управление: Prev, Play/Pause, Next, Repeat, Shuffle */}
             <div className={styles.player__controls}>
               <div className={styles.player__btnPrev}>
                 <svg className={styles.player__btnPrevSvg}>
@@ -46,9 +61,7 @@ export default function Bar() {
               </div>
 
               <div
-                className={clsx(styles.player__btnPlay, styles.btn, {
-                  [styles.active]: !currentTrack,
-                })}
+                className={clsx(styles.player__btnPlay, styles.btn)}
                 onClick={togglePlay}
               >
                 {!isPlayTrack ? (
@@ -81,26 +94,28 @@ export default function Bar() {
               </div>
             </div>
 
+            {/* Информация о текущем треке */}
             <div className={styles.player__trackPlay}>
               <div className={styles.trackPlay__contain}>
-                <div className={styles.trackPlay__image}>
-                  <svg className={styles.trackPlay__svg}>
+                <div className={styles.trackPlay__image_info}>
+                  <svg className={styles.trackPlay__svg_info}>
                     <use xlinkHref="/img/icon/sprite.svg#icon-note" />
                   </svg>
                 </div>
                 <div className={styles.trackPlay__author}>
                   <Link className={styles.trackPlay__authorLink} href="">
-                    Ты та...
+                    {currentTrack.author || 'Неизвестный исполнитель'}
                   </Link>
                 </div>
                 <div className={styles.trackPlay__album}>
                   <Link className={styles.trackPlay__albumLink} href="">
-                    Баста
+                    {currentTrack.album || 'Без альбома'}
                   </Link>
                 </div>
               </div>
 
-              <div className={styles.trackPlay__dislike}>
+              {/* Лайк / Дизлайк */}
+              <div className={styles.trackPlay__dislike_wrap}>
                 <div className={clsx(styles.trackPlay__like, styles.btnIcon)}>
                   <svg className={styles.trackPlay__likeSvg}>
                     <use xlinkHref="/img/icon/sprite.svg#icon-like" />
@@ -117,6 +132,7 @@ export default function Bar() {
             </div>
           </div>
 
+          {/* Управление громкостью */}
           <div className={styles.bar__volumeBlock}>
             <div className={styles.volume__content}>
               <div className={styles.volume__image}>
@@ -128,7 +144,12 @@ export default function Bar() {
                 <input
                   className={styles.volume__progressLine}
                   type="range"
-                  name="range"
+                  name="volume"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  defaultValue="1"
+                  // TODO: добавить обработчик изменения громкости
                 />
               </div>
             </div>

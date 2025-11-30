@@ -171,11 +171,19 @@
 }
 
 /* Активное состояние: вращение + смена иконки */
+.track__titleSvg {
+  transition: 0.3s;
+}
 .track__titleSvg.active {
   color: #b672ff;
   transform: translate(-50%, -50%);
   transform-origin: center;
   animation: note-anim 2s infinite;
+}
+
+.track__titleSvg.selected__active {
+  color: #b672ff;
+
 }
 
 @keyframes note-anim {
