@@ -109,6 +109,10 @@
   width: 100%;
   display: block;
   margin-bottom: 12px;
+  cursor: pointer;
+}
+.playlist__item:hover {
+  background-color: #1f1f1f;
 }
 
 .playlist__track {

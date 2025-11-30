@@ -6,8 +6,10 @@ import Link from 'next/link'
 import Search from '@components/Search/Search'
 import { dataTrack } from 'src/data'
 import SortDropdown from '@components/SortDropdown/SortDropdown'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { FiltersTagType, TrackType } from 'src/sharedTypes/sharedTypes'
+import { setCurrentTrack } from 'src/store/features/trackSlise'
+import { useAppDispatch } from 'src/store/store'
 
 export default function TrackList() {
   const [typeFilter, setTypeFilter] = useState('')
@@ -25,9 +27,16 @@ export default function TrackList() {
     { label: 'жанру', value: 'genre' },
   ]
 
+  const dispatch = useAppDispatch()
+
+  const onClickTrack = (track: TrackType) => {
+    dispatch(setCurrentTrack(track))
+  }
+
   return (
     <div className={styles.centerblock}>
       <Search />
+
       <h2 className={styles.centerblock__h2}>Треки</h2>
       <div className={styles.centerblock__filter}>
         <div className={styles.filter__title}>Искать по:</div>
@@ -75,7 +84,11 @@ export default function TrackList() {
 
         <div className={styles.content__playlist}>
           {dataTrack.map((track, index) => (
-            <div key={index} className={styles.playlist__item}>
+            <div
+              key={index}
+              className={styles.playlist__item}
+              onClick={() => onClickTrack(track)}
+            >
               <div className={styles.playlist__track}>
                 <div className={styles.track__title}>
                   <div className={styles.track__titleImage}>
