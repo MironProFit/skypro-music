@@ -1,0 +1,49 @@
+.modalWrap {
+  margin-top: 10px;
+  position: absolute;
+  width: max-content;
+  /* height: 305px; */
+  height: max-content;
+  padding: 34px;
+  background: red;
+  border-radius: 12px;
+  background-color: #313131;
+  overflow-y: hidden;
+}
+.modalList {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  max-height: 232px;
+  padding-right: 24px;
+  overflow-y: auto;
+}
+
+/* Стиль для всей полосы прокрутки */
+.modalList::-webkit-scrollbar {
+  width: 4px; /* толщина рельса */
+}
+
+/* Стиль для рельса */
+.modalList::-webkit-scrollbar-track {
+  background: #4b4949; /* цвет рельса */
+}
+
+/* Стиль для ползунка */
+.modalList::-webkit-scrollbar-thumb {
+  background-color: #fff; /* белый с прозрачностью */
+  border-radius: 2px; /* скругление ползунка */
+  border: none;
+}
+
+.modalItem {
+  color: #fff;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.modalItem:hover {
+  color: #b672ff;
+  text-decoration: underline;
+  cursor: pointer;
+}
