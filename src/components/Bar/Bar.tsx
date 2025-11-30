@@ -1,36 +1,41 @@
 'use client'
+
 import clsx from 'clsx'
 import styles from './Bar.module.css'
 import Link from 'next/link'
 import { useAppDispatch, useAppSelector } from 'src/store/store'
 import { setIsPlayTrack } from 'src/store/features/trackSlise'
-import { useEffect, useRef } from 'react'
+import { useRef } from 'react'
 
 export default function Bar() {
   const currentTrack = useAppSelector((state) => state.track.currentTrack)
   const isPlayTrack = useAppSelector((state) => state.track.isPlayTrack)
   const dispatch = useAppDispatch()
   const audioRef = useRef<HTMLAudioElement | null>(null)
-  useEffect(() => {
-    console.log(isPlayTrack)
-  }, [isPlayTrack])
 
   const togglePlay = () => {
-    const audio = audioRef.current
-    console.log(audio)
-    if (isPlayTrack) {
-      audio?.pause()
-    } else {
-      audio?.play()
+    if (currentTrack) {
+      const audio = audioRef.current
+      if (isPlayTrack) {
+        audio?.pause()
+      } else {
+        audio?.play()
+      }
+      dispatch(setIsPlayTrack(!isPlayTrack))
     }
-    dispatch(setIsPlayTrack(!isPlayTrack))
   }
 
   return (
     <div className={styles.bar}>
-      <audio ref={audioRef} controls src={currentTrack?.track_file}></audio>
+      <audio
+        style={{ display: 'none' }}
+        ref={audioRef}
+        src={currentTrack?.track_file}
+      />
+
       <div className={styles.bar__content}>
         <div className={styles.bar__playerProgress}></div>
+
         <div className={styles.bar__playerBlock}>
           <div className={styles.bar__player}>
             <div className={styles.player__controls}>
@@ -39,24 +44,36 @@ export default function Bar() {
                   <use xlinkHref="/img/icon/sprite.svg#icon-prev" />
                 </svg>
               </div>
+
               <div
-                className={clsx(styles.player__btnPlay, styles.btn)}
+                className={clsx(styles.player__btnPlay, styles.btn, {
+                  [styles.active]: !currentTrack,
+                })}
                 onClick={togglePlay}
               >
-                <svg className={styles.player__btnPlaySvg}>
-                  <use xlinkHref="/img/icon/sprite.svg#icon-play" />
-                </svg>
+                {!isPlayTrack ? (
+                  <svg className={styles.player__btnPlaySvg}>
+                    <use xlinkHref="/img/icon/sprite.svg#icon-play" />
+                  </svg>
+                ) : (
+                  <svg className={styles.player__btnPlaySvg}>
+                    <use xlinkHref="/img/icon/sprite.svg#icon-pause" />
+                  </svg>
+                )}
               </div>
+
               <div className={styles.player__btnNext}>
                 <svg className={styles.player__btnNextSvg}>
                   <use xlinkHref="/img/icon/sprite.svg#icon-next" />
                 </svg>
               </div>
+
               <div className={clsx(styles.player__btnRepeat, styles.btnIcon)}>
                 <svg className={styles.player__btnRepeatSvg}>
                   <use xlinkHref="/img/icon/sprite.svg#icon-repeat" />
                 </svg>
               </div>
+
               <div className={clsx(styles.player__btnShuffle, styles.btnIcon)}>
                 <svg className={styles.player__btnShuffleSvg}>
                   <use xlinkHref="/img/icon/sprite.svg#icon-shuffle" />
@@ -84,10 +101,7 @@ export default function Bar() {
               </div>
 
               <div className={styles.trackPlay__dislike}>
-                <div
-                  className={clsx(styles.player__btnShuffle, styles.btnIcon)}
-                >
-                  {/* TODO: возможно, заменить player__btnShuffle на trackPlay__like? */}
+                <div className={clsx(styles.trackPlay__like, styles.btnIcon)}>
                   <svg className={styles.trackPlay__likeSvg}>
                     <use xlinkHref="/img/icon/sprite.svg#icon-like" />
                   </svg>
@@ -112,7 +126,7 @@ export default function Bar() {
               </div>
               <div className={clsx(styles.volume__progress, styles.btn)}>
                 <input
-                  className={clsx(styles.volume__progressLine, styles.btn)}
+                  className={styles.volume__progressLine}
                   type="range"
                   name="range"
                 />

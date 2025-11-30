@@ -1,50 +1,50 @@
 /* Bar.module.css */
 .bar {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background: rgba(28, 28, 28, 0.5);
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: rgba(28, 28, 28, 0.5);
 }
 
 .bar__content {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 .bar__playerProgress {
-    width: 100%;
-    height: 5px;
-    background: #2e2e2e;
+  width: 100%;
+  height: 5px;
+  background: #2e2e2e;
 }
 
 .bar__playerBlock {
-    height: 73px;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
+  height: 73px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .bar__player {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-start;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
 }
 
 .bar__volumeBlock {
-    width: auto;
-    display: flex;
-    align-items: center;
-    padding: 0 92px 0 0;
+  width: auto;
+  display: flex;
+  align-items: center;
+  padding: 0 92px 0 0;
 }
 
 .player__controls {
-    display: flex;
-    flex-direction: row;
-    padding: 0 27px 0 31px;
-    align-items: center;
+  display: flex;
+  flex-direction: row;
+  padding: 0 27px 0 31px;
+  align-items: center;
 }
 
 .player__btnPrev,
@@ -52,222 +52,216 @@
 .player__btnNext,
 .player__btnRepeat,
 .player__btnShuffle {
-    padding: 5px;
-    display: flex;
-    align-items: center;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+.player__btnPlay.active {
+  cursor: default;
 }
 
 .player__btnPrev {
-    margin-right: 23px;
+  margin-right: 23px;
 }
 
 .player__btnPrevSvg {
-    width: 15px;
-    height: 14px;
+  width: 15px;
+  height: 14px;
 }
 
 .player__btnPlay {
-    margin-right: 23px;
+  margin-right: 23px;
 }
 
 .player__btnPlaySvg {
-    width: 22px;
-    height: 20px;
-    fill: #d9d9d9;
+  width: 22px;
+  height: 20px;
+  fill: #d9d9d9;
 }
 
 .player__btnNext {
-    margin-right: 28px;
+  margin-right: 28px;
 }
 
 .player__btnNextSvg {
-    width: 15px;
-    height: 14px;
-    fill: transparent;
-    stroke: #d9d9d9;
+  width: 15px;
+  height: 14px;
+  fill: transparent;
+  stroke: #d9d9d9;
 }
 
 .player__btnRepeat {
-    margin-right: 24px;
+  margin-right: 24px;
 }
 
 .player__btnRepeatSvg {
-    width: 18px;
-    height: 12px;
-    fill: transparent;
-    stroke: #696969;
+  width: 18px;
+  height: 12px;
+  fill: transparent;
+  stroke: #696969;
 }
 
 .player__btnShuffle {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 }
 
 .player__btnShuffleSvg {
-    width: 19px;
-    height: 12px;
-    fill: transparent;
-    stroke: #696969;
+  width: 19px;
+  height: 12px;
+  fill: transparent;
+  stroke: #696969;
 }
 
 .player__trackPlay {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }
 
 .trackPlay__contain {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    grid-template-areas:
-        'image author'
-        'image album';
-    align-items: center;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas:
+    'image author'
+    'image album';
+  align-items: center;
+  display: flex;
 }
 
 .trackPlay__image {
-    width: 51px;
-    height: 51px;
-    background-color: #313131;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 12px;
-    grid-area: image;
+  width: 51px;
+  height: 51px;
+  background-color: #313131;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  grid-area: image;
 }
 
 .trackPlay__svg {
-    width: 18px;
-    height: 17px;
-    fill: transparent;
-    stroke: #4e4e4e;
+  width: 18px;
+  height: 17px;
+  fill: transparent;
+  stroke: #4e4e4e;
 }
 
 .trackPlay__author {
-    grid-area: author;
-    min-width: 49px;
+  grid-area: author;
+  min-width: 49px;
 }
 
 .trackPlay__authorLink {
-    font-style: normal;
-    font-weight: 400;
-    font-size: 16px;
-    line-height: 24px;
-    color: #ffffff;
-    white-space: nowrap;
-    text-decoration: none;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: #ffffff;
+  white-space: nowrap;
+  text-decoration: none;
 }
 
 .trackPlay__album {
-    grid-area: album;
-    min-width: 49px;
+  grid-area: album;
+  min-width: 49px;
 }
 
 .trackPlay__albumLink {
-    font-style: normal;
-    font-weight: 400;
-    font-size: 13px;
-    line-height: 24px;
-    color: #ffffff;
-    text-decoration: none;
-}
-
-.trackPlay__dislike {
-    display: flex;
-    align-items: center;
-    margin-left: 26%;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 24px;
+  color: #ffffff;
+  text-decoration: none;
 }
 
 .trackPlay__like,
 .trackPlay__dislike {
-    padding: 5px;
-}
-
-.trackPlay__likeSvg {
-    width: 14px;
-    height: 12px;
-    fill: transparent;
-    stroke: #696969;
+  padding: 5px;
 }
 
 .trackPlay__dislike {
-    margin-left: 28.5px;
+  margin-left: 28.5px;
+}
+
+.trackPlay__likeSvg {
+  width: 14px;
+  height: 12px;
+  fill: transparent;
+  stroke: #696969;
 }
 
 .trackPlay__dislikeSvg {
-    width: 14.34px;
-    height: 13px;
-    fill: transparent;
-    stroke: #696969;
+  width: 14.34px;
+  height: 13px;
+  fill: transparent;
+  stroke: #696969;
 }
 
 .volume__content {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-end;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
 }
 
 .volume__image {
-    width: 13px;
-    height: 18px;
-    margin-right: 17px;
+  width: 13px;
+  height: 18px;
+  margin-right: 17px;
 }
 
 .volume__svg {
-    width: 13px;
-    height: 18px;
-    fill: transparent;
+  width: 13px;
+  height: 18px;
+  fill: transparent;
 }
 
 .volume__progress {
-    width: 109px;
-    display: flex;
-    align-items: center;
+  width: 109px;
+  display: flex;
+  align-items: center;
 }
 
 .volume__progressLine {
-    width: 100%;
-    height: 2px;
-    appearance: none;
-    background: #797979;
-    border-radius: 5px;
-    outline: none;
-    cursor: pointer;
+  width: 100%;
+  height: 2px;
+  appearance: none;
+  background: #797979;
+  border-radius: 5px;
+  outline: none;
+  cursor: pointer;
 }
 
 .volume__progressLine::-webkit-slider-runnable-track {
-    height: 2px;
-    background: #797979;
-    border-radius: 5px;
+  height: 2px;
+  background: #797979;
+  border-radius: 5px;
 }
 
 .volume__progressLine::-webkit-slider-thumb {
-    appearance: none;
-    width: 16px;
-    height: 16px;
-    background: #1a1a1a;
-    border: 2px solid white;
-    border-radius: 50%;
-    margin-top: -7px;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #1a1a1a;
+  border: 2px solid white;
+  border-radius: 50%;
+  margin-top: -7px;
 }
 
-/* Общие утилиты — можно оставить здесь или вынести в отдельный файл */
+/* Универсальные утилиты */
 .btn {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .btnIcon:hover svg {
-    stroke: #acacac;
-    cursor: pointer;
+  stroke: #acacac;
 }
 
-.btnIcon:active svg {
-    stroke: #ffffff;
-    cursor: pointer;
-}
-
+.btnIcon:active svg,
 .btnIcon:active .trackPlay__likeSvg,
 .btnIcon:active .trackPlay__dislikeSvg {
-    stroke: #ffffff;
+  stroke: #ffffff;
 }
