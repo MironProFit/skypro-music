@@ -32,8 +32,14 @@ export default function TrackList() {
   const dispatch = useAppDispatch()
 
   const onClickTrack = (track: TrackType) => {
-    dispatch(setCurrentTrack(track))
-    dispatch(setIsPlayTrack(true))
+    const isCurrentTrack = track._id === playTrack
+
+    if (isCurrentTrack) {
+      dispatch(setIsPlayTrack(!isPlayTrack))
+    } else {
+      dispatch(setCurrentTrack(track))
+      dispatch(setIsPlayTrack(true))
+    }
   }
 
   return (

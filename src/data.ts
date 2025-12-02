@@ -2,19 +2,6 @@ import { TrackType } from './sharedTypes/sharedTypes'
 
 export const dataTrack: TrackType[] = [
   {
-    _id: 8,
-    name: 'Chase',
-    author: 'Alexander Nakarada',
-    release_date: '2005-06-11',
-    genre: ['Классическая музыка'],
-    duration_in_seconds: 205,
-    album: 'Chase',
-    logo: null,
-    track_file:
-      'https://webdev-music-003b5b991590.herokuapp.com/media/music_files/Alexander_Nakarada_-_Chase.mp3',
-    stared_user: [],
-  },
-  {
     _id: 9,
     name: 'Open Sea epic',
     author: 'Frank Schroter',
@@ -53,7 +40,6 @@ export const dataTrack: TrackType[] = [
       'https://webdev-music-003b5b991590.herokuapp.com/media/music_files/Mixkit_-_Secret_Garden.mp3',
     stared_user: [],
   },
-
   {
     _id: 12,
     name: 'A journey of successfull winners',
@@ -80,7 +66,6 @@ export const dataTrack: TrackType[] = [
       'https://webdev-music-003b5b991590.herokuapp.com/media/music_files/Musiclfiles_-_Epic_Heroic_Conquest.mp3',
     stared_user: [],
   },
-
   {
     _id: 14,
     name: 'The March OF The Final Battle',
@@ -131,6 +116,69 @@ export const dataTrack: TrackType[] = [
     logo: null,
     track_file:
       'https://webdev-music-003b5b991590.herokuapp.com/media/music_files/Winniethemoog_-_Action_Sport_Breakbeat.mp3',
+    stared_user: [],
+  },
+
+  // === ЛОКАЛЬНЫЕ ТРЕКИ (с 18-го) ===
+  {
+    _id: 18,
+    name: 'Powerful Trap',
+    author: 'chostic.com',
+    release_date: '2023-01-01',
+    genre: ['Электронная музыка'],
+    duration_in_seconds: 180,
+    album: 'Powerful Trap',
+    logo: null,
+    track_file: '/tracks/Dj Polkovnik - Official.mp3',
+    stared_user: [],
+  },
+  {
+    _id: 19,
+    name: 'Slipknot - Eeyore',
+    author: 'Slipknot',
+    release_date: '2023-01-02',
+    genre: ['Хэви-метал'],
+    duration_in_seconds: 180,
+    album: 'Slipknot - Eeyore',
+    logo: null,
+    track_file: '/tracks/Slipknot_-_Eeyore_47954407.mp3',
+    stared_user: [],
+  },
+  {
+    _id: 20,
+    name: 'Slipknot - Interloper',
+    author: 'Slipknot',
+    release_date: '2023-01-03',
+    genre: ['Хэви-метал'],
+    duration_in_seconds: 180,
+    album: 'Slipknot - Interloper',
+    logo: null,
+    track_file: '/tracks/Slipknot_-_Interloper_47954995.mp3',
+    stared_user: [],
+  },
+  {
+    _id: 21,
+    name: 'Slipknot - Liberate It Out',
+    author: 'Slipknot',
+    release_date: '2023-01-04',
+    genre: ['Хэви-метал'],
+    duration_in_seconds: 180,
+    album: 'Slipknot - Liberate It Out',
+    logo: null,
+    track_file: '/tracks/Slipknot_-_Liberate_47954377.mp3',
+    stared_user: [],
+  },
+  {
+    _id: 22,
+    name: 'Slipknot - Spit It Out',
+    author: 'Slipknot',
+    release_date: '2023-01-05',
+    genre: ['Хэви-метал'],
+    duration_in_seconds: 180,
+    album: 'Slipknot - Spit It Out',
+    logo: null,
+    // track_file: '/tracks/Slipknot_-_Spit_It_Out_47954357.mp3',
+    track_file: '/tracks/Slipknot_-_Spit_It_Out_47954357.mp3',
     stared_user: [],
   },
 ]

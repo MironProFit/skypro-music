@@ -5,17 +5,41 @@
   left: 0;
   width: 100%;
   background: rgba(28, 28, 28, 0.5);
+  animation: bar-anim 1s;
+}
+@keyframes bar-anim {
+  0% {
+    opacity: 0;
+    bottom: -200px;
+  }
+  100% {
+    opacity: 1;
+    bottom: 0;
+  }
 }
 
 .bar__content {
   display: flex;
   flex-direction: column;
 }
+.bar__playerProgress_wrap {
+  display: flex;
+  flex-direction: row;
+}
 
 .bar__playerProgress {
+  position: relative;
   width: 100%;
   height: 5px;
   background: #2e2e2e;
+}
+.bar__playerProgress_time_info {
+  position: absolute;
+  color: red;
+  display: flex;
+  flex-direction: row;
+  right: 15px;
+  bottom: -7px;
 }
 
 .bar__playerBlock {
@@ -59,6 +83,7 @@
   display: flex;
   align-items: center;
   cursor: pointer;
+  transition: 0.3s;
 }
 
 /* === РАЗМЕРЫ ИКОНОК === */
@@ -82,6 +107,9 @@
   width: 20px;
   height: 18px;
   color: #696969;
+}
+.player__btnRepeatSvg.active {
+  color: #b672ff;
 }
 
 .player__btnShuffleSvg {
@@ -127,6 +155,18 @@
 }
 
 /* === HOVER-ЭФФЕКТЫ === */
+.player__btnPrevSvg,
+.player__btnNextSvg,
+.player__btnPlaySvg,
+.player__btnRepeatSvg,
+.player__btnShuffleSvg,
+.trackPlay__likeSvg,
+.trackPlay__dislikeSvg,
+.trackPlay__svg,
+.playlistTitle__svg,
+.volume__svg {
+  transition: 0.4s ease;
+}
 
 .player__btnPrev:hover .player__btnPrevSvg,
 .player__btnNext:hover .player__btnNextSvg,
@@ -136,7 +176,8 @@
 .trackPlay__like:hover .trackPlay__likeSvg,
 .trackPlay__dislike:hover .trackPlay__dislikeSvg,
 .trackPlay__image:hover .trackPlay__svg {
-  color: #b672ff;
+  transform: scale(1.1);
+  color: rgba(182, 114, 255, 0.6);
 }
 
 /* === СТИЛИ КНОПОК === */
@@ -253,6 +294,7 @@
 }
 
 .volume__progress {
+  position: relative;
   width: 109px;
   display: flex;
   align-items: center;
@@ -275,6 +317,7 @@
 }
 
 .volume__progressLine::-webkit-slider-thumb {
+  position: relative;
   appearance: none;
   width: 16px;
   height: 16px;

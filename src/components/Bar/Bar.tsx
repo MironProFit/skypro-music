@@ -4,8 +4,10 @@ import clsx from 'clsx'
 import styles from './Bar.module.css'
 import Link from 'next/link'
 import { useAppDispatch, useAppSelector } from 'src/store/store'
-import { setIsPlayTrack } from 'src/store/features/trackSlise'
-import { useEffect, useRef } from 'react'
+import { setCurrentTrack, setIsPlayTrack } from 'src/store/features/trackSlise'
+import { useEffect, useRef, useState } from 'react'
+import { formatTime, getTimePanel } from '@utils/helpers'
+import next from 'next'
 
 export default function Bar() {
   const currentTrack = useAppSelector((state) => state.track.currentTrack)
@@ -13,9 +15,18 @@ export default function Bar() {
   const dispatch = useAppDispatch()
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
+  const [currentTime, setCurrentTime] = useState(0)
+  const [duration, setDuration] = useState(0)
+
+  const audio = audioRef.current
+  const [isLoopTrack, setIsLoopTrack] = useState(false)
+
+  const toggleLooping = () => {
+    setIsLoopTrack(!isLoopTrack)
+  }
   // Синхронизация состояния воспроизведения с аудиоэлементом
+
   useEffect(() => {
-    const audio = audioRef.current
     if (!audio || !currentTrack) return
 
     if (isPlayTrack) {
@@ -28,11 +39,58 @@ export default function Bar() {
     }
   }, [currentTrack, isPlayTrack, dispatch])
 
-  const togglePlay = () => {
+  const handlePlay = () => {
     if (currentTrack) {
       dispatch(setIsPlayTrack(!isPlayTrack))
     }
   }
+
+  const toggleVolume = (value: number) => {
+    // if (audio.volume: number) {
+    //   console.log(audio.volume);
+
+    console.log(value)
+    // }
+  }
+  useEffect(() => {
+    if (!audio || !currentTrack) return
+
+    const updateProgress = () => {
+      const currentTime = audio.currentTime
+      const duration = audio.duration
+
+      setCurrentTime(currentTime)
+      setDuration(duration)
+      console.log((currentTime / duration) * 100)
+    }
+
+    audio.addEventListener('timeupdate', updateProgress)
+
+    return () => {
+      audio.removeEventListener('timeupdate', updateProgress)
+    }
+  }, [audio, currentTrack])
+
+  const timeTrackInfo = getTimePanel({ currentTime, duration })
+
+  // const nextOneTrack = () => {
+  //   console.log(audio?.ended)
+  // }
+  // nextOneTrack()
+
+  // useEffect(() => {
+  //   if (audio.ended && null) {
+  //     console.log(audio?.ended)
+  //   }
+  // }, [audio?.ended])
+
+  // const handleNext = () => {
+  //   if (currentTrack?._id) {
+  //     const nextTrack = currentTrack?._id + 1
+  //     console.log(nextTrack)
+  //     dispatch(setCurrentTrack(nextTrack))
+  //   }
+  // }
 
   // Не рендерим плеер, если нет выбранного трека
   if (!currentTrack) return null
@@ -41,15 +99,22 @@ export default function Bar() {
     <div className={styles.bar}>
       {/* Аудиоэлемент (скрыт) */}
       <audio
-        style={{ display: 'none' }}
+        controls
+        // style={{ display: 'none' }}
         ref={audioRef}
         src={currentTrack.track_file}
+        loop={isLoopTrack}
       />
+      <div className={styles.bar__content}>{/* Прогресс-бар (заглушка) */}</div>
+      <div className={styles.bar__playerProgress_wrap}>
+        <div className={styles.bar__playerProgress}>
+          <div className={styles.bar__playerProgress_time_info}>
+            {timeTrackInfo}
+          </div>
+        </div>
+      </div>
 
-      <div className={styles.bar__content}>
-        {/* Прогресс-бар (заглушка) */}
-        <div className={styles.bar__playerProgress}></div>
-
+      <div>
         <div className={styles.bar__playerBlock}>
           <div className={styles.bar__player}>
             {/* Управление: Prev, Play/Pause, Next, Repeat, Shuffle */}
@@ -62,7 +127,7 @@ export default function Bar() {
 
               <div
                 className={clsx(styles.player__btnPlay, styles.btn)}
-                onClick={togglePlay}
+                onClick={handlePlay}
               >
                 {!isPlayTrack ? (
                   <svg className={styles.player__btnPlaySvg}>
@@ -81,8 +146,15 @@ export default function Bar() {
                 </svg>
               </div>
 
-              <div className={clsx(styles.player__btnRepeat, styles.btnIcon)}>
-                <svg className={styles.player__btnRepeatSvg}>
+              <div
+                onClick={toggleLooping}
+                className={clsx(styles.player__btnRepeat, styles.btnIcon)}
+              >
+                <svg
+                  className={clsx(styles.player__btnRepeatSvg, {
+                    [styles.active]: isLoopTrack,
+                  })}
+                >
                   <use xlinkHref="/img/icon/sprite.svg#icon-repeat" />
                 </svg>
               </div>
@@ -140,6 +212,7 @@ export default function Bar() {
                   <use xlinkHref="/img/icon/sprite.svg#icon-volume" />
                 </svg>
               </div>
+
               <div className={clsx(styles.volume__progress, styles.btn)}>
                 <input
                   className={styles.volume__progressLine}
@@ -149,7 +222,9 @@ export default function Bar() {
                   max="1"
                   step="0.01"
                   defaultValue="1"
-                  // TODO: добавить обработчик изменения громкости
+                  onChange={(e) => {
+                    toggleVolume(Number(e.target.value))
+                  }}
                 />
               </div>
             </div>

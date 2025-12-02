@@ -183,7 +183,6 @@
 
 .track__titleSvg.selected__active {
   color: #b672ff;
-
 }
 
 @keyframes note-anim {
@@ -207,7 +206,6 @@
 
 .track__titleSvg.active .playPath {
   opacity: 1;
-  
 }
 
 /* === Конец обновлённого блока === */
