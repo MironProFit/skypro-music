@@ -17,22 +17,63 @@
     bottom: 0;
   }
 }
+.bar__progressOverlay {
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  opacity: 0.1;
+}
+
+.bar__progressFill {
+  position: absolute;
+  height: 100%;
+  z-index: 20;
+  background: #b672ff; /* ваш акцентный цвет */
+  transition: 0.3s linear; /* плавное обновление */
+}
 
 .bar__content {
   display: flex;
   flex-direction: column;
 }
 .bar__playerProgress_wrap {
+  position: relative;
   display: flex;
   flex-direction: row;
 }
+.bar__playerProgress_wrap.aiming {
+}
 
 .bar__playerProgress {
-  position: relative;
+  position: absolute;
+  top: 0;
   width: 100%;
   height: 5px;
   background: #2e2e2e;
+  transition: 0.3s linear; /* плавное обновление */
 }
+.bar__playerProgress.aiming {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: #b672ff;
+}
+.bar__playerProgressBacg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 5px;
+}
+/* .bar__playerProgress.aiming {
+  position: absolute;
+
+  background: #b672ff;
+} */
 .bar__playerProgress_time_info {
   position: absolute;
   color: red;

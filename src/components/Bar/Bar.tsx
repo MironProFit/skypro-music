@@ -17,9 +17,15 @@ export default function Bar() {
 
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
-
+  const parcentProcess = duration > 0 ? (currentTime / duration) * 100 : 0
   const audio = audioRef.current
   const [isLoopTrack, setIsLoopTrack] = useState(false)
+  const progressRef = useRef<HTMLDivElement | null>(null)
+
+  const [isTooltipVisible, setIsTooltipVisible] = useState(false)
+  const [tooltipTime, setTooltipTime] = useState(0)
+  const [tooltipPosition, setTooltipPosition] = useState(0)
+  const [isActipProgressBar, setIsActipProgressBar] = useState(false)
 
   const toggleLooping = () => {
     setIsLoopTrack(!isLoopTrack)
@@ -52,6 +58,11 @@ export default function Bar() {
     console.log(value)
     // }
   }
+
+  useEffect(() => {
+    console.log(isTooltipVisible)
+  }, [isTooltipVisible])
+
   useEffect(() => {
     if (!audio || !currentTrack) return
 
@@ -92,146 +103,193 @@ export default function Bar() {
   //   }
   // }
 
+  useEffect(() => {
+    console.log(duration && isTooltipVisible)
+  }, [duration, isTooltipVisible])
+
   // Не рендерим плеер, если нет выбранного трека
+  const handleProgressMouseEnter = () => {
+    setIsTooltipVisible(true)
+  }
+  const handleProgressMouseLeave = () => {
+    setIsTooltipVisible(false)
+  }
+  const handleProgressMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!duration) return
+  }
+  const onProgressBarClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const offsetX = e.clientX - rect.left
+    const parcentage = Math.max(0, Math.min(100, offsetX / rect.width) * 100)
+    const timeAtposition = (parcentage / 100) * duration
+    setTooltipPosition(parcentage)
+    setTooltipTime(timeAtposition)
+    if (audio) {
+      audio.currentTime = timeAtposition
+    }
+    console.log(isTooltipVisible, tooltipTime, tooltipPosition)
+  }
+
   if (!currentTrack) return null
 
   return (
-    <div className={styles.bar}>
-      <div className={styles.}>
-        {/* Аудиоэлемент (скрыт) */}
-        <audio
-          controls
-          // style={{ display: 'none' }}
-          ref={audioRef}
-          src={currentTrack.track_file}
-          loop={isLoopTrack}
+    <div
+      className={styles.bar}
+      ref={progressRef}
+      onMouseLeave={handleProgressMouseLeave}
+      onMouseEnter={handleProgressMouseEnter}
+      onMouseMove={handleProgressMouseMove}
+    >
+      {/* Аудиоэлемент (скрыт) */}
+      <audio
+        controls
+        style={{ display: 'none' }}
+        ref={audioRef}
+        src={currentTrack.track_file}
+        loop={isLoopTrack}
+      />
+      <div className={styles.bar__progressOverlay}>
+        <div
+          className={styles.bar__progressFill}
+          style={{ width: `${parcentProcess}%` }}
         />
-        <div className={styles.bar__content}>
-          {/* Прогресс-бар (заглушка) */}
-        </div>
-        <div className={styles.bar__playerProgress_wrap}>
-          <div className={styles.bar__playerProgress}>
-            <div className={styles.bar__playerProgress_time_info}>
-              {timeTrackInfo}
+      </div>
+
+      {/* <div className={styles.bar__content}></div> */}
+      <div
+        style={{ height: isTooltipVisible ? '20px' : '5px' }}
+        className={clsx(
+          styles.bar__playerProgress_wrap
+          //   {
+          //   [styles.aiming]: isTooltipVisible,
+          // }
+        )}
+        onClick={(e) => onProgressBarClick(e)}
+      >
+        <div
+          className={clsx(styles.bar__playerProgressBacg)}
+          // style={{ width: `${parcentProcess}%` }}
+        ></div>
+        <div
+          className={clsx(styles.bar__playerProgress, {
+            [styles.aiming]: isTooltipVisible,
+          })}
+          style={{ width: `${parcentProcess}%` }}
+        ></div>
+      </div>
+
+      <div>
+        <div className={styles.bar__playerBlock}>
+          <div className={styles.bar__player}>
+            {/* Управление: Prev, Play/Pause, Next, Repeat, Shuffle */}
+            <div className={styles.player__controls}>
+              <div className={styles.player__btnPrev}>
+                <svg className={styles.player__btnPrevSvg}>
+                  <use xlinkHref="/img/icon/sprite.svg#icon-prev" />
+                </svg>
+              </div>
+
+              <div
+                className={clsx(styles.player__btnPlay, styles.btn)}
+                onClick={handlePlay}
+              >
+                {!isPlayTrack ? (
+                  <svg className={styles.player__btnPlaySvg}>
+                    <use xlinkHref="/img/icon/sprite.svg#icon-play" />
+                  </svg>
+                ) : (
+                  <svg className={styles.player__btnPlaySvg}>
+                    <use xlinkHref="/img/icon/sprite.svg#icon-pause" />
+                  </svg>
+                )}
+              </div>
+
+              <div className={styles.player__btnNext}>
+                <svg className={styles.player__btnNextSvg}>
+                  <use xlinkHref="/img/icon/sprite.svg#icon-next" />
+                </svg>
+              </div>
+
+              <div
+                onClick={toggleLooping}
+                className={clsx(styles.player__btnRepeat, styles.btnIcon)}
+              >
+                <svg
+                  className={clsx(styles.player__btnRepeatSvg, {
+                    [styles.active]: isLoopTrack,
+                  })}
+                >
+                  <use xlinkHref="/img/icon/sprite.svg#icon-repeat" />
+                </svg>
+              </div>
+
+              <div className={clsx(styles.player__btnShuffle, styles.btnIcon)}>
+                <svg className={styles.player__btnShuffleSvg}>
+                  <use xlinkHref="/img/icon/sprite.svg#icon-shuffle" />
+                </svg>
+              </div>
+            </div>
+
+            {/* Информация о текущем треке */}
+            <div className={styles.player__trackPlay}>
+              <div className={styles.trackPlay__contain}>
+                <div className={styles.trackPlay__image_info}>
+                  <svg className={styles.trackPlay__svg_info}>
+                    <use xlinkHref="/img/icon/sprite.svg#icon-note" />
+                  </svg>
+                </div>
+                <div className={styles.trackPlay__author}>
+                  <Link className={styles.trackPlay__authorLink} href="">
+                    {currentTrack.author || 'Неизвестный исполнитель'}
+                  </Link>
+                </div>
+                <div className={styles.trackPlay__album}>
+                  <Link className={styles.trackPlay__albumLink} href="">
+                    {currentTrack.album || 'Без альбома'}
+                  </Link>
+                </div>
+              </div>
+
+              {/* Лайк / Дизлайк */}
+              <div className={styles.trackPlay__dislike_wrap}>
+                <div className={clsx(styles.trackPlay__like, styles.btnIcon)}>
+                  <svg className={styles.trackPlay__likeSvg}>
+                    <use xlinkHref="/img/icon/sprite.svg#icon-like" />
+                  </svg>
+                </div>
+                <div
+                  className={clsx(styles.trackPlay__dislike, styles.btnIcon)}
+                >
+                  <svg className={styles.trackPlay__dislikeSvg}>
+                    <use xlinkHref="/img/icon/sprite.svg#icon-dislike" />
+                  </svg>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div>
-          <div className={styles.bar__playerBlock}>
-            <div className={styles.bar__player}>
-              {/* Управление: Prev, Play/Pause, Next, Repeat, Shuffle */}
-              <div className={styles.player__controls}>
-                <div className={styles.player__btnPrev}>
-                  <svg className={styles.player__btnPrevSvg}>
-                    <use xlinkHref="/img/icon/sprite.svg#icon-prev" />
-                  </svg>
-                </div>
-
-                <div
-                  className={clsx(styles.player__btnPlay, styles.btn)}
-                  onClick={handlePlay}
-                >
-                  {!isPlayTrack ? (
-                    <svg className={styles.player__btnPlaySvg}>
-                      <use xlinkHref="/img/icon/sprite.svg#icon-play" />
-                    </svg>
-                  ) : (
-                    <svg className={styles.player__btnPlaySvg}>
-                      <use xlinkHref="/img/icon/sprite.svg#icon-pause" />
-                    </svg>
-                  )}
-                </div>
-
-                <div className={styles.player__btnNext}>
-                  <svg className={styles.player__btnNextSvg}>
-                    <use xlinkHref="/img/icon/sprite.svg#icon-next" />
-                  </svg>
-                </div>
-
-                <div
-                  onClick={toggleLooping}
-                  className={clsx(styles.player__btnRepeat, styles.btnIcon)}
-                >
-                  <svg
-                    className={clsx(styles.player__btnRepeatSvg, {
-                      [styles.active]: isLoopTrack,
-                    })}
-                  >
-                    <use xlinkHref="/img/icon/sprite.svg#icon-repeat" />
-                  </svg>
-                </div>
-
-                <div
-                  className={clsx(styles.player__btnShuffle, styles.btnIcon)}
-                >
-                  <svg className={styles.player__btnShuffleSvg}>
-                    <use xlinkHref="/img/icon/sprite.svg#icon-shuffle" />
-                  </svg>
-                </div>
+          {/* Управление громкостью */}
+          <div className={styles.bar__volumeBlock}>
+            <div className={styles.volume__content}>
+              <div className={styles.volume__image}>
+                <svg className={styles.volume__svg}>
+                  <use xlinkHref="/img/icon/sprite.svg#icon-volume" />
+                </svg>
               </div>
 
-              {/* Информация о текущем треке */}
-              <div className={styles.player__trackPlay}>
-                <div className={styles.trackPlay__contain}>
-                  <div className={styles.trackPlay__image_info}>
-                    <svg className={styles.trackPlay__svg_info}>
-                      <use xlinkHref="/img/icon/sprite.svg#icon-note" />
-                    </svg>
-                  </div>
-                  <div className={styles.trackPlay__author}>
-                    <Link className={styles.trackPlay__authorLink} href="">
-                      {currentTrack.author || 'Неизвестный исполнитель'}
-                    </Link>
-                  </div>
-                  <div className={styles.trackPlay__album}>
-                    <Link className={styles.trackPlay__albumLink} href="">
-                      {currentTrack.album || 'Без альбома'}
-                    </Link>
-                  </div>
-                </div>
-
-                {/* Лайк / Дизлайк */}
-                <div className={styles.trackPlay__dislike_wrap}>
-                  <div className={clsx(styles.trackPlay__like, styles.btnIcon)}>
-                    <svg className={styles.trackPlay__likeSvg}>
-                      <use xlinkHref="/img/icon/sprite.svg#icon-like" />
-                    </svg>
-                  </div>
-                  <div
-                    className={clsx(styles.trackPlay__dislike, styles.btnIcon)}
-                  >
-                    <svg className={styles.trackPlay__dislikeSvg}>
-                      <use xlinkHref="/img/icon/sprite.svg#icon-dislike" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Управление громкостью */}
-            <div className={styles.bar__volumeBlock}>
-              <div className={styles.volume__content}>
-                <div className={styles.volume__image}>
-                  <svg className={styles.volume__svg}>
-                    <use xlinkHref="/img/icon/sprite.svg#icon-volume" />
-                  </svg>
-                </div>
-
-                <div className={clsx(styles.volume__progress, styles.btn)}>
-                  <input
-                    className={styles.volume__progressLine}
-                    type="range"
-                    name="volume"
-                    min="0"
-                    max="1"
-                    step="0.01"
-                    defaultValue="1"
-                    onChange={(e) => {
-                      toggleVolume(Number(e.target.value))
-                    }}
-                  />
-                </div>
+              <div className={clsx(styles.volume__progress, styles.btn)}>
+                <input
+                  className={styles.volume__progressLine}
+                  type="range"
+                  name="volume"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  defaultValue="1"
+                  onChange={(e) => {
+                    toggleVolume(Number(e.target.value))
+                  }}
+                />
               </div>
             </div>
           </div>
