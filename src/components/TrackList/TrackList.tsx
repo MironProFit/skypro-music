@@ -8,11 +8,13 @@ import { dataTrack } from 'src/data'
 import SortDropdown from '@components/SortDropdown/SortDropdown'
 import { useState } from 'react'
 import { FiltersTagType, TrackType } from 'src/sharedTypes/sharedTypes'
-import { setCurrentTrack } from 'src/store/features/trackSlise'
-import { useAppDispatch } from 'src/store/store'
+import { setCurrentTrack, setIsPlayTrack } from 'src/store/features/trackSlise'
+import { useAppDispatch, useAppSelector } from 'src/store/store'
 
 export default function TrackList() {
   const [typeFilter, setTypeFilter] = useState('')
+  const playTrack = useAppSelector((state) => state.track.currentTrack?._id)
+  const isPlayTrack = useAppSelector((state) => state.track.isPlayTrack)
 
   const handleTypeFilter = (filter: string) => {
     setTypeFilter(typeFilter === filter ? '' : filter)
@@ -30,7 +32,14 @@ export default function TrackList() {
   const dispatch = useAppDispatch()
 
   const onClickTrack = (track: TrackType) => {
-    dispatch(setCurrentTrack(track))
+    const isCurrentTrack = track._id === playTrack
+
+    if (isCurrentTrack) {
+      dispatch(setIsPlayTrack(!isPlayTrack))
+    } else {
+      dispatch(setCurrentTrack(track))
+      dispatch(setIsPlayTrack(true))
+    }
   }
 
   return (
@@ -91,23 +100,65 @@ export default function TrackList() {
             >
               <div className={styles.playlist__track}>
                 <div className={styles.track__title}>
+                  {/* === Обновлённая иконка с анимацией === */}
                   <div className={styles.track__titleImage}>
-                    <svg className={styles.track__titleSvg}>
-                      <use xlinkHref="/img/icon/sprite.svg#icon-note" />
+                    <svg
+                      className={clsx(
+                        styles.track__titleSvg,
+                        {
+                          [styles.active]:
+                            track._id === playTrack && isPlayTrack,
+                        },
+                        {
+                          [styles.selected__active]:
+                            track._id === playTrack && !isPlayTrack,
+                        }
+                      )}
+                      viewBox="0 0 20 19"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      {/* Нота — видна по умолчанию */}
+                      <g className={styles.notePath}>
+                        <path
+                          d="M8 16V1.9697L19 1V13"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeLinecap="round"
+                        />
+                        <ellipse
+                          cx="4.5"
+                          cy="16"
+                          rx="3.5"
+                          ry="2"
+                          fill="none"
+                          stroke="currentColor"
+                        />
+                        <ellipse
+                          cx="15.5"
+                          cy="13"
+                          rx="3.5"
+                          ry="2"
+                          fill="none"
+                          stroke="currentColor"
+                        />
+                      </g>
+
+                      {/* Плей — появляется при .active */}
+                      <path
+                        className={styles.playPath}
+                        d="M6 4.5 L14 9.5 L6 14.5 Z"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinejoin="round"
+                      />
                     </svg>
                   </div>
+                  {/* === Конец иконки === */}
+
                   <div className={styles.track__title_text}>
                     <Link className={styles.track__titleLink} href="">
                       {track.name}
-                      {/* {track.span && (
-                                                <span
-                                                    className={
-                                                        styles.track__titleSpan
-                                                    }
-                                                >
-                                                    {track.span}
-                                                </span>
-                                            )} */}
                     </Link>
                   </div>
                 </div>

@@ -1,273 +1,499 @@
-/* Bar.module.css */
 .bar {
-    position: absolute;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: rgba(28, 28, 28, 0.5);
+  animation: bar-anim 1s linear;
+}
+@keyframes bar-anim {
+  0% {
+    opacity: 0;
+    bottom: -200px;
+  }
+  100% {
+    opacity: 1;
     bottom: 0;
-    left: 0;
-    width: 100%;
-    background: rgba(28, 28, 28, 0.5);
+  }
+}
+.bar__progressOverlay {
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  opacity: 0.1;
+  transition: 0.4s linear;
+}
+
+.bar__progressFill {
+  position: absolute;
+  height: 100%;
+  z-index: 20;
+  background: #b672ff;
+  transition: 0.4s linear;
 }
 
 .bar__content {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
+.bar__playerProgress_wrap {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  transition: 0.4s linear;
+}
+/* .bar__playerProgress_wrap.aiming {
+} */
 
 .bar__playerProgress {
-    width: 100%;
-    height: 5px;
-    background: #2e2e2e;
+  position: absolute;
+  /* display: none; */
+  top: 0;
+  /* width: 100%; */
+
+  height: 5px;
+  /* background: #2e2e2e; */
+  /* background: #858585; */
+  background: #b672ff;
+  opacity: 0.5;
+  border-radius: 10px;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+
+  transition: 0.4s linear; /* плавное обновление */
+}
+
+.bar__playerProgress.aiming {
+  /* position: relative; */
+  opacity: 1;
+
+  cursor: pointer;
+  top: 0;
+  width: 100%;
+  height: 20px;
+  background: #b672ff;
+}
+
+.bar__playerProgress_tooltip {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 100px;
+  height: 40px;
+  background: black;
+  border: 1px solid #757575;
+  font-size: 22px;
+  border-radius: 15px;
+  /* top: -45px; */
+
+  transition: 0.4s linear;
+  color: #b672ff;
+}
+.tooltip_current {
+  left: 0;
+  top: -45px;
+  z-index: 2;
+}
+
+.tooltip_duration {
+  /* position: absolute; */
+  right: 0;
+  top: -45px;
+  z-index: 1;
+}
+
+.bar__playerProgress_dot {
+  /* display: none; */
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  /* bottom: -5px; */
+  background-color: black;
+  border-radius: 100%;
+  right: 2.5px;
+  /* border: 2px solid wheat; */
+  transition: 0.4s linear;
+}
+.bar__playerProgress_dot.aiming {
+  height: 20px;
+  width: 20px;
+}
+
+.bar__playerProgressBacg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 5px;
+  width: 100%;
+  background-color: #434343;
+  transition: 0.4s linear;
+  cursor: default;
+}
+.bar__playerProgressBacg.aiming {
+  position: absolute;
+  height: 20px;
+  background-color: #888;
+  cursor: pointer;
+  /* transition: 0.3s; */
+}
+
+.bar__playerProgress_time_info {
+  position: absolute;
+  color: red;
+  display: flex;
+  flex-direction: row;
+  right: 15px;
+  bottom: -7px;
 }
 
 .bar__playerBlock {
-    height: 73px;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
+  height: 73px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .bar__player {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-start;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
 }
 
 .bar__volumeBlock {
-    width: auto;
-    display: flex;
-    align-items: center;
-    padding: 0 92px 0 0;
+  width: auto;
+  display: flex;
+  align-items: center;
+  padding: 0 92px 0 0;
 }
 
 .player__controls {
-    display: flex;
-    flex-direction: row;
-    padding: 0 27px 0 31px;
-    align-items: center;
+  display: flex;
+  flex-direction: row;
+  padding: 0 27px 0 31px;
+  align-items: center;
 }
 
+/* Все интерактивные кнопки */
 .player__btnPrev,
 .player__btnPlay,
 .player__btnNext,
 .player__btnRepeat,
-.player__btnShuffle {
-    padding: 5px;
-    display: flex;
-    align-items: center;
+.player__btnShuffle,
+.trackPlay__like,
+.trackPlay__dislike {
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: 0.3s;
 }
 
-.player__btnPrev {
-    margin-right: 23px;
-}
+/* === РАЗМЕРЫ ИКОНОК === */
 
-.player__btnPrevSvg {
-    width: 15px;
-    height: 14px;
-}
-
-.player__btnPlay {
-    margin-right: 23px;
+.player__btnPrevSvg,
+.player__btnNextSvg {
+  width: 15px;
+  height: 14px;
+  color: #d9d9d9;
 }
 
 .player__btnPlaySvg {
-    width: 22px;
-    height: 20px;
-    fill: #d9d9d9;
-}
-
-.player__btnNext {
-    margin-right: 28px;
-}
-
-.player__btnNextSvg {
-    width: 15px;
-    height: 14px;
-    fill: transparent;
-    stroke: #d9d9d9;
-}
-
-.player__btnRepeat {
-    margin-right: 24px;
+  width: 22px;
+  height: 20px;
+  color: #d9d9d9;
 }
 
 .player__btnRepeatSvg {
-    width: 18px;
-    height: 12px;
-    fill: transparent;
-    stroke: #696969;
+  /* width: 18px;
+  height: 12px; */
+  width: 20px;
+  height: 18px;
+  color: #696969;
 }
-
-.player__btnShuffle {
-    display: flex;
-    align-items: center;
+.player__btnRepeatSvg.active {
+  color: #b672ff;
+}
+.player__btnShuffleSvg.active {
+  color: #b672ff;
 }
 
 .player__btnShuffleSvg {
-    width: 19px;
-    height: 12px;
-    fill: transparent;
-    stroke: #696969;
+  width: 20px;
+  height: 18px;
+  /* width: 19px;
+  height: 12px; */
+  color: #696969;
 }
 
-.player__trackPlay {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-}
-
-.trackPlay__contain {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    grid-template-areas:
-        'image author'
-        'image album';
-    align-items: center;
-}
-
-.trackPlay__image {
-    width: 51px;
-    height: 51px;
-    background-color: #313131;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 12px;
-    grid-area: image;
+.playlistTitle__svg {
+  width: 12px;
+  height: 12px;
+  color: #696969;
 }
 
 .trackPlay__svg {
-    width: 18px;
-    height: 17px;
-    fill: transparent;
-    stroke: #4e4e4e;
+  width: 18px;
+  height: 17px;
+  color: #4e4e4e;
+}
+.trackPlay__svg:active {
+  color: red;
+}
+
+.trackPlay__dislike_wrap {
+  display: flex;
+}
+
+.trackPlay__likeSvg {
+  width: 14px;
+  height: 12px;
+  color: #696969;
+}
+
+.trackPlay__dislikeSvg {
+  width: 14.34px;
+  height: 13px;
+  color: #696969;
+}
+
+.volume__svg {
+  width: 13px;
+  height: 18px;
+  color: #d9d9d9;
+}
+
+/* === HOVER-ЭФФЕКТЫ === */
+.player__btnPrevSvg,
+.player__btnNextSvg,
+.player__btnPlaySvg,
+.player__btnRepeatSvg,
+.player__btnShuffleSvg,
+.trackPlay__likeSvg,
+.trackPlay__dislikeSvg,
+.trackPlay__svg,
+.playlistTitle__svg,
+.volume__svg {
+  transition: 0.4s ease;
+}
+
+.player__btnPrev:hover .player__btnPrevSvg,
+.player__btnNext:hover .player__btnNextSvg,
+.player__btnPlay:hover .player__btnPlaySvg,
+.trackPlay__like:hover .trackPlay__likeSvg,
+.trackPlay__dislike:hover .trackPlay__dislikeSvg,
+.trackPlay__image:hover .trackPlay__svg {
+  transform: scale(1.1);
+  color: rgba(182, 114, 255, 0.6);
+}
+
+.player__btnRepeat:hover .player__btnRepeatSvg,
+.player__btnShuffle:hover .player__btnShuffleSvg {
+  transform: scale(1.1);
+}
+
+.player__btnPrev:active .player__btnPrevSvg,
+.player__btnNext:active .player__btnNextSvg,
+.player__btnPlay:active .player__btnPlaySvg,
+.player__btnRepeat:active .player__btnRepeatSvg,
+.player__btnShuffle:active .player__btnShuffleSvg,
+.trackPlay__like:active .trackPlay__likeSvg,
+.trackPlay__dislike:active .trackPlay__dislikeSvg,
+.trackPlay__image:active .trackPlay__svg {
+  transform: scale(1.2);
+  color: rgba(182, 114, 255, 1);
+}
+/* === СТИЛИ КНОПОК === */
+
+.player__btnPrev {
+  margin-right: 23px;
+}
+.player__btnPrev.disable {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.player__btnPlay {
+  margin-right: 23px;
+}
+
+.player__btnNext {
+  margin-right: 28px;
+}
+.player__btnNext.disable {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.player__btnRepeat {
+  margin-right: 24px;
+}
+
+.player__btnShuffle {
+  display: flex;
+  align-items: center;
+}
+
+/* === ТРЕК В ПЛЕЕРЕ === */
+
+.player__trackPlay {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 20px;
+}
+
+.trackPlay__contain {
+  display: flex;
+  align-items: center;
+}
+
+.trackPlay__image {
+  width: 51px;
+  height: 51px;
+  background-color: #313131;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+}
+.trackPlay__image_info {
+  width: 51px;
+  height: 51px;
+  background-color: #313131;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+}
+.trackPlay__svg_info {
+  width: 18px;
+  height: 17px;
+  color: #313131;
 }
 
 .trackPlay__author {
-    grid-area: author;
-    min-width: 49px;
+  min-width: 49px;
 }
 
 .trackPlay__authorLink {
-    font-style: normal;
-    font-weight: 400;
-    font-size: 16px;
-    line-height: 24px;
-    color: #ffffff;
-    white-space: nowrap;
-    text-decoration: none;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: #ffffff;
+  white-space: nowrap;
+  text-decoration: none;
 }
 
 .trackPlay__album {
-    grid-area: album;
-    min-width: 49px;
+  min-width: 49px;
+  margin-left: 12px;
 }
 
 .trackPlay__albumLink {
-    font-style: normal;
-    font-weight: 400;
-    font-size: 13px;
-    line-height: 24px;
-    color: #ffffff;
-    text-decoration: none;
-}
-
-.trackPlay__dislike {
-    display: flex;
-    align-items: center;
-    margin-left: 26%;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 24px;
+  color: #ffffff;
+  text-decoration: none;
 }
 
 .trackPlay__like,
 .trackPlay__dislike {
-    padding: 5px;
-}
-
-.trackPlay__likeSvg {
-    width: 14px;
-    height: 12px;
-    fill: transparent;
-    stroke: #696969;
+  padding: 5px;
 }
 
 .trackPlay__dislike {
-    margin-left: 28.5px;
+  margin-left: 28.5px;
 }
 
-.trackPlay__dislikeSvg {
-    width: 14.34px;
-    height: 13px;
-    fill: transparent;
-    stroke: #696969;
-}
+/* === ГРОМКОСТЬ === */
 
 .volume__content {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-end;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
 }
 
 .volume__image {
-    width: 13px;
-    height: 18px;
-    margin-right: 17px;
+  position: relative;
+  width: 13px;
+  height: 18px;
+  margin-right: 17px;
+  cursor: pointer;
+  transition: 0.4s linear;
+  opacity: 1;
+}
+.volume__image.volume__image.mute {
+  opacity: 0.6;
 }
 
-.volume__svg {
-    width: 13px;
-    height: 18px;
-    fill: transparent;
+.volume__image::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  width: 2px;
+  height: 20px;
+  background-color: red;
+  transform: rotate(225deg) translate(1px, 1px);
+  opacity: 0; /* по умолчанию невидим */
+  transition: opacity 0.4s linear;
+  pointer-events: none;
+  z-index: 20;
 }
+
+.volume__image.mute::after {
+  opacity: 1; /* появляется плавно */
+}
+
+/* @keyframes mute-anim {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+} */
 
 .volume__progress {
-    width: 109px;
-    display: flex;
-    align-items: center;
+  position: relative;
+  width: 109px;
+  display: flex;
+  align-items: center;
 }
 
 .volume__progressLine {
-    width: 100%;
-    height: 2px;
-    appearance: none;
-    background: #797979;
-    border-radius: 5px;
-    outline: none;
-    cursor: pointer;
+  width: 100%;
+  height: 2px;
+  appearance: none;
+  background: #797979;
+  border-radius: 5px;
+  outline: none;
+  cursor: pointer;
 }
 
 .volume__progressLine::-webkit-slider-runnable-track {
-    height: 2px;
-    background: #797979;
-    border-radius: 5px;
+  height: 2px;
+  background: #797979;
+  border-radius: 5px;
 }
 
 .volume__progressLine::-webkit-slider-thumb {
-    appearance: none;
-    width: 16px;
-    height: 16px;
-    background: #1a1a1a;
-    border: 2px solid white;
-    border-radius: 50%;
-    margin-top: -7px;
-}
-
-/* Общие утилиты — можно оставить здесь или вынести в отдельный файл */
-.btn {
-    cursor: pointer;
-}
-
-.btnIcon:hover svg {
-    stroke: #acacac;
-    cursor: pointer;
-}
-
-.btnIcon:active svg {
-    stroke: #ffffff;
-    cursor: pointer;
-}
-
-.btnIcon:active .trackPlay__likeSvg,
-.btnIcon:active .trackPlay__dislikeSvg {
-    stroke: #ffffff;
+  position: relative;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #1a1a1a;
+  border: 2px solid white;
+  border-radius: 50%;
+  margin-top: -7px;
 }
