@@ -1,11 +1,10 @@
-/* Bar.module.css */
 .bar {
   position: absolute;
   bottom: 0;
   left: 0;
   width: 100%;
   background: rgba(28, 28, 28, 0.5);
-  animation: bar-anim 1s;
+  animation: bar-anim 1s linear;
 }
 @keyframes bar-anim {
   0% {
@@ -26,14 +25,15 @@
   height: 100%;
   overflow: hidden;
   opacity: 0.1;
+  transition: 0.4s linear;
 }
 
 .bar__progressFill {
   position: absolute;
   height: 100%;
   z-index: 20;
-  background: #b672ff; /* ваш акцентный цвет */
-  transition: 0.3s linear; /* плавное обновление */
+  background: #b672ff;
+  transition: 0.4s linear;
 }
 
 .bar__content {
@@ -44,36 +44,104 @@
   position: relative;
   display: flex;
   flex-direction: row;
+  transition: 0.4s linear;
 }
-.bar__playerProgress_wrap.aiming {
-}
+/* .bar__playerProgress_wrap.aiming {
+} */
 
 .bar__playerProgress {
   position: absolute;
+  /* display: none; */
   top: 0;
-  width: 100%;
+  /* width: 100%; */
+
   height: 5px;
-  background: #2e2e2e;
-  transition: 0.3s linear; /* плавное обновление */
+  /* background: #2e2e2e; */
+  /* background: #858585; */
+  background: #b672ff;
+  opacity: 0.5;
+  border-radius: 10px;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+
+  transition: 0.4s linear; /* плавное обновление */
 }
+
 .bar__playerProgress.aiming {
-  position: absolute;
+  /* position: relative; */
+  opacity: 1;
+
+  cursor: pointer;
   top: 0;
   width: 100%;
-  height: 100%;
+  height: 20px;
   background: #b672ff;
 }
+
+.bar__playerProgress_tooltip {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 100px;
+  height: 40px;
+  background: black;
+  border: 1px solid #757575;
+  font-size: 22px;
+  border-radius: 15px;
+  /* top: -45px; */
+
+  transition: 0.4s linear;
+  color: #b672ff;
+}
+.tooltip_current {
+  left: 0;
+  top: -45px;
+  z-index: 2;
+}
+
+.tooltip_duration {
+  /* position: absolute; */
+  right: 0;
+  top: -45px;
+  z-index: 1;
+}
+
+.bar__playerProgress_dot {
+  /* display: none; */
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  /* bottom: -5px; */
+  background-color: black;
+  border-radius: 100%;
+  right: 2.5px;
+  /* border: 2px solid wheat; */
+  transition: 0.4s linear;
+}
+.bar__playerProgress_dot.aiming {
+  height: 20px;
+  width: 20px;
+}
+
 .bar__playerProgressBacg {
   position: absolute;
   top: 0;
   left: 0;
   height: 5px;
+  width: 100%;
+  background-color: #434343;
+  transition: 0.4s linear;
+  cursor: default;
 }
-/* .bar__playerProgress.aiming {
+.bar__playerProgressBacg.aiming {
   position: absolute;
+  height: 20px;
+  background-color: #888;
+  cursor: pointer;
+  /* transition: 0.3s; */
+}
 
-  background: #b672ff;
-} */
 .bar__playerProgress_time_info {
   position: absolute;
   color: red;
@@ -152,6 +220,9 @@
 .player__btnRepeatSvg.active {
   color: #b672ff;
 }
+.player__btnShuffleSvg.active {
+  color: #b672ff;
+}
 
 .player__btnShuffleSvg {
   width: 20px;
@@ -171,6 +242,9 @@
   width: 18px;
   height: 17px;
   color: #4e4e4e;
+}
+.trackPlay__svg:active {
+  color: red;
 }
 
 .trackPlay__dislike_wrap {
@@ -212,8 +286,6 @@
 .player__btnPrev:hover .player__btnPrevSvg,
 .player__btnNext:hover .player__btnNextSvg,
 .player__btnPlay:hover .player__btnPlaySvg,
-.player__btnRepeat:hover .player__btnRepeatSvg,
-.player__btnShuffle:hover .player__btnShuffleSvg,
 .trackPlay__like:hover .trackPlay__likeSvg,
 .trackPlay__dislike:hover .trackPlay__dislikeSvg,
 .trackPlay__image:hover .trackPlay__svg {
@@ -221,10 +293,30 @@
   color: rgba(182, 114, 255, 0.6);
 }
 
+.player__btnRepeat:hover .player__btnRepeatSvg,
+.player__btnShuffle:hover .player__btnShuffleSvg {
+  transform: scale(1.1);
+}
+
+.player__btnPrev:active .player__btnPrevSvg,
+.player__btnNext:active .player__btnNextSvg,
+.player__btnPlay:active .player__btnPlaySvg,
+.player__btnRepeat:active .player__btnRepeatSvg,
+.player__btnShuffle:active .player__btnShuffleSvg,
+.trackPlay__like:active .trackPlay__likeSvg,
+.trackPlay__dislike:active .trackPlay__dislikeSvg,
+.trackPlay__image:active .trackPlay__svg {
+  transform: scale(1.2);
+  color: rgba(182, 114, 255, 1);
+}
 /* === СТИЛИ КНОПОК === */
 
 .player__btnPrev {
   margin-right: 23px;
+}
+.player__btnPrev.disable {
+  opacity: 0.5;
+  cursor: default;
 }
 
 .player__btnPlay {
@@ -233,6 +325,10 @@
 
 .player__btnNext {
   margin-right: 28px;
+}
+.player__btnNext.disable {
+  opacity: 0.5;
+  cursor: default;
 }
 
 .player__btnRepeat {
@@ -329,10 +425,44 @@
 }
 
 .volume__image {
+  position: relative;
   width: 13px;
   height: 18px;
   margin-right: 17px;
+  cursor: pointer;
+  transition: 0.4s linear;
+  opacity: 1;
 }
+.volume__image.volume__image.mute {
+  opacity: 0.6;
+}
+
+.volume__image::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  width: 2px;
+  height: 20px;
+  background-color: red;
+  transform: rotate(225deg) translate(1px, 1px);
+  opacity: 0; /* по умолчанию невидим */
+  transition: opacity 0.4s linear;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.volume__image.mute::after {
+  opacity: 1; /* появляется плавно */
+}
+
+/* @keyframes mute-anim {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+} */
 
 .volume__progress {
   position: relative;
