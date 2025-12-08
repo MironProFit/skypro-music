@@ -1,15 +1,19 @@
-import styles from './page.module.css'
+import styles from './layout.module.css'
 import Bar from '@components/Bar/Bar'
-import HeaderNav from '../components/HeaderNav/HeaderNav'
+import HeaderNav from '@components/HeaderNav/HeaderNav'
 import Sidebar from '@components/Sidebar/Sidebar'
 import TrackList from '@components/TrackList/TrackList'
+import { ReactNode } from 'react'
 
-export default function Home() {
+type MainLayout = { children: ReactNode }
+
+export default function MusicLayout({ children }: MainLayout) {
   return (
     <div className={styles.wrapper}>
       <div className={styles.container}>
         <main className={styles.main}>
           <HeaderNav />
+          {children}
           <TrackList />
           <Sidebar />
           <Bar />

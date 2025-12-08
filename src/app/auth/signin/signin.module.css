@@ -1,17 +1,20 @@
-.modal__btnSignupEnt:hover {
+.modal__form input:first-child {
+  margin-bottom: 30px;
+}
+.modal__btnEnter:hover {
   background-color: #3f007d;
 }
 
-.modal__btnSignupEnt:active {
+.modal__btnSignup:hover {
+  background-color: #f4f5f6;
+}
+
+.modal__btnEnter:active {
   background-color: #271a58;
 }
 
-.modal__block {
-  position: absolute;
-  z-index: 2;
-  left: calc(50% - (366px / 2));
-  top: calc(50% - (439px / 2));
-  opacity: 1;
+.modal__btnSignup:active {
+  background-color: #d9d9d9;
 }
 
 .modal__logo {
@@ -33,8 +36,6 @@
   border-right: none;
   border-bottom: 1px solid #d0cece;
   padding: 8px 1px;
-  margin-right: 3px;
-  margin-bottom: 30px;
 }
 
 .modal__input::-webkit-input-placeholder {
@@ -73,14 +74,14 @@
   color: #d0cece;
 }
 
-.modal__btnSignupEnt {
+.modal__btnEnter {
   width: 278px;
-  height: 62px;
+  height: 52px;
   background-color: #580ea2;
   border-radius: 6px;
-  margin-left: 4px;
+  margin-top: 60px;
+  margin-bottom: 20px;
   border: none;
-  margin-top: 30px;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -90,10 +91,38 @@
   -webkit-box-pack: center;
   -ms-flex-pack: center;
   justify-content: center;
-  color: #ffffff;
-  font-size: 18px;
   font-weight: 400;
+  font-size: 18px;
+  line-height: 24px;
   letter-spacing: -0.05px;
+  color: #ffffff;
+}
+
+.modal__btnSignup {
+  width: 278px;
+  height: 52px;
+  background-color: transparent;
+  border: 1px solid #d0cece;
+  border-radius: 6px;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 24px;
+  letter-spacing: -0.05px;
+  color: #000000;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+}
+
+.login {
+  margin-bottom: 30px;
 }
 
 .errorContainer {

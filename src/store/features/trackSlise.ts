@@ -11,8 +11,6 @@ const initialState: initialStateType = {
   isPlayTrack: false,
 }
 
-console.log('Current track:', initialState.currentTrack)
-
 const trackSlice = createSlice({
   name: 'tracks',
   initialState,

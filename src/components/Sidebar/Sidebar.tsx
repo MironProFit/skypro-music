@@ -17,7 +17,10 @@ export default function Sidebar() {
         <div className={styles.sidebar__list}>
           {[1, 2, 3].map((id) => (
             <div key={id} className={styles.sidebar__item}>
-              <Link className={styles.sidebar__link} href="#">
+              <Link
+                className={styles.sidebar__link}
+                href={`/music/category/${id}`}
+              >
                 <Image
                   className={styles.sidebar__img}
                   src={`/img/playlist0${id}.png`}
