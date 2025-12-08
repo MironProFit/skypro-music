@@ -5,18 +5,18 @@ import Sidebar from '@components/Sidebar/Sidebar'
 import TrackList from '@components/TrackList/TrackList'
 
 export default function Home() {
-    return (
-        <div className={styles.wrapper}>
-            <div className={styles.container}>
-                <main className={styles.main}>
-                    <HeaderNav />
-                    <TrackList />
-                    <Sidebar />
-                    <Bar />
-                </main>
+  return (
+    <div className={styles.wrapper}>
+      <div className={styles.container}>
+        <main className={styles.main}>
+          <HeaderNav />
+          <TrackList />
+          <Sidebar />
+          <Bar />
+        </main>
 
-                <footer className={styles.footer}></footer>
-            </div>
-        </div>
-    )
+        <footer className={styles.footer}></footer>
+      </div>
+    </div>
+  )
 }
