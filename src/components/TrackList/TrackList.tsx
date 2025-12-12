@@ -11,7 +11,15 @@ import { FiltersTagType, TrackType } from 'src/sharedTypes/sharedTypes'
 import { setCurrentTrack, setIsPlayTrack } from 'src/store/features/trackSlise'
 import { useAppDispatch, useAppSelector } from 'src/store/store'
 
-export default function TrackList() {
+type TrackListProps = {
+  categoryId?: string | null
+  categoryTracks?: TrackType[] | null
+}
+
+export default function TrackList({
+  categoryId,
+  categoryTracks,
+}: TrackListProps) {
   const [typeFilter, setTypeFilter] = useState('')
   const playTrack = useAppSelector((state) => state.track.currentTrack?._id)
   const isPlayTrack = useAppSelector((state) => state.track.isPlayTrack)
@@ -46,7 +54,9 @@ export default function TrackList() {
     <div className={styles.centerblock}>
       <Search />
 
-      <h2 className={styles.centerblock__h2}>Треки</h2>
+      <h2 className={styles.centerblock__h2}>
+        {categoryId ? `Треки по категории: ${categoryId}` : 'Треки'}
+      </h2>
       <div className={styles.centerblock__filter}>
         <div className={styles.filter__title}>Искать по:</div>
 

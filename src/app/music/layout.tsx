@@ -14,7 +14,6 @@ export default function MusicLayout({ children }: MainLayout) {
         <main className={styles.main}>
           <HeaderNav />
           {children}
-          <TrackList />
           <Sidebar />
           <Bar />
         </main>

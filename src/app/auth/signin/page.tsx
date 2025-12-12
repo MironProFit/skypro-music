@@ -1,16 +1,25 @@
+'use client'
+
 import styles from './signin.module.css'
 import classNames from 'classnames'
 import Link from 'next/link'
 import AuthLayout from '../layout'
+import { useParams } from 'next/navigation'
+import { useEffect } from 'react'
 
 export default function SigninPage() {
+  const params = useParams()
+  useEffect(() => {
+    console.log(params)
+  }, [params])
+
   return (
-    <>
-      <a href="/music/main">
+    <AuthLayout>
+      <Link href="/music/main">
         <div className={styles.modal__logo}>
           <img src="/img/logo_modal.png" alt="logo" />
         </div>
-      </a>
+      </Link>
       <input
         className={classNames(styles.modal__input, styles.login)}
         type="text"
@@ -28,6 +37,6 @@ export default function SigninPage() {
       <Link href="/auth/signup" className={styles.modal__btnSignup}>
         Зарегистрироваться
       </Link>
-    </>
+    </AuthLayout>
   )
 }

@@ -1,17 +1,18 @@
 'use client'
 
+import TrackList from '@components/TrackList/TrackList'
 import { useParams } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { TrackType } from 'src/sharedTypes/sharedTypes'
 
 export default function CategoryPage() {
   const params = useParams<{ id: string }>()
+  const { id } = params
+  const [categoryId, setCategoryId] = useState<string | null>(null)
+  const [categoryTracks, setCategoryTracks] = useState<TrackType[] | null>(null)
   useEffect(() => {
-    console.log(params)
-  }, [params])
+    if (id) setCategoryId(id)
+  }, [id])
 
-  return (
-    <>
-      <div>категория {params.id}</div>
-    </>
-  )
+  return <TrackList categoryId={categoryId} categoryTracks={categoryTracks} />
 }

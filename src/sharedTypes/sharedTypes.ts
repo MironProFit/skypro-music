@@ -1,3 +1,5 @@
+import { ReactNode } from 'react'
+
 export interface TrackType {
   _id: number
   name: string
@@ -14,6 +16,12 @@ export interface TrackType {
 export type FiltersTagType = 'author' | 'release_date' | 'genre'
 
 export type AudioType = {
-  volume: number,
-  
+  volume: number
+}
+
+export type FormData = {
+  email: string
+  password: string
+  username: string
+  passwordConfirm?: string
 }

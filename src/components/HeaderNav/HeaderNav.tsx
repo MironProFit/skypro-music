@@ -15,15 +15,17 @@ export default function HeaderNav() {
 
   return (
     <nav className={styles.main__nav}>
-      <div className={styles.nav__logo}>
-        <Image
-          width={250}
-          height={170}
-          className={styles.logo__image}
-          src="/img/logo.png"
-          alt="logo"
-        />
-      </div>
+      <Link href="/">
+        <div className={styles.nav__logo}>
+          <Image
+            width={250}
+            height={170}
+            className={styles.logo__image}
+            src="/img/logo.png"
+            alt="logo"
+          />
+        </div>
+      </Link>
       <div
         onClick={toggleBurgerMenu}
         className={clsx(styles.nav__burger, {
