@@ -1,27 +1,19 @@
-.modal__form input:first-child {
-  margin-bottom: 30px;
-}
-.modal__btnEnter:hover {
-  background-color: #3f007d;
-}
-
-.modal__btnSignup:hover {
-  background-color: #f4f5f6;
-}
-
-.modal__btnEnter:active {
-  background-color: #271a58;
+/* Основной контейнер формы */
+.modal__form {
+  width: 366px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 43px 44px 47px 40px;
 }
 
-.modal__btnSignup:active {
-  background-color: #d9d9d9;
-}
-
+/* Логотип */
 .modal__logo {
   width: 140px;
   height: 21px;
   margin-bottom: 34px;
-  background-color: transparent;
 }
 
 .modal__logo img {
@@ -29,40 +21,16 @@
   height: auto;
 }
 
+/* Поля ввода */
 .modal__input {
   width: 100%;
-  border-top: none;
-  border-left: none;
-  border-right: none;
+  border: none;
   border-bottom: 1px solid #d0cece;
   padding: 8px 1px;
-}
-
-.modal__input::-webkit-input-placeholder {
-  font-style: normal;
-  font-weight: 400;
   font-size: 18px;
   line-height: 24px;
   letter-spacing: -0.05px;
-  color: #d0cece;
-}
-
-.modal__input:-ms-input-placeholder {
-  font-style: normal;
-  font-weight: 400;
-  font-size: 18px;
-  line-height: 24px;
-  letter-spacing: -0.05px;
-  color: #d0cece;
-}
-
-.modal__input::-ms-input-placeholder {
-  font-style: normal;
-  font-weight: 400;
-  font-size: 18px;
-  line-height: 24px;
-  letter-spacing: -0.05px;
-  color: #d0cece;
+  color: #000;
 }
 
 .modal__input::placeholder {
@@ -74,6 +42,29 @@
   color: #d0cece;
 }
 
+/* Универсальный класс отступа */
+.margin-bottom-30 {
+  margin-bottom: 30px;
+}
+
+/* Блок ошибок */
+.errorContainer {
+  font-size: 12px;
+  color: #e74c3c;
+  min-height: 14px;
+  opacity: 0;
+  visibility: hidden;
+  margin-top: 4px;
+  margin-bottom: 12px;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.errorContainer.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Кнопка "Войти" */
 .modal__btnEnter {
   width: 278px;
   height: 52px;
@@ -82,53 +73,55 @@
   margin-top: 60px;
   margin-bottom: 20px;
   border: none;
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
   align-items: center;
-  -webkit-box-pack: center;
-  -ms-flex-pack: center;
   justify-content: center;
   font-weight: 400;
   font-size: 18px;
   line-height: 24px;
   letter-spacing: -0.05px;
   color: #ffffff;
+  cursor: pointer;
+  transition: 0.3s;
 }
 
+.modal__btnEnter:hover {
+  background-color: #3f007d;
+}
+
+.modal__btnEnter:active {
+  background-color: #271a58;
+}
+
+/* Кнопка "Зарегистрироваться" */
 .modal__btnSignup {
   width: 278px;
   height: 52px;
   background-color: transparent;
   border: 1px solid #d0cece;
   border-radius: 6px;
-  font-style: normal;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-weight: 400;
   font-size: 18px;
   line-height: 24px;
   letter-spacing: -0.05px;
   color: #000000;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  -webkit-box-pack: center;
-  -ms-flex-pack: center;
-  justify-content: center;
+  cursor: pointer;
 }
 
-.login {
-  margin-bottom: 30px;
+.modal__btnSignup:hover {
+  background-color: #f4f5f6;
 }
 
-.errorContainer {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  font-size: 12px;
-  color: red;
+.modal__btnSignup:active {
+  background-color: #d9d9d9;
+}
+
+.modal__btnEnter:disabled {
+  background-color: #cccccc;
+  color: #666666;
+  cursor: not-allowed;
+  opacity: 0.7;
 }

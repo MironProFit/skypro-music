@@ -1,43 +1,72 @@
 'use client'
 
-import { createContext, useContext, ReactNode } from 'react'
-import { useAppDispatch, useAppSelector } from 'src/store/store'
-import { setFormData } from 'src/store/features/authSlice'
+import { createContext, ReactNode, useContext, useState } from 'react'
 import { FormData } from 'src/sharedTypes/sharedTypes'
+import { setFormData } from 'src/store/features/authSlice'
+import { useAppDispatch, useAppSelector } from 'src/store/store'
+
+type FormErrors = {
+  email: string
+  password: string
+}
 
 type AuthContextType = {
   formData: FormData
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void
+  errors: FormErrors
+  setErrors: React.Dispatch<React.SetStateAction<FormErrors>>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const [errors, setErrors] = useState<FormErrors>({ email: '', password: '' })
   const dispatch = useAppDispatch()
   const formData = useAppSelector((state) => state.auth.formData)
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(e)
-    const { name, value } = e.target
-    dispatch(setFormData({ [name]: value }))
+  const validateEmail = (email: string) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return re.test(email) ? '' : 'Введите корректную почту'
   }
+
+  const validatePassword = (password: string) => {
+    return password.length >= 6 ? '' : 'Пароль должен быть не менее 6 символов'
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+
+    if (name === 'email' || name === 'password') {
+      dispatch(setFormData({ [name]: value }))
+    }
+
+    let errorMessage = ''
+    if (name === 'email') {
+      errorMessage = validateEmail(value)
+    } else if (name === 'password') {
+      errorMessage = validatePassword(value)
+    }
+
+    setErrors((prev) => ({ ...prev, [name]: errorMessage }))
+  }
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    console.log('Форма отправлена')
+    // Базовая валидация — переопределится в форме
   }
 
   return (
-    <AuthContext.Provider value={{ formData, handleChange, handleSubmit }}>
+    <AuthContext.Provider
+      value={{ formData, handleChange, handleSubmit, errors, setErrors }}
+    >
       {children}
     </AuthContext.Provider>
   )
 }
 
-export function useAuth() {
-  const context = useContext(AuthContext)
-  if (!context) {
-    throw new Error('useAuth must be used within AuthProvider')
-  }
-  return context
+export const useAuth = () => {
+  const ctx = useContext(AuthContext)
+  if (!ctx) throw new Error('useAuth must be used within AuthProvider')
+  return ctx
 }

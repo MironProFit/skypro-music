@@ -22,6 +22,6 @@ export type AudioType = {
 export type FormData = {
   email: string
   password: string
-  username: string
+  username?: string
   passwordConfirm?: string
 }

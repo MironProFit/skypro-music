@@ -1,16 +1,23 @@
+'use client'
+
 import Image from 'next/image'
+
 import styles from './Sidebar.module.css'
 import Link from 'next/link'
+import { useAppSelector } from 'src/store/store'
 
 export default function Sidebar() {
+  const userName = useAppSelector((state) => state.auth.formData.username)
   return (
     <div className={styles.main__sidebar}>
       <div className={styles.sidebar__personal}>
-        <p className={styles.sidebar__personalName}>Sergey.Ivanov</p>
+        <p className={styles.sidebar__personalName}>{userName || 'Гость'}</p>
         <div className={styles.sidebar__icon}>
-          <svg className={styles.sidebar__iconSvg}>
-            <use xlinkHref="/img/icon/sprite.svg#logout" />
-          </svg>
+          <Link href={'/auth/signin'}>
+            <svg className={styles.sidebar__iconSvg}>
+              <use xlinkHref="/img/icon/sprite.svg#logout" />
+            </svg>
+          </Link>
         </div>
       </div>
       <div className={styles.sidebar__block}>

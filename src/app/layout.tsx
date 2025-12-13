@@ -3,6 +3,7 @@ import { Montserrat } from 'next/font/google'
 import './globals.css'
 import React from 'react'
 import ReduxProvider from 'src/store/ReduxProvider'
+import Loading from '@components/Loading/Loading'
 
 const montserrat = Montserrat({
   variable: '--font-montserrat',
@@ -22,7 +23,10 @@ const RootLayout: React.FC<Readonly<RootProps>> = ({ children }) => {
   return (
     <html lang="en">
       <ReduxProvider>
-        <body className={`${montserrat.variable}`}>{children}</body>
+        <body className={`${montserrat.variable}`}>
+          <Loading />
+          {children}
+        </body>
       </ReduxProvider>
     </html>
   )

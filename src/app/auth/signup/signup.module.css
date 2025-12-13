@@ -1,41 +1,19 @@
+/* Основной контейнер формы */
 .modal__form {
   width: 366px;
   background-color: #ffffff;
   border-radius: 12px;
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-  -ms-flex-direction: column;
   flex-direction: column;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
   align-items: center;
   padding: 43px 44px 47px 40px;
 }
 
-.modal__btnSignupEnt:hover {
-  background-color: #3f007d;
-}
-
-.modal__btnSignupEnt:active {
-  background-color: #271a58;
-}
-
-.modal__block {
-  position: absolute;
-  z-index: 2;
-  left: calc(50% - (366px / 2));
-  top: calc(50% - (439px / 2));
-  opacity: 1;
-}
-
+/* Логотип */
 .modal__logo {
   width: 140px;
   height: 21px;
   margin-bottom: 34px;
-  background-color: transparent;
 }
 
 .modal__logo img {
@@ -43,42 +21,16 @@
   height: auto;
 }
 
+/* Поля ввода */
 .modal__input {
   width: 100%;
-  border-top: none;
-  border-left: none;
-  border-right: none;
+  border: none;
   border-bottom: 1px solid #d0cece;
   padding: 8px 1px;
-  margin-right: 3px;
-  margin-bottom: 30px;
-}
-
-.modal__input::-webkit-input-placeholder {
-  font-style: normal;
-  font-weight: 400;
   font-size: 18px;
   line-height: 24px;
   letter-spacing: -0.05px;
-  color: #d0cece;
-}
-
-.modal__input:-ms-input-placeholder {
-  font-style: normal;
-  font-weight: 400;
-  font-size: 18px;
-  line-height: 24px;
-  letter-spacing: -0.05px;
-  color: #d0cece;
-}
-
-.modal__input::-ms-input-placeholder {
-  font-style: normal;
-  font-weight: 400;
-  font-size: 18px;
-  line-height: 24px;
-  letter-spacing: -0.05px;
-  color: #d0cece;
+  color: #000;
 }
 
 .modal__input::placeholder {
@@ -90,33 +42,64 @@
   color: #d0cece;
 }
 
-.modal__btnSignupEnt {
-  width: 278px;
-  height: 62px;
-  background-color: #580ea2;
-  border-radius: 6px;
-  margin-left: 4px;
-  border: none;
-  margin-top: 30px;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  -webkit-box-pack: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  color: #ffffff;
-  font-size: 18px;
-  font-weight: 400;
-  letter-spacing: -0.05px;
+/* Универсальный отступ 30px для элементов */
+/* .marginBottom30 {
+  margin-bottom: 30px;
+} */
+
+/* Блок ошибок */
+.errorContainer {
+  font-size: 12px;
+  color: #e74c3c;
+  min-height: 14px;
+  opacity: 0;
+  visibility: hidden;
+  margin-top: 4px;
+  margin-bottom: 12px;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  width: 100%;
+  text-align: left;
 }
 
-.errorContainer {
+.errorContainer.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Кнопка "Зарегистрироваться" */
+.modal__btnEnter {
+  width: 278px;
+  height: 52px;
+  background-color: #580ea2;
+  border-radius: 6px;
+  margin-top: 60px;
+  margin-bottom: 20px;
+  border: none;
   display: flex;
-  flex-direction: column;
-  gap: 5px;
-  font-size: 12px;
-  color: red;
+  align-items: center;
+  justify-content: center;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 24px;
+  letter-spacing: -0.05px;
+  color: #ffffff;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.modal__btnSignup:hover {
+  background-color: #f4f5f6;
+}
+
+.modal__btnSignup:active {
+  background-color: #d9d9d9;
+}
+
+/* Состояние отключенной кнопки */
+
+.modal__btnEnter:disabled {
+  background-color: #cccccc;
+  color: #666666;
+  cursor: not-allowed;
+  opacity: 0.7;
 }
