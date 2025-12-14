@@ -26,7 +26,6 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     setFormData: (state, action: PayloadAction<Partial<FormData>>) => {
-      console.log('[AUTH] Dispatching setFormData:', action.payload)
       Object.assign(state.formData, action.payload)
       if (action.payload.email) {
         state.formData.username =
@@ -34,28 +33,28 @@ const authSlice = createSlice({
           action.payload.email.split('@')[0].slice(1)
       }
     },
-    setError: (state, action: PayloadAction<string | null>) => {
-      state.error = action.payload
-    },
-    setLoading: (state, action: PayloadAction<boolean>) => {
-      state.loading = action.payload
-    },
+    // setError: (state, action: PayloadAction<string | null>) => {
+    //   state.error = action.payload
+    // },
+    // setLoading: (state, action: PayloadAction<boolean>) => {
+    //   state.loading = action.payload
+    // },
     resetFormData: (state) => {
       state.formData = initialState.formData
       state.error = null
     },
-    submitForm: (state) => {
-      state.loading = true
-      state.error = null
-    },
-    formSuccess: (state) => {
-      state.loading = false
-      state.error = null
-    },
-    formFailure: (state, action: PayloadAction<string>) => {
-      state.loading = false
-      state.error = action.payload
-    },
+    // submitForm: (state) => {
+    //   state.loading = true
+    //   state.error = null
+    // },
+    // formSuccess: (state) => {
+    //   state.loading = false
+    //   state.error = null
+    // },
+    // formFailure: (state, action: PayloadAction<string>) => {
+    //   state.loading = false
+    //   state.error = action.payload
+    // },
   },
   extraReducers: (builder) => {
     builder
@@ -70,8 +69,8 @@ const authSlice = createSlice({
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false
-        if (action.error.message) {
-          state.error = action.error.message
+        if (state.error) {
+          state.error = action.payload as string
         }
       })
   },
@@ -80,10 +79,10 @@ const authSlice = createSlice({
 export const {
   setFormData,
   resetFormData,
-  submitForm,
-  formSuccess,
-  formFailure,
-  setError,
-  setLoading,
+  // submitForm,
+  // formSuccess,
+  // formFailure,
+  // setError,
+  // setLoading,
 } = authSlice.actions
 export default authSlice.reducer

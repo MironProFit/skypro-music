@@ -11,7 +11,6 @@ import authSliceReducer from './features/authSlice'
 export const makeStore = () => {
   const isDev =
     typeof window !== 'undefined' && process.env.NODE_ENV === 'development'
-  console.log(isDev)
 
   return configureStore({
     reducer: combineReducers({

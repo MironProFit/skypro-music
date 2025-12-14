@@ -1,6 +1,7 @@
 'use client'
 
 import { createContext, ReactNode, useContext, useState } from 'react'
+import { registerUser } from 'src/services/auth/registerApi'
 import { FormData } from 'src/sharedTypes/sharedTypes'
 import { setFormData } from 'src/store/features/authSlice'
 import { useAppDispatch, useAppSelector } from 'src/store/store'
@@ -8,6 +9,7 @@ import { useAppDispatch, useAppSelector } from 'src/store/store'
 type FormErrors = {
   email: string
   password: string
+  username?: string
 }
 
 type AuthContextType = {
@@ -53,7 +55,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    // Базовая валидация — переопределится в форме
+    
   }
 
   return (

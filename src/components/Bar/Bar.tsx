@@ -100,7 +100,6 @@ export default function Bar() {
       const currentIndex = dataTrack.findIndex(
         (track: TrackType) => track._id === currentTrack?._id
       )
-      // console.log(currentIndex)
       setIsNoNextBtn(currentIndex === dataTrack.length - 1)
     } else {
       setIsNoNextBtn(false)
@@ -112,7 +111,6 @@ export default function Bar() {
       const currentIndex = dataTrack.findIndex(
         (track) => track._id === currentTrack?._id
       )
-      // console.log(currentIndex)
 
       setIsNoPrevBtn(currentIndex === 0 || currentIndex === -1)
     }
@@ -342,7 +340,6 @@ export default function Bar() {
                 pointerEvents: isNoPrevBtn ? 'none' : 'auto',
               }}
               onClick={onPrevTrack}
-              // onClick={() => console.log(isNoPrevBtn)}
             >
               <svg className={styles.player__btnPrevSvg}>
                 <use xlinkHref="/img/icon/sprite.svg#icon-prev" />

@@ -6,13 +6,15 @@ import clsx from 'clsx'
 import { useAuth } from '../context/AuthContext'
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { useAppDispatch } from 'src/store/store'
+import { useAppDispatch, useAppSelector } from 'src/store/store'
 import { resetFormData } from 'src/store/features/authSlice'
+import { registerUser } from 'src/services/auth/registerApi'
 
 export default function SignUpPage() {
   const { formData, handleChange, errors: fieldErrors, setErrors } = useAuth()
   const dispatch = useAppDispatch()
   const param = useParams()
+  const error = useAppSelector((state) => state.auth.error)
 
   // Локальное состояние для подтверждения пароля и его ошибки
   const [passwordConfirm, setPasswordConfirm] = useState('')
@@ -47,11 +49,13 @@ export default function SignUpPage() {
 
     const isBasicValid = !fieldErrors.email && !fieldErrors.password
     if (isBasicValid && !confirmErr) {
-      console.log('Регистрация:', {
-        email: formData.email,
-        password: formData.password,
-      })
-      // Здесь: dispatch(registerUser({ email, password }))
+      dispatch(
+        registerUser({
+          email: formData.email,
+          password: formData.password,
+          username: formData.username || formData.email.split('@')[0],
+        })
+      )
     }
   }
 
@@ -127,6 +131,8 @@ export default function SignUpPage() {
         {confirmError}
       </div>
 
+      <div>{error}</div>
+
       {/* Кнопка "Зарегистрироваться" */}
       <button
         type="submit"
@@ -138,3 +144,4 @@ export default function SignUpPage() {
     </form>
   )
 }
+
