@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { useAuth } from '../context/AuthContext'
 import { useAppDispatch } from 'src/store/store'
 import { useEffect } from 'react'
-import { resetFormData } from 'src/store/features/authSlice'
+import { resetFormData } from 'src/store/features/auth/authSlice'
 import clsx from 'clsx'
 
 export default function SigninPage() {

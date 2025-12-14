@@ -7,7 +7,7 @@ import { useAuth } from '../context/AuthContext'
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { useAppDispatch, useAppSelector } from 'src/store/store'
-import { resetFormData } from 'src/store/features/authSlice'
+import { resetFormData } from 'src/store/features/auth/authSlice'
 import { registerUser } from 'src/services/auth/registerApi'
 
 export default function SignUpPage() {
@@ -131,7 +131,7 @@ export default function SignUpPage() {
         {confirmError}
       </div>
 
-      <div>{error}</div>
+      <div className={styles.warning}>{error}</div>
 
       {/* Кнопка "Зарегистрироваться" */}
       <button
@@ -144,4 +144,3 @@ export default function SignUpPage() {
     </form>
   )
 }
-

@@ -6,7 +6,7 @@ import {
   useSelector,
   useStore,
 } from 'react-redux'
-import authSliceReducer from './features/authSlice'
+import authSliceReducer from './features/auth/authSlice'
 
 export const makeStore = () => {
   const isDev =

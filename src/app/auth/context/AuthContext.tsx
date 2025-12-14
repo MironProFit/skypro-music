@@ -3,7 +3,7 @@
 import { createContext, ReactNode, useContext, useState } from 'react'
 import { registerUser } from 'src/services/auth/registerApi'
 import { FormData } from 'src/sharedTypes/sharedTypes'
-import { setFormData } from 'src/store/features/authSlice'
+import { setFormData } from 'src/store/features/auth/authSlice'
 import { useAppDispatch, useAppSelector } from 'src/store/store'
 
 type FormErrors = {
@@ -55,7 +55,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    
   }
 
   return (
