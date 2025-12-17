@@ -1,17 +1,18 @@
+import { LoginUserResponse } from '@store/auth/types/loginUser.types'
 import axios, { isAxiosError } from 'axios'
-import { BASE_API_URL, SIGNUP_ENDPOINT } from 'src/constants'
-import { RegisterUserResponse } from 'src/store/features/auth/types/registerUser.types'
+import { BASE_API_URL, SIGNIN_ENDPOINT } from 'src/constants'
 
-export const registerApi = async (
+export const loginApi = async (
   email: string,
   password: string,
-  username: string,
   signal?: AbortSignal
-): Promise<RegisterUserResponse> => {
+): Promise<LoginUserResponse> => {
   try {
-    const res = await axios.post<RegisterUserResponse>(
-      `${BASE_API_URL}${SIGNUP_ENDPOINT}`,
-      { email, password, username },
+    console.log(email, password)
+    console.log(`${BASE_API_URL}${SIGNIN_ENDPOINT}`)
+    const res = await axios.post<LoginUserResponse>(
+      `${BASE_API_URL}${SIGNIN_ENDPOINT}`,
+      { email, password },
       {
         signal,
         timeout: 10_000,
@@ -20,16 +21,15 @@ export const registerApi = async (
         },
       }
     )
+    console.log('Ответ сервера:', res.data)
     return res.data
   } catch (error: unknown) {
     if (isAxiosError(error)) {
-      // Сервер прислал 4xx, 5xx
       return {
         success: false,
         message: error.response?.data?.message || error.message,
       }
     }
-    // Ошибка сети, например
     return {
       success: false,
       message: 'Произошла неожиданная ошибка',

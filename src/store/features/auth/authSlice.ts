@@ -1,11 +1,26 @@
+'use client'
+
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { FormData } from 'src/sharedTypes/sharedTypes'
 
 // Типы
 import { registerUser } from './thunks/registerUser.thunk'
+import { loginUser } from './thunks/loginUser.thunk'
 
 // Получение данных из localStorage
 export const getStoredUserData = (): UserData => {
+  // Проверяем, что код выполняется в браузере
+  if (typeof window === 'undefined') {
+    return {
+      id: undefined,
+      email: '',
+      username: '',
+      tokenAccess: '',
+      tokenRefresh: '',
+    }
+  }
+
+  // Теперь безопасно использовать localStorage
   const data = localStorage.getItem('userData')
   if (data) {
     try {
@@ -74,12 +89,13 @@ const authSlice = createSlice({
       state.formData = initialState.formData
       state.error = null
       localStorage.removeItem('userData')
-      state.isLoggedIn = false
       state.userData = initialState.userData
     },
   },
   extraReducers: (builder) => {
     builder
+
+      // Register
       .addCase(registerUser.pending, (state) => {
         state.loading = true
         state.error = null
@@ -87,7 +103,6 @@ const authSlice = createSlice({
       .addCase(registerUser.fulfilled, (state, action) => {
         state.loading = false
         state.error = null
-        state.isLoggedIn = true
         if (action.payload.success) {
           const result = action.payload.result
           state.userData = {
@@ -96,15 +111,40 @@ const authSlice = createSlice({
             email: result.email,
             username: result.username,
           }
-          // ❌ Токены не приходят при регистрации → нужно получать отдельно
-          // tokenAccess: ?
-          // tokenRefresh: ?
         }
         localStorage.setItem('userData', JSON.stringify(state.userData))
       })
+
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false
         state.error = action.payload ?? 'Ошибка регистрации'
+      })
+
+      // Login
+      .addCase(loginUser.pending, (state) => {
+        state.loading = true
+        state.error = null
+      })
+
+      .addCase(loginUser.fulfilled, (state, action) => {
+        // Это точно успех
+        if ('_id' in action.payload) {
+          const result = action.payload
+          state.userData = {
+            ...state.userData,
+            id: result._id,
+            email: result.email,
+            username: result.email.split('@')[0],
+          }
+        }
+      })
+
+      .addCase(loginUser.rejected, (state, action) => {
+        // console.log('Rejected action:', action)
+        state.loading = false
+        state.error =
+          action.payload ?? 'Ошибка входа. Проверьте правильность данных'
+        // console.log(state.error)
       })
   },
 })

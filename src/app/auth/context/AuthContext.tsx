@@ -1,7 +1,6 @@
 'use client'
 
 import { createContext, ReactNode, useContext, useState } from 'react'
-import { registerUser } from 'src/services/auth/registerApi'
 import { FormData } from 'src/sharedTypes/sharedTypes'
 import { setFormData } from 'src/store/features/auth/authSlice'
 import { useAppDispatch, useAppSelector } from 'src/store/store'
@@ -15,7 +14,6 @@ type FormErrors = {
 type AuthContextType = {
   formData: FormData
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-  handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void
   errors: FormErrors
   setErrors: React.Dispatch<React.SetStateAction<FormErrors>>
 }
@@ -53,14 +51,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setErrors((prev) => ({ ...prev, [name]: errorMessage }))
   }
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-  }
-
   return (
-    <AuthContext.Provider
-      value={{ formData, handleChange, handleSubmit, errors, setErrors }}
-    >
+    <AuthContext.Provider value={{ formData, handleChange, errors, setErrors }}>
       {children}
     </AuthContext.Provider>
   )

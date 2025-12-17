@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { useAppDispatch, useAppSelector } from 'src/store/store'
 import { resetFormData } from 'src/store/features/auth/authSlice'
-import { registerUser } from 'src/services/auth/registerApi'
+import { registerUser } from '@store/auth/thunks/registerUser.thunk'
 
 export default function SignUpPage() {
   const { formData, handleChange, errors: fieldErrors, setErrors } = useAuth()

@@ -20,13 +20,13 @@ export const registerUser = createAsyncThunk<
         return data
       } else {
         console.warn('❌ Ошибка регистрации:', data.message)
-        return rejectWithValue(data.message)
+        return rejectWithValue(`❌ Ошибка регистрации: ${data.message}`)
       }
     } catch (error) {
       const message =
         error instanceof Error ? error.message : 'Неизвестная ошибка'
       console.error('💥 Критическая ошибка:', message)
-      return rejectWithValue(message)
+      return rejectWithValue(`💥 Критическая ошибка:, ${message}`)
     }
   }
 )
