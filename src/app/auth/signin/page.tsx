@@ -9,6 +9,8 @@ import { resetFormData } from 'src/store/features/auth/authSlice'
 import clsx from 'clsx'
 import { loginUser } from '@store/auth/thunks/loginUser.thunk'
 import { useEffect } from 'react'
+import { getUserToken } from '@store/auth/thunks/tokenStorage.thunk'
+import { useRouter } from 'next/navigation'
 
 export default function SigninPage() {
   const { handleChange, formData, errors, setErrors } = useAuth()
@@ -17,21 +19,32 @@ export default function SigninPage() {
   const isDisabled =
     !!errors.email || !!errors.password || !formData.email || !formData.password
 
-  // useEffect(() => {
-  //   console.log(formData)
-  // }, [formData])
-
   useEffect(() => {
     dispatch(resetFormData())
     setErrors({ email: '', password: '' })
   }, [dispatch, setErrors])
 
+  const router = useRouter()
+
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    // Обработка формы
-    // console.log(typeof formData.email)
-    dispatch(loginUser({ email: formData.email, password: formData.password }))
-    // console.log('Form submitted:', formData)
+    dispatch(
+      loginUser({ email: formData.email, password: formData.password })
+    ).then((resultAction) => {
+      if (loginUser.fulfilled.match(resultAction)) {
+        // После успешного логина вызываем получение токенов
+        dispatch(
+          getUserToken({ email: formData.email, password: formData.password })
+        ).then((tokenResult) => {
+          if (getUserToken.fulfilled.match(tokenResult)) {
+            // После успешного получения токена переходим на главную
+            router.push('/')
+          }
+        })
+      } else {
+        console.error('Ошибка входа:', resultAction.payload)
+      }
+    })
   }
 
   return (

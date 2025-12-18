@@ -1,0 +1,7 @@
+.loadingPage {
+  color: transparent;
+  animation: loadingMove 20s linear infinite;
+  background: linear-gradient(to right, #b672ff, black, gray);
+  background-size: 2000% 400%;
+  background-position: 2000% 0%, 0% 0%;
+}

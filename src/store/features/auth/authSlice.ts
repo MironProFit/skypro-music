@@ -6,6 +6,7 @@ import { FormData } from 'src/sharedTypes/sharedTypes'
 // Типы
 import { registerUser } from './thunks/registerUser.thunk'
 import { loginUser } from './thunks/loginUser.thunk'
+import { getUserToken } from './thunks/tokenStorage.thunk'
 
 // Получение данных из localStorage
 export const getStoredUserData = (): UserData => {
@@ -55,6 +56,7 @@ type AuthState = {
   userData: UserData
   error: string | null
   loading: boolean
+  loadingList: boolean
   isLoggedIn: boolean
 }
 
@@ -68,9 +70,14 @@ const initialState: AuthState = {
   userData: getStoredUserData(),
   error: null,
   loading: false,
-  isLoggedIn:
-    !!getStoredUserData().id &&
-    (!!getStoredUserData().tokenAccess || !!getStoredUserData().tokenRefresh),
+  loadingList: true,
+  isLoggedIn: !!getStoredUserData().id && !!getStoredUserData().tokenRefresh,
+}
+
+const getNameUserFromEmail = (email: string): string => {
+  return (
+    email.split('@')[0].charAt(0).toUpperCase() + email.split('@')[0].slice(1)
+  )
 }
 
 const authSlice = createSlice({
@@ -91,6 +98,7 @@ const authSlice = createSlice({
       localStorage.removeItem('userData')
       state.userData = initialState.userData
     },
+    
   },
   extraReducers: (builder) => {
     builder
@@ -109,7 +117,7 @@ const authSlice = createSlice({
             ...state.userData,
             id: result._id,
             email: result.email,
-            username: result.username,
+            username: getNameUserFromEmail(result.email),
           }
         }
         localStorage.setItem('userData', JSON.stringify(state.userData))
@@ -127,24 +135,41 @@ const authSlice = createSlice({
       })
 
       .addCase(loginUser.fulfilled, (state, action) => {
-        // Это точно успех
+        state.loading = false
+        state.error = null
+
         if ('_id' in action.payload) {
           const result = action.payload
           state.userData = {
             ...state.userData,
             id: result._id,
             email: result.email,
-            username: result.email.split('@')[0],
+            username: getNameUserFromEmail(result.email),
           }
         }
       })
 
       .addCase(loginUser.rejected, (state, action) => {
-        // console.log('Rejected action:', action)
         state.loading = false
         state.error =
           action.payload ?? 'Ошибка входа. Проверьте правильность данных'
-        // console.log(state.error)
+      })
+
+      .addCase(getUserToken.pending, (state, action) => {})
+
+      .addCase(getUserToken.fulfilled, (state, action) => {
+        if ('refresh' in action.payload) {
+          const { access, refresh } = action.payload
+          state.userData.tokenAccess = access
+          state.userData.tokenRefresh = refresh
+          state.isLoggedIn = true
+          localStorage.setItem('userData', JSON.stringify(state.userData))
+        }
+      })
+      .addCase(getUserToken.rejected, (state, action) => {
+        if (action.payload) {
+          state.error = action.payload
+        }
       })
   },
 })

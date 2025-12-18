@@ -27,6 +27,7 @@ export default function TrackList({
   const handleTypeFilter = (filter: string) => {
     setTypeFilter(typeFilter === filter ? '' : filter)
   }
+  const loadingList = useAppSelector((state) => state.auth.loadingList)
 
   const filters: {
     label: string
@@ -55,14 +56,18 @@ export default function TrackList({
       <Search />
 
       <h2 className={styles.centerblock__h2}>
-        {categoryId ? `Треки по категории: ${categoryId}` : 'Треки'}
+        {!loadingList
+          ? categoryId
+            ? `Треки по категории: ${categoryId}`
+            : 'Треки'
+          : 'Загрузка...'}
       </h2>
       <div className={styles.centerblock__filter}>
         <div className={styles.filter__title}>Искать по:</div>
 
         {filters.map((filter) => (
           <div
-            className={styles.filter__wrapFilter__buttons}
+            className={clsx(styles.filter__wrapFilter__buttons)}
             key={filter.label}
           >
             <div
@@ -71,6 +76,9 @@ export default function TrackList({
               }}
               className={clsx(
                 styles.filter__button,
+                {
+                  [styles.loading]: loadingList,
+                },
                 typeFilter === filter.value && styles.filter__button_active
               )}
             >
@@ -111,7 +119,11 @@ export default function TrackList({
               <div className={styles.playlist__track}>
                 <div className={styles.track__title}>
                   {/* === Обновлённая иконка с анимацией === */}
-                  <div className={styles.track__titleImage}>
+                  <div
+                    className={clsx(styles.track__titleImage, {
+                      [styles.loading]: loadingList,
+                    })}
+                  >
                     <svg
                       className={clsx(
                         styles.track__titleSvg,
@@ -167,7 +179,16 @@ export default function TrackList({
                   {/* === Конец иконки === */}
 
                   <div className={styles.track__title_text}>
-                    <Link className={styles.track__titleLink} href="">
+                    {/* clsx( , {
+                     [styles.loading]: loadingList })
+               */}
+
+                    <Link
+                      className={clsx(styles.track__titleLink, {
+                        [styles.loading]: loadingList,
+                      })}
+                      href=""
+                    >
                       {track.name}
                     </Link>
                   </div>

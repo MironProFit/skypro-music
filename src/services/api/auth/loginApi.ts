@@ -8,8 +8,6 @@ export const loginApi = async (
   signal?: AbortSignal
 ): Promise<LoginUserResponse> => {
   try {
-    console.log(email, password)
-    console.log(`${BASE_API_URL}${SIGNIN_ENDPOINT}`)
     const res = await axios.post<LoginUserResponse>(
       `${BASE_API_URL}${SIGNIN_ENDPOINT}`,
       { email, password },
@@ -21,7 +19,6 @@ export const loginApi = async (
         },
       }
     )
-    console.log('Ответ сервера:', res.data)
     return res.data
   } catch (error: unknown) {
     if (isAxiosError(error)) {

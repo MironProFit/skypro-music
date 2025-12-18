@@ -1,13 +1,17 @@
-interface TokenSuccessResponse {
+export interface TokenUserData {
+  email: string
+  password: string
+}
+
+export interface TokenSuccessResponse {
   refresh: string
   access: string
 }
 
-// Ошибка от сервера
-interface TokenErrorResponse {
-  detail: string
-  code: string
+export interface TokenErrorResponse {
+  success: false
+  message: string
 }
 
 // Общий тип ответа
-type TokenResponse = TokenSuccessResponse | TokenErrorResponse
+export type TokenUserResponse = TokenSuccessResponse | TokenErrorResponse

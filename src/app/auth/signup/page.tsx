@@ -5,10 +5,12 @@ import Link from 'next/link'
 import clsx from 'clsx'
 import { useAuth } from '../context/AuthContext'
 import { useEffect, useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { useAppDispatch, useAppSelector } from 'src/store/store'
 import { resetFormData } from 'src/store/features/auth/authSlice'
 import { registerUser } from '@store/auth/thunks/registerUser.thunk'
+import { getUserToken } from '@store/auth/thunks/tokenStorage.thunk'
+import { json } from 'stream/consumers'
 
 export default function SignUpPage() {
   const { formData, handleChange, errors: fieldErrors, setErrors } = useAuth()
@@ -19,6 +21,13 @@ export default function SignUpPage() {
   // Локальное состояние для подтверждения пароля и его ошибки
   const [passwordConfirm, setPasswordConfirm] = useState('')
   const [confirmError, setConfirmError] = useState('')
+
+  const tokenAccessData = useAppSelector((s) => {
+    s.auth.userData.tokenAccess
+  })
+  const tokenRefreshData = useAppSelector((s) => {
+    s.auth.userData.tokenRefresh
+  })
 
   useEffect(() => {
     dispatch(resetFormData())
@@ -47,6 +56,8 @@ export default function SignUpPage() {
     const confirmErr = validateConfirm(formData.password, passwordConfirm)
     setConfirmError(confirmErr)
 
+    const router = useRouter()
+
     const isBasicValid = !fieldErrors.email && !fieldErrors.password
     if (isBasicValid && !confirmErr) {
       dispatch(
@@ -55,92 +66,111 @@ export default function SignUpPage() {
           password: formData.password,
           username: formData.username || formData.email.split('@')[0],
         })
-      )
+      ).then((resultAction) => {
+        if (registerUser.fulfilled.match(resultAction)) {
+          // После успешной регистрации переходим на страницу входа
+          router.push('/')
+
+          // Проверка наличия токенов
+          if (tokenAccessData !== null || tokenRefreshData !== null) {
+            dispatch(
+              getUserToken({
+                email: formData.email,
+                password: formData.password,
+              })
+            ).then((tokenResult) => {
+              if (getUserToken.fulfilled.match(tokenResult)) {
+                // После получения токена, перенаправляем на главную
+                router.push('/')
+              }
+            })
+          }
+        }
+      })
     }
-  }
+    // Блокировка кнопки
+    const isDisabled =
+      !!fieldErrors.email ||
+      !!fieldErrors.password ||
+      !formData.email ||
+      !formData.password ||
+      !passwordConfirm ||
+      !!confirmError
 
-  // Блокировка кнопки
-  const isDisabled =
-    !!fieldErrors.email ||
-    !!fieldErrors.password ||
-    !formData.email ||
-    !formData.password ||
-    !passwordConfirm ||
-    !!confirmError
+    return (
+      <form onSubmit={handleSubmit} className={styles.modal__form}>
+        {/* Логотип */}
+        <Link href="/music/main">
+          <div className={styles.modal__logo}>
+            <img src="/img/logo_modal.png" alt="logo" />
+          </div>
+        </Link>
 
-  return (
-    <form onSubmit={handleSubmit} className={styles.modal__form}>
-      {/* Логотип */}
-      <Link href="/music/main">
-        <div className={styles.modal__logo}>
-          <img src="/img/logo_modal.png" alt="logo" />
+        {/* Email */}
+        <input
+          className={clsx(styles.modal__input, styles.marginBottom30)}
+          type="text"
+          name="email"
+          placeholder="Почта"
+          value={formData.email}
+          onChange={handleChange}
+          required
+        />
+        <div
+          className={clsx(styles.errorContainer, {
+            [styles.active]: !!fieldErrors.email,
+          })}
+        >
+          {fieldErrors.email}
         </div>
-      </Link>
 
-      {/* Email */}
-      <input
-        className={clsx(styles.modal__input, styles.marginBottom30)}
-        type="text"
-        name="email"
-        placeholder="Почта"
-        value={formData.email}
-        onChange={handleChange}
-        required
-      />
-      <div
-        className={clsx(styles.errorContainer, {
-          [styles.active]: !!fieldErrors.email,
-        })}
-      >
-        {fieldErrors.email}
-      </div>
+        {/* Пароль */}
+        <input
+          className={clsx(styles.modal__input, styles.marginBottom30)}
+          type="password"
+          name="password"
+          placeholder="Пароль"
+          value={formData.password}
+          onChange={handleChange}
+          required
+        />
+        <div
+          className={clsx(styles.errorContainer, {
+            [styles.active]: !!fieldErrors.password,
+          })}
+        >
+          {fieldErrors.password}
+        </div>
 
-      {/* Пароль */}
-      <input
-        className={clsx(styles.modal__input, styles.marginBottom30)}
-        type="password"
-        name="password"
-        placeholder="Пароль"
-        value={formData.password}
-        onChange={handleChange}
-        required
-      />
-      <div
-        className={clsx(styles.errorContainer, {
-          [styles.active]: !!fieldErrors.password,
-        })}
-      >
-        {fieldErrors.password}
-      </div>
+        {/* Подтверждение пароля */}
+        <input
+          className={clsx(styles.modal__input, styles.marginBottom30)}
+          type="password"
+          name="passwordConfirm"
+          placeholder="Повторите пароль"
+          value={passwordConfirm}
+          onChange={handleConfirmChange}
+          required
+        />
+        <div
+          className={clsx(styles.errorContainer, {
+            [styles.active]: !!confirmError,
+          })}
+        >
+          {confirmError}
+        </div>
 
-      {/* Подтверждение пароля */}
-      <input
-        className={clsx(styles.modal__input, styles.marginBottom30)}
-        type="password"
-        name="passwordConfirm"
-        placeholder="Повторите пароль"
-        value={passwordConfirm}
-        onChange={handleConfirmChange}
-        required
-      />
-      <div
-        className={clsx(styles.errorContainer, {
-          [styles.active]: !!confirmError,
-        })}
-      >
-        {confirmError}
-      </div>
+        <div className={styles.warning}>{error}</div>
 
-      <div className={styles.warning}>{error}</div>
-
-      {/* Кнопка "Зарегистрироваться" */}
-      <button
-        type="submit"
-        className={styles.modal__btnEnter}
-        disabled={isDisabled}
-      >
-        Зарегистрироваться
-      </button>
-    </form>
-  )
+        {/* Кнопка "Зарегистрироваться" */}
+        <button
+          type="submit"
+          className={styles.modal__btnEnter}
+          disabled={isDisabled}
+        >
+          Зарегистрироваться
+        </button>
+      </form>
+    )
+  }
 }

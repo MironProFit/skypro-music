@@ -9,12 +9,11 @@ export const loginUser = createAsyncThunk<
 >('auth/loginUser', async ({ email, password }, { rejectWithValue }) => {
   try {
     const data = await loginApi(email, password)
-    console.log(`ответ сервера при login:`, data)
 
     // Проверка, что это успешный ответ (объект с _id)
     if ('_id' in data) {
       // Успешный ответ
-      console.log('✅ Успешная авторизация:',  data._id)
+      console.log('✅ Успешная авторизация:', data._id)
       return data
     } else {
       // Обработка ошибки, если success отсутствует или false
