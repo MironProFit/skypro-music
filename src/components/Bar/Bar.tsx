@@ -4,7 +4,10 @@ import clsx from 'clsx'
 import styles from './Bar.module.css'
 import Link from 'next/link'
 import { useAppDispatch, useAppSelector } from 'src/store/store'
-import { setCurrentTrack, setIsPlayTrack } from 'src/store/features/trackSlise'
+import {
+  setCurrentTrack,
+  setIsPlayTrack,
+} from '@store/catalog/slices/tracksSliсe'
 import { useEffect, useRef, useState } from 'react'
 import { formatTime, getTimePanel } from '@utils/helpers'
 import { TrackType } from 'src/sharedTypes/sharedTypes'

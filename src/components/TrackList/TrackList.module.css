@@ -150,13 +150,6 @@
   justify-content: center;
   margin-right: 17px;
 }
-.track__titleImage.loading {
-  color: transparent;
-  animation: loadingMove 20s linear infinite;
-  background: linear-gradient(to right, #b672ff, black, gray);
-  background-size: 2000% 400%;
-  background-position: 2000% 0%, 0% 0%;
-}
 
 .track__titleSvg {
   position: absolute;
@@ -231,13 +224,6 @@
   line-height: 24px;
   color: #ffffff;
 }
-.track__titleLink {
-  color: transparent;
-  animation: loadingMove 20s linear infinite;
-  background: linear-gradient(to right, #b672ff, black, gray);
-  background-size: 2000% 400%;
-  background-position: 2000% 0%, 0% 0%;
-}
 
 .track__titleSpan {
   color: #4e4e4e;
@@ -286,21 +272,4 @@
   color: #696969;
 }
 @keyframes identifier {
-}
-@keyframes loadingMove {
-  0% {
-    background-position: 100% 100%;
-  }
-  25% {
-    background-position: 200% 100%;
-  }
-  50% {
-    background-position: 300% 100%;
-  }
-  75% {
-    background-position: 400% 100%;
-  }
-  100% {
-    background-position: 500% 100%;
-  }
 }

@@ -4,7 +4,7 @@ import { useAppSelector } from 'src/store/store'
 import styles from './Loading.module.css'
 
 export default function Loading() {
-  const isLoading = useAppSelector((state) => state.auth.loading)
+  const isLoading = useAppSelector((state) => state.auth.isDataLoading)
   return (
     isLoading && (
       <div className={styles.overlay}>

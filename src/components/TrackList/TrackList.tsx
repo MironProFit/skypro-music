@@ -1,3 +1,5 @@
+// src/components/TrackList/TrackList.tsx
+
 'use client'
 
 import clsx from 'clsx'
@@ -8,41 +10,44 @@ import { dataTrack } from 'src/data'
 import SortDropdown from '@components/SortDropdown/SortDropdown'
 import { useState } from 'react'
 import { FiltersTagType, TrackType } from 'src/sharedTypes/sharedTypes'
-import { setCurrentTrack, setIsPlayTrack } from 'src/store/features/trackSlise'
+import {
+  setCurrentTrack,
+  setIsPlayTrack,
+} from '@store/catalog/slices/tracksSliсe'
 import { useAppDispatch, useAppSelector } from 'src/store/store'
+import Skeleton from '@components/Skeleton/Skeleton'
 
 type TrackListProps = {
   categoryId?: string | null
   categoryTracks?: TrackType[] | null
 }
 
+type FilterState = '' | FiltersTagType
+
 export default function TrackList({
   categoryId,
   categoryTracks,
 }: TrackListProps) {
-  const [typeFilter, setTypeFilter] = useState('')
+  const [typeFilter, setTypeFilter] = useState<FilterState>('')
   const playTrack = useAppSelector((state) => state.track.currentTrack?._id)
   const isPlayTrack = useAppSelector((state) => state.track.isPlayTrack)
+  const loadingList = useAppSelector((state) => state.auth.isLoadingTrackList)
 
-  const handleTypeFilter = (filter: string) => {
-    setTypeFilter(typeFilter === filter ? '' : filter)
+  // Исправлено: принимаем FiltersTagType, а не string
+  const handleTypeFilter = (filter: FiltersTagType) => {
+    setTypeFilter((prev) => (prev === filter ? '' : filter))
   }
-  const loadingList = useAppSelector((state) => state.auth.loadingList)
 
-  const filters: {
-    label: string
-    value: FiltersTagType
-  }[] = [
-    { label: 'исполнителю', value: 'author' },
-    { label: 'году выпуска', value: 'release_date' },
-    { label: 'жанру', value: 'genre' },
+  const filters = [
+    { label: 'исполнителю', value: 'author' as const },
+    { label: 'году выпуска', value: 'release_date' as const },
+    { label: 'жанру', value: 'genre' as const },
   ]
 
   const dispatch = useAppDispatch()
 
   const onClickTrack = (track: TrackType) => {
     const isCurrentTrack = track._id === playTrack
-
     if (isCurrentTrack) {
       dispatch(setIsPlayTrack(!isPlayTrack))
     } else {
@@ -50,6 +55,8 @@ export default function TrackList({
       dispatch(setIsPlayTrack(true))
     }
   }
+
+  const skeletonTracks = Array(5).fill(null)
 
   return (
     <div className={styles.centerblock}>
@@ -62,27 +69,23 @@ export default function TrackList({
             : 'Треки'
           : 'Загрузка...'}
       </h2>
+
       <div className={styles.centerblock__filter}>
         <div className={styles.filter__title}>Искать по:</div>
 
         {filters.map((filter) => (
           <div
-            className={clsx(styles.filter__wrapFilter__buttons)}
-            key={filter.label}
+            className={styles.filter__wrapFilter__buttons}
+            key={filter.value}
           >
             <div
-              onClick={() => {
-                handleTypeFilter(filter.value)
-              }}
+              onClick={() => handleTypeFilter(filter.value)}
               className={clsx(
                 styles.filter__button,
-                {
-                  [styles.loading]: loadingList,
-                },
                 typeFilter === filter.value && styles.filter__button_active
               )}
             >
-              {filter.label}
+              {loadingList ? <Skeleton width={80} /> : filter.label}
             </div>
             {typeFilter === filter.value && (
               <SortDropdown typeFilter={filter.value} />
@@ -110,110 +113,120 @@ export default function TrackList({
         </div>
 
         <div className={styles.content__playlist}>
-          {dataTrack.map((track, index) => (
-            <div
-              key={index}
-              className={styles.playlist__item}
-              onClick={() => onClickTrack(track)}
-            >
-              <div className={styles.playlist__track}>
-                <div className={styles.track__title}>
-                  {/* === Обновлённая иконка с анимацией === */}
-                  <div
-                    className={clsx(styles.track__titleImage, {
-                      [styles.loading]: loadingList,
-                    })}
-                  >
-                    <svg
-                      className={clsx(
-                        styles.track__titleSvg,
-                        {
-                          [styles.active]:
-                            track._id === playTrack && isPlayTrack,
-                        },
-                        {
-                          [styles.selected__active]:
-                            track._id === playTrack && !isPlayTrack,
-                        }
-                      )}
-                      viewBox="0 0 20 19"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      {/* Нота — видна по умолчанию */}
-                      <g className={styles.notePath}>
-                        <path
-                          d="M8 16V1.9697L19 1V13"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeLinecap="round"
+          {loadingList
+            ? skeletonTracks.map((_, index) => (
+                <div key={index} className={styles.playlist__item}>
+                  <div className={styles.playlist__track}>
+                    <div className={styles.track__title}>
+                      <div className={styles.track__titleImage}>
+                        <Skeleton
+                          width={18}
+                          height={18}
+                          style={{
+                            position: 'absolute',
+                            top: '50%',
+                            left: '50%',
+                            transform: 'translate(-50%, -50%)',
+                            borderRadius: '50%',
+                          }}
                         />
-                        <ellipse
-                          cx="4.5"
-                          cy="16"
-                          rx="3.5"
-                          ry="2"
-                          fill="none"
-                          stroke="currentColor"
-                        />
-                        <ellipse
-                          cx="15.5"
-                          cy="13"
-                          rx="3.5"
-                          ry="2"
-                          fill="none"
-                          stroke="currentColor"
-                        />
-                      </g>
-
-                      {/* Плей — появляется при .active */}
-                      <path
-                        className={styles.playPath}
-                        d="M6 4.5 L14 9.5 L6 14.5 Z"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinejoin="round"
+                      </div>
+                      <Skeleton width="80%" height={20} />
+                    </div>
+                    <div className={styles.track__author}>
+                      <Skeleton width="80%" height={20} />
+                    </div>
+                    <div className={styles.track__album}>
+                      <Skeleton width="60%" height={20} />
+                    </div>
+                    <div className={styles.track__time}>
+                      <Skeleton
+                        width={30}
+                        height={12}
+                        style={{ marginRight: 17 }}
                       />
-                    </svg>
-                  </div>
-                  {/* === Конец иконки === */}
-
-                  <div className={styles.track__title_text}>
-                    {/* clsx( , {
-                     [styles.loading]: loadingList })
-               */}
-
-                    <Link
-                      className={clsx(styles.track__titleLink, {
-                        [styles.loading]: loadingList,
-                      })}
-                      href=""
-                    >
-                      {track.name}
-                    </Link>
+                    </div>
                   </div>
                 </div>
-                <div className={styles.track__author}>
-                  <Link className={styles.track__authorLink} href="">
-                    {track.author}
-                  </Link>
+              ))
+            : dataTrack.map((track, index) => (
+                <div
+                  key={index}
+                  className={styles.playlist__item}
+                  onClick={() => onClickTrack(track)}
+                >
+                  <div className={styles.playlist__track}>
+                    <div className={styles.track__title}>
+                      <div className={styles.track__titleImage}>
+                        <svg
+                          className={clsx(styles.track__titleSvg, {
+                            [styles.active]:
+                              track._id === playTrack && isPlayTrack,
+                            [styles.selected__active]:
+                              track._id === playTrack && !isPlayTrack,
+                          })}
+                          viewBox="0 0 20 19"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <g className={styles.notePath}>
+                            <path
+                              d="M8 16V1.9697L19 1V13"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeLinecap="round"
+                            />
+                            <ellipse
+                              cx="4.5"
+                              cy="16"
+                              rx="3.5"
+                              ry="2"
+                              fill="none"
+                              stroke="currentColor"
+                            />
+                            <ellipse
+                              cx="15.5"
+                              cy="13"
+                              rx="3.5"
+                              ry="2"
+                              fill="none"
+                              stroke="currentColor"
+                            />
+                          </g>
+                          <path
+                            className={styles.playPath}
+                            d="M6 4.5 L14 9.5 L6 14.5 Z"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </div>
+                      <Link className={styles.track__titleLink} href="">
+                        {track.name}
+                      </Link>
+                    </div>
+                    <div className={styles.track__author}>
+                      <Link className={styles.track__authorLink} href="">
+                        {track.author}
+                      </Link>
+                    </div>
+                    <div className={styles.track__album}>
+                      <Link className={styles.track__albumLink} href="">
+                        {track.album}
+                      </Link>
+                    </div>
+                    <div className={styles.track__time}>
+                      <svg className={styles.track__timeSvg}>
+                        <use xlinkHref="/img/icon/sprite.svg#icon-like" />
+                      </svg>
+                      <span className={styles.track__timeText}>
+                        {track.duration_in_seconds}
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <div className={styles.track__album}>
-                  <Link className={styles.track__albumLink} href="">
-                    {track.album}
-                  </Link>
-                </div>
-                <div className={styles.track__time}>
-                  <svg className={styles.track__timeSvg}>
-                    <use xlinkHref="/img/icon/sprite.svg#icon-like" />
-                  </svg>
-                  <span className={styles.track__timeText}>
-                    {track.duration_in_seconds}
-                  </span>
-                </div>
-              </div>
-            </div>
-          ))}
+              ))}
         </div>
       </div>
     </div>

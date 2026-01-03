@@ -1,5 +1,5 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit'
-import { trackSliceReducer } from './features/trackSlise'
+import { trackSliceReducer } from './features/catalog/slices/tracksSliсe'
 import {
   TypedUseSelectorHook,
   useDispatch,

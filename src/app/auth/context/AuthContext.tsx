@@ -1,5 +1,6 @@
 'use client'
 
+import Loading from '@components/Loading/Loading'
 import { createContext, ReactNode, useContext, useState } from 'react'
 import { FormData } from 'src/sharedTypes/sharedTypes'
 import { setFormData } from 'src/store/features/auth/authSlice'
