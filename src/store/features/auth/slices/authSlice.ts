@@ -1,10 +1,10 @@
 'use client'
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { FormData } from 'src/sharedTypes/sharedTypes'
-import { registerUser } from './thunks/registerUser.thunk'
-import { loginUser } from './thunks/loginUser.thunk'
-import { getUserToken } from './thunks/tokenStorage.thunk'
+import { registerUser } from '../api/register'
+import { loginUser } from '../api/login'
+import { getUserToken } from '../api/token'
+import { AuthFormData } from '../model/auth'
 
 // === Получение данных из localStorage ===
 export const getStoredUserData = (): UserData => {
@@ -48,7 +48,7 @@ type UserData = {
 }
 
 type AuthState = {
-  formData: FormData
+  formData: AuthFormData
   userData: UserData
   error: string | null
   isDataLoading: boolean
@@ -71,8 +71,6 @@ const initialState: AuthState = {
   isLoggedIn: !!getStoredUserData().id && !!getStoredUserData().tokenRefresh,
 }
 
-console.log(initialState.isLoggedIn)
-
 // === Вспомогательная функция ===
 const getNameUserFromEmail = (email: string): string => {
   return (
@@ -85,7 +83,7 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    setFormData: (state, action: PayloadAction<Partial<FormData>>) => {
+    setFormData: (state, action: PayloadAction<Partial<AuthFormData>>) => {
       Object.assign(state.formData, action.payload)
       if (action.payload.email) {
         state.formData.username = getNameUserFromEmail(action.payload.email)
@@ -103,9 +101,7 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-
       // registerUser
-      
       .addCase(registerUser.pending, (state) => {
         state.isDataLoading = true
         state.error = null
@@ -129,8 +125,7 @@ const authSlice = createSlice({
         state.error = action.payload ?? 'Ошибка регистрации'
       })
 
-      //loginUser
-
+      // loginUser
       .addCase(loginUser.pending, (state) => {
         state.isDataLoading = true
         state.error = null
@@ -153,6 +148,8 @@ const authSlice = createSlice({
         state.error =
           action.payload ?? 'Ошибка входа. Проверьте правильность данных'
       })
+
+      // getUserToken
       .addCase(getUserToken.pending, (state) => {
         state.isDataLoading = true
         state.error = null
@@ -179,3 +176,17 @@ const authSlice = createSlice({
 export const { setFormData, resetFormData, setIsLoadingTrackList } =
   authSlice.actions
 export default authSlice.reducer
+
+// === СЕЛЕКТОРЫ ===
+import { RootState } from 'src/store/store'
+
+export const selectAuthFormData = (state: RootState) => state.auth.formData
+export const selectAuthUser = (state: RootState) => state.auth.userData
+export const selectAuthIsLoading = (state: RootState) =>
+  state.auth.isDataLoading
+export const selectAuthError = (state: RootState) => state.auth.error
+export const selectIsLoggedIn = (state: RootState) => state.auth.isLoggedIn
+export const selectAuthTokens = (state: RootState) => ({
+  access: state.auth.userData.tokenAccess,
+  refresh: state.auth.userData.tokenRefresh,
+})

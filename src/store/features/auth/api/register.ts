@@ -2,7 +2,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit'
 import {
   RegisterUserData,
   RegisterUserResponse,
-} from '../types/registerUser.types'
+} from '../model/registerUser.types'
 import { registerApi } from 'src/services/api/auth/registerApi'
 
 export const registerUser = createAsyncThunk<

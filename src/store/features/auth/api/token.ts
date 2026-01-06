@@ -1,13 +1,10 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
-import {
-  TokenSuccessResponse,
-  TokenUserResponse,
-} from '../types/tokenUser.types'
+import { TokenSuccessResponse, TokenResponse } from '../model/auth'
 import { getTokenApi } from '@api/token/tokenApi'
 import { RootState } from 'src/store/store'
 
 export const getUserToken = createAsyncThunk<
-  TokenUserResponse,
+  TokenResponse,
   { email: string; password: string },
   { rejectValue: string }
 >(

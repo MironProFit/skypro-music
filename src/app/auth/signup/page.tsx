@@ -7,15 +7,12 @@ import { useAuth } from '../context/AuthContext'
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useAppDispatch, useAppSelector } from 'src/store/store'
-import { resetFormData } from 'src/store/features/auth/authSlice'
-import { registerUser } from '@store/auth/thunks/registerUser.thunk'
-import { getUserToken } from '@store/auth/thunks/tokenStorage.thunk'
-import { json } from 'stream/consumers'
+import { getUserToken, registerUser, resetFormData } from '@store/auth'
 
 export default function SignUpPage() {
   const { formData, handleChange, errors: fieldErrors, setErrors } = useAuth()
   const dispatch = useAppDispatch()
-  const param = useParams()
+  const param = useParams()  
   const error = useAppSelector((state) => state.auth.error)
 
   // Локальное состояние для подтверждения пароля и его ошибки

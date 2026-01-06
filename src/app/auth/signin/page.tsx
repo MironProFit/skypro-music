@@ -5,13 +5,11 @@ import classNames from 'classnames'
 import Link from 'next/link'
 import { useAuth } from '../context/AuthContext'
 import { useAppDispatch, useAppSelector } from 'src/store/store'
-import { resetFormData } from 'src/store/features/auth/authSlice'
 import clsx from 'clsx'
-import { loginUser } from '@store/auth/thunks/loginUser.thunk'
 import { useEffect } from 'react'
-import { getUserToken } from '@store/auth/thunks/tokenStorage.thunk'
 import { useRouter } from 'next/navigation'
 import Loading from '@components/Loading/Loading'
+import { getUserToken, loginUser, resetFormData } from '@store/auth'
 
 export default function SigninPage() {
   const { handleChange, formData, errors, setErrors } = useAuth()

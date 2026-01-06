@@ -1,6 +1,6 @@
 import axios, { isAxiosError } from 'axios'
 import { BASE_API_URL, SIGNUP_ENDPOINT } from 'src/constants'
-import { RegisterUserResponse } from 'src/store/features/auth/types/registerUser.types'
+import { RegisterUserResponse } from '@store/auth/model/registerUser.types'
 
 export const registerApi = async (
   email: string,

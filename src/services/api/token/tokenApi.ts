@@ -1,4 +1,4 @@
-import { TokenUserResponse } from '@store/auth/types/tokenUser.types'
+import { TokenUserResponse } from '@store/auth/model/tokenUser.types'
 import axios, { isAxiosError } from 'axios'
 import { BASE_API_URL, TOKEN_ENDPOINT } from 'src/constants'
 

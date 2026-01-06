@@ -1,12 +1,12 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit'
 import { trackSliceReducer } from './features/catalog/slices/tracksSliсe'
+import authSliceReducer from './features/auth/slices/authSlice' // ← ДОБАВЛЕНО
 import {
   TypedUseSelectorHook,
   useDispatch,
   useSelector,
   useStore,
 } from 'react-redux'
-import authSliceReducer from './features/auth/authSlice'
 
 export const makeStore = () => {
   const isDev =
@@ -15,7 +15,7 @@ export const makeStore = () => {
   return configureStore({
     reducer: combineReducers({
       track: trackSliceReducer,
-      auth: authSliceReducer,
+      auth: authSliceReducer, // ← теперь определён
     }),
     devTools: isDev
       ? {

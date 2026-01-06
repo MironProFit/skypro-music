@@ -9,7 +9,8 @@ import Search from '@components/Search/Search'
 import { dataTrack } from 'src/data'
 import SortDropdown from '@components/SortDropdown/SortDropdown'
 import { useState } from 'react'
-import { FiltersTagType, TrackType } from 'src/sharedTypes/sharedTypes'
+import { FiltersTagType } from 'src/sharedTypes/sharedTypes'
+import { Track } from '@store/catalog'
 import {
   setCurrentTrack,
   setIsPlayTrack,
@@ -19,7 +20,7 @@ import Skeleton from '@components/Skeleton/Skeleton'
 
 type TrackListProps = {
   categoryId?: string | null
-  categoryTracks?: TrackType[] | null
+  categoryTracks?: Track[] | null
 }
 
 type FilterState = '' | FiltersTagType
@@ -46,7 +47,7 @@ export default function TrackList({
 
   const dispatch = useAppDispatch()
 
-  const onClickTrack = (track: TrackType) => {
+  const onClickTrack = (track: Track) => {
     const isCurrentTrack = track._id === playTrack
     if (isCurrentTrack) {
       dispatch(setIsPlayTrack(!isPlayTrack))

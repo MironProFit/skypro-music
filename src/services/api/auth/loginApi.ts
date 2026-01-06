@@ -1,4 +1,4 @@
-import { LoginUserResponse } from '@store/auth/types/loginUser.types'
+import { LoginUserResponse } from '@store/auth/model/loginUser.types'
 import axios, { isAxiosError } from 'axios'
 import { BASE_API_URL, SIGNIN_ENDPOINT } from 'src/constants'
 

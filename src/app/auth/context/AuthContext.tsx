@@ -1,9 +1,8 @@
 'use client'
 
 import Loading from '@components/Loading/Loading'
+import { AuthFormData, setFormData } from '@store/auth'
 import { createContext, ReactNode, useContext, useState } from 'react'
-import { FormData } from 'src/sharedTypes/sharedTypes'
-import { setFormData } from 'src/store/features/auth/authSlice'
 import { useAppDispatch, useAppSelector } from 'src/store/store'
 
 type FormErrors = {
@@ -13,7 +12,7 @@ type FormErrors = {
 }
 
 type AuthContextType = {
-  formData: FormData
+  formData: AuthFormData
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void
   errors: FormErrors
   setErrors: React.Dispatch<React.SetStateAction<FormErrors>>

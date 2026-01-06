@@ -27,7 +27,7 @@
       "@thunks/auth/*": ["src/store/features/auth/thunks/*"],
       "@slices/auth": ["src/store/features/auth/authSlice.ts"],
       "@api/*": ["src/services/api/*"],
-      "@types/auth/*": ["src/store/features/auth/types/*"]
+      "@types/auth/*": ["src/store/features/auth/model/*"]
     }
   },
   "include": [
