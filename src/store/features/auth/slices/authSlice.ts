@@ -4,7 +4,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { registerUser } from '../api/register'
 import { loginUser } from '../api/login'
 import { getUserToken } from '../api/token'
-import { AuthFormData } from '../model/auth'
+import { AuthFormData } from '../model/types'
 
 // === Получение данных из localStorage ===
 export const getStoredUserData = (): UserData => {

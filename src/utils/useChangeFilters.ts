@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { dataTrack } from 'src/data'
-import { FiltersTagType, TrackType } from 'src/sharedTypes/sharedTypes'
+import { FiltersTagType } from 'src/sharedTypes/sharedTypes'
 
 export default function useChangeFilters(typeFilter: FiltersTagType) {
   const uniqueValues = useMemo(() => {

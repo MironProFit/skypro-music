@@ -57,8 +57,6 @@
   display: block;
 }
 
-.sidebar__img {
-  /* width: auto; */
-  /* height: auto; */
-  display: block;
-}
+/* .sidebar__img {
+  cursor: pointer;
+} */

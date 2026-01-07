@@ -2,7 +2,6 @@ import styles from './layout.module.css'
 import Bar from '@components/Bar/Bar'
 import HeaderNav from '@components/HeaderNav/HeaderNav'
 import Sidebar from '@components/Sidebar/Sidebar'
-import TrackList from '@components/TrackList/TrackList'
 import { ReactNode } from 'react'
 
 type MainLayout = { children: ReactNode }

@@ -1,5 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
-import { TokenSuccessResponse, TokenResponse } from '../model/auth'
+import { TokenSuccessResponse, TokenResponse } from '../model/types'
 import { getTokenApi } from '@api/token/tokenApi'
 import { RootState } from 'src/store/store'
 

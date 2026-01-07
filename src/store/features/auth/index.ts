@@ -16,7 +16,7 @@ export type {
   TokenResponse,
   TokenSuccessResponse,
   TokenErrorResponse,
-} from './model/auth'
+} from './model/types'
 
 // --- THUNK'и ---
 export { loginUser } from './api/login'
