@@ -1,13 +1,14 @@
-// src/components/Bar/Bar.tsx
 'use client'
 
 import clsx from 'clsx'
 import styles from './Bar.module.css'
 import Link from 'next/link'
-import { useEffect, useRef, useState } from 'react'
 import { useAppDispatch, useAppSelector } from 'src/store/store'
-import { setCurrentTrack, setIsPlayTrack, Track } from '@store/catalog'
+
+import { useEffect, useRef, useState } from 'react'
 import { formatTime } from '@utils/helpers'
+import { setCurrentTrack, setIsPlayTrack } from '@store/catalog'
+import { audio } from 'framer-motion/client'
 
 export default function Bar() {
   const currentTrack = useAppSelector((state) => state.tracks.currentTrack)
@@ -16,7 +17,7 @@ export default function Bar() {
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
   const [currentTime, setCurrentTime] = useState(0)
-  const [duration, setDuration] = useState(0)
+  // Убрали setDuration — duration берём напрямую из трека
   const [currentVolume, setCurrentVolume] = useState(50)
   const [isMute, setIsMute] = useState(false)
   const [isLoopTrack, setIsLoopTrack] = useState(false)
@@ -24,158 +25,191 @@ export default function Bar() {
   const [isTooltipVisible, setIsTooltipVisible] = useState(false)
   const [tooltipTime, setTooltipTime] = useState(0)
   const [tooltipPosition, setTooltipPosition] = useState(0)
+  const [windowSize, setWindowSize] = useState({
+    width: typeof window !== 'undefined' ? window.innerWidth : 0,
+    height: typeof window !== 'undefined' ? window.innerHeight : 0,
+  })
+  const listTracks = useAppSelector((state) => state.tracks.list)
+  const [tooltipStyle, setTooltipStyle] = useState<React.CSSProperties>({})
 
-  const audio = audioRef.current
+  const duration = currentTrack?.duration_in_seconds ?? 0
+
+  // Рассчитываем процент прогресса
   const percentProgress = duration > 0 ? (currentTime / duration) * 100 : 0
 
-  // === Управление аудио ===
+  // === Эффект: размер окна для тултипа ===
   useEffect(() => {
-    if (!audio || !currentTrack) return
+    const handleResize = () =>
+      setWindowSize({ width: window.innerWidth, height: window.innerHeight })
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
-    const handleLoadedMetadata = () => {
-      setDuration(audio.duration)
+  // === Эффект: обновление стиля тултипа ===
+  useEffect(() => {
+    if (!windowSize.width || !duration) return
+
+    const TOOLTIP_WIDTH = 60
+    const cursorPosition = (percentProgress / 100) * windowSize.width
+
+    let newStyle: React.CSSProperties = {
+      left: `${percentProgress}%`,
+      transform: 'translateX(-50%)',
+      right: 'auto',
     }
 
-    const handleTimeUpdate = () => {
+    if (cursorPosition < TOOLTIP_WIDTH) {
+      newStyle = { left: '0px', transform: 'none', right: 'auto' }
+    } else if (cursorPosition > windowSize.width - TOOLTIP_WIDTH) {
+      newStyle = { right: '0px', transform: 'none', left: 'auto' }
+    }
+
+    setTooltipStyle(newStyle)
+  }, [percentProgress, windowSize.width, duration])
+
+  // === Эффект: timeupdate → обновляем currentTime ===
+  useEffect(() => {
+    const audio = audioRef.current
+    if (!audio) return
+
+    const updateTime = () => {
       setCurrentTime(audio.currentTime)
     }
 
-    const handleEnded = () => {
-      if (!isLoopTrack) {
-        onNextTrack()
-      }
-    }
+    audio.addEventListener('timeupdate', updateTime)
+    return () => audio.removeEventListener('timeupdate', updateTime)
+  }, [])
 
-    audio.addEventListener('loadedmetadata', handleLoadedMetadata)
-    audio.addEventListener('timeupdate', handleTimeUpdate)
-    audio.addEventListener('ended', handleEnded)
-
-    return () => {
-      audio.removeEventListener('loadedmetadata', handleLoadedMetadata)
-      audio.removeEventListener('timeupdate', handleTimeUpdate)
-      audio.removeEventListener('ended', handleEnded)
-    }
-  }, [audio, currentTrack, isLoopTrack, dispatch])
-
-  // === Воспроизведение / пауза ===
+  // === Эффект: управление воспроизведением (play/pause) ===
   useEffect(() => {
+    const audio = audioRef.current
     if (!audio || !currentTrack) return
 
     if (isPlayTrack) {
-      audio.play().catch((err) => {
-        console.warn('Ошибка воспроизведения:', err)
-        dispatch(setIsPlayTrack(false))
-      })
+      const playPromise = audio.play()
+      if (playPromise) {
+        playPromise.catch((err) => {
+          console.warn('[WARN] Play failed:', err)
+          dispatch(setIsPlayTrack(false))
+        })
+      }
     } else {
       audio.pause()
     }
-  }, [isPlayTrack, currentTrack, dispatch, audio])
+  }, [currentTrack?._id, isPlayTrack, dispatch])
 
-  // === Громкость и Mute ===
+  // === Эффект: ended → следующий трек ===
   useEffect(() => {
+    const audio = audioRef.current
     if (!audio) return
-    audio.muted = isMute
-    audio.volume = currentVolume / 100
-  }, [isMute, currentVolume, audio])
 
-  // === Обработчики UI ===
+    const handleEnded = () => onNextTrack()
+    audio.addEventListener('ended', handleEnded)
+    return () => audio.removeEventListener('ended', handleEnded)
+  }, [isShuffleTrack, currentTrack?._id])
+
+  // === Эффект: mute ===
+  useEffect(() => {
+    const audio = audioRef.current
+    if (audio) audio.muted = isMute
+  }, [isMute])
+
+  // === Эффект: громкость ===
+  useEffect(() => {
+    const audio = audioRef.current
+    if (audio) audio.volume = currentVolume / 100
+  }, [currentVolume])
+
+  // === Логика навигации ===
+  const findTrackIndex = () =>
+    listTracks.findIndex((track) => track._id === currentTrack?._id)
+
+  const onNextTrack = () => {
+    if (!currentTrack || listTracks.length === 0) return
+
+    let nextIndex: number
+
+    if (isShuffleTrack) {
+      const currentIndex = findTrackIndex()
+      let newIndex: number
+      do {
+        newIndex = Math.floor(Math.random() * listTracks.length)
+      } while (newIndex === currentIndex && listTracks.length > 1)
+      nextIndex = newIndex
+    } else {
+      const currentIndex = findTrackIndex()
+      nextIndex =
+        currentIndex === -1 ? 0 : (currentIndex + 1) % listTracks.length
+    }
+
+    const nextTrack = listTracks[nextIndex]
+    dispatch(setCurrentTrack(nextTrack))
+    dispatch(setIsPlayTrack(true))
+  }
+
+  const onPrevTrack = () => {
+    if (!currentTrack || listTracks.length === 0) return
+
+    const currentIndex = findTrackIndex()
+    if (currentIndex <= 0) return
+
+    const prevTrack = listTracks[currentIndex - 1]
+    dispatch(setCurrentTrack(prevTrack))
+    dispatch(setIsPlayTrack(true))
+  }
+
+  // === Управление UI ===
   const handlePlay = () => {
     if (currentTrack) {
       dispatch(setIsPlayTrack(!isPlayTrack))
     }
   }
 
-  const toggleVolume = (value: number) => {
-    setCurrentVolume(value)
-  }
-
   const toggleMute = () => setIsMute((prev) => !prev)
   const toggleLooping = () => setIsLoopTrack((prev) => !prev)
   const toggleShuffle = () => setIsShuffleTrack((prev) => !prev)
 
-  // === Навигация по трекам ===
-  const getTrackList = (): Track[] => {
-    // TODO: заменить на store.tracks.list, когда интегрируешь
-    // Сейчас временно — из кэша или заглушка
-    if (typeof window !== 'undefined') {
-      try {
-        const cached = localStorage.getItem('tracks_cache')
-        return cached ? JSON.parse(cached) : []
-      } catch (e) {
-        return []
-      }
-    }
-    return []
+  const toggleVolume = (value: number) => {
+    setCurrentVolume(value)
   }
 
-  const onNextTrack = () => {
-    const tracks = getTrackList()
-    if (!currentTrack || tracks.length === 0) return
-
-    let nextIndex: number
-
-    if (isShuffleTrack) {
-      let currentIndex = tracks.findIndex((t) => t._id === currentTrack._id)
-      if (currentIndex === -1) currentIndex = 0
-      do {
-        nextIndex = Math.floor(Math.random() * tracks.length)
-      } while (nextIndex === currentIndex && tracks.length > 1)
-    } else {
-      const currentIndex = tracks.findIndex((t) => t._id === currentTrack._id)
-      nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % tracks.length
-    }
-
-    dispatch(setCurrentTrack(tracks[nextIndex]))
-    dispatch(setIsPlayTrack(true))
-  }
-
-  const onPrevTrack = () => {
-    const tracks = getTrackList()
-    if (!currentTrack || tracks.length === 0) return
-
-    const currentIndex = tracks.findIndex((t) => t._id === currentTrack._id)
-    if (currentIndex === -1) return
-
-    const prevIndex = isShuffleTrack
-      ? Math.floor(Math.random() * tracks.length)
-      : currentIndex === 0
-      ? tracks.length - 1
-      : currentIndex - 1
-
-    dispatch(setCurrentTrack(tracks[prevIndex]))
-    dispatch(setIsPlayTrack(true))
-  }
-
-  // === Прогресс-бар ===
-  const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!audio || duration === 0) return
-    const rect = e.currentTarget.getBoundingClientRect()
-    const offsetX = e.clientX - rect.left
-    const clickPercent = Math.max(0, Math.min(1, offsetX / rect.width))
-    const newTime = clickPercent * duration
-    audio.currentTime = newTime
-    setCurrentTime(newTime)
-  }
-
+  // === Прогресс-бар: клик и наведение ===
   const handleProgressMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (duration === 0) return
+    if (!duration) return
     const rect = e.currentTarget.getBoundingClientRect()
     const offsetX = e.clientX - rect.left
-    const percent = Math.max(0, Math.min(1, offsetX / rect.width))
-    setTooltipPosition(percent * 100)
-    setTooltipTime(percent * duration)
+    const percentage = Math.max(0, Math.min(100, (offsetX / rect.width) * 100))
+    const timeAtPosition = (percentage / 100) * duration
+    setTooltipPosition(percentage)
+    setTooltipTime(timeAtPosition)
   }
 
+  const onProgressBarClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const audio = audioRef.current
+    if (!audio || !duration) return
+    const rect = e.currentTarget.getBoundingClientRect()
+    const offsetX = e.clientX - rect.left
+    const percentage = Math.max(0, Math.min(100, (offsetX / rect.width) * 100))
+    const timeAtPosition = (percentage / 100) * duration
+    audio.currentTime = timeAtPosition
+    setCurrentTime(timeAtPosition)
+  }
+
+  // === Вычисление состояния кнопок ===
+  const currentIndex = findTrackIndex()
+  const isNoPrevBtn = currentIndex <= 0
+  const isNoNextBtn = !isShuffleTrack && currentIndex >= listTracks.length - 1
+
+  // === Рендер ===
   if (!currentTrack) return null
 
-  // === Безопасные данные трека ===
-  const trackAuthor =
-    currentTrack.author === '-' ? 'Неизвестный' : currentTrack.author
-  const trackAlbum =
-    currentTrack.album === '-' ? 'Без альбома' : currentTrack.album
-
   return (
-    <div className={styles.bar}>
+    <div
+      className={styles.bar}
+      onMouseLeave={() => setIsTooltipVisible(false)}
+      onMouseEnter={() => setIsTooltipVisible(true)}
+      onMouseMove={handleProgressMouseMove}
+    >
       {/* Скрытый аудио-элемент */}
       <audio
         ref={audioRef}
@@ -184,27 +218,64 @@ export default function Bar() {
         style={{ display: 'none' }}
       />
 
-      {/* Прогресс-бар (единый контейнер) */}
-      <div
-        className={styles.progressBarContainer}
-        onClick={handleProgressClick}
-        onMouseEnter={() => setIsTooltipVisible(true)}
-        onMouseLeave={() => setIsTooltipVisible(false)}
-        onMouseMove={handleProgressMouseMove}
-      >
-        <div className={styles.progressBarBackground} />
+      {/* Прогресс-бар (фоновая заливка) */}
+      <div className={styles.bar__progressOverlay}>
         <div
-          className={styles.progressBarFill}
+          className={styles.bar__progressFill}
           style={{ width: `${percentProgress}%` }}
         />
-        {isTooltipVisible && (
+      </div>
+
+      {/* Интерактивная область прогресса */}
+      <div
+        onClick={onProgressBarClick}
+        className={clsx(styles.bar__playerProgress_wrap, {
+          [styles.aiming]: isTooltipVisible,
+        })}
+        style={{ height: isTooltipVisible ? '20px' : '5px' }}
+      >
+        <div
+          className={clsx(styles.bar__playerProgressBacg, {
+            [styles.aiming]: isTooltipVisible,
+          })}
+        />
+        <div>
+          {/* Текущее время (курсор) */}
           <div
-            className={styles.progressBarTooltip}
-            style={{ left: `${tooltipPosition}%` }}
+            className={clsx(
+              styles.bar__playerProgress_tooltip,
+              styles.tooltip_current
+            )}
+            style={{
+              visibility: isTooltipVisible ? 'visible' : 'hidden',
+              ...tooltipStyle,
+            }}
           >
-            {formatTime(tooltipTime)}
+            {formatTime(currentTime)}
           </div>
-        )}
+
+          {/* Общая длительность */}
+          <div
+            className={clsx(
+              styles.bar__playerProgress_tooltip,
+              styles.tooltip_duration
+            )}
+            style={{
+              opacity: isTooltipVisible ? 1 : 0,
+              display: duration > 0 ? 'flex' : 'none',
+            }}
+          >
+            {formatTime(duration)}
+          </div>
+
+          {/* Заполнение прогресса */}
+          <div
+            className={clsx(styles.bar__playerProgress, {
+              [styles.aiming]: isTooltipVisible,
+            })}
+            style={{ width: `${percentProgress}%` }}
+          />
+        </div>
       </div>
 
       {/* Панель управления */}
@@ -213,8 +284,9 @@ export default function Bar() {
           <div className={styles.player__controls}>
             <div
               className={clsx(styles.player__btnPrev, {
-                [styles.disable]: false, // можно добавить логику отключения
+                [styles.disable]: isNoPrevBtn,
               })}
+              style={{ pointerEvents: isNoPrevBtn ? 'none' : 'auto' }}
               onClick={onPrevTrack}
             >
               <svg className={styles.player__btnPrevSvg}>
@@ -222,7 +294,10 @@ export default function Bar() {
               </svg>
             </div>
 
-            <div className={styles.player__btnPlay} onClick={handlePlay}>
+            <div
+              className={clsx(styles.player__btnPlay, styles.btn)}
+              onClick={handlePlay}
+            >
               {isPlayTrack ? (
                 <svg className={styles.player__btnPlaySvg}>
                   <use xlinkHref="/img/icon/sprite.svg#icon-pause" />
@@ -234,35 +309,46 @@ export default function Bar() {
               )}
             </div>
 
-            <div className={styles.player__btnNext} onClick={onNextTrack}>
+            <div
+              className={clsx(styles.player__btnNext, {
+                [styles.disable]: isNoNextBtn,
+              })}
+              style={{ pointerEvents: isNoNextBtn ? 'none' : 'auto' }}
+              onClick={onNextTrack}
+            >
               <svg className={styles.player__btnNextSvg}>
                 <use xlinkHref="/img/icon/sprite.svg#icon-next" />
               </svg>
             </div>
 
             <div
-              className={clsx(styles.player__btnRepeat, styles.btnIcon, {
-                [styles.active]: isLoopTrack,
-              })}
               onClick={toggleLooping}
+              className={clsx(styles.player__btnRepeat, styles.btnIcon)}
             >
-              <svg className={styles.player__btnRepeatSvg}>
+              <svg
+                className={clsx(styles.player__btnRepeatSvg, {
+                  [styles.active]: isLoopTrack,
+                })}
+              >
                 <use xlinkHref="/img/icon/sprite.svg#icon-repeat" />
               </svg>
             </div>
 
             <div
-              className={clsx(styles.player__btnShuffle, styles.btnIcon, {
-                [styles.active]: isShuffleTrack,
-              })}
+              className={clsx(styles.player__btnShuffle, styles.btnIcon)}
               onClick={toggleShuffle}
             >
-              <svg className={styles.player__btnShuffleSvg}>
+              <svg
+                className={clsx(styles.player__btnShuffleSvg, {
+                  [styles.active]: isShuffleTrack,
+                })}
+              >
                 <use xlinkHref="/img/icon/sprite.svg#icon-shuffle" />
               </svg>
             </div>
           </div>
 
+          {/* Информация о треке */}
           <div className={styles.player__trackPlay}>
             <div className={styles.trackPlay__contain}>
               <div className={styles.trackPlay__image_info}>
@@ -271,13 +357,17 @@ export default function Bar() {
                 </svg>
               </div>
               <div className={styles.trackPlay__author}>
-                <Link className={styles.trackPlay__authorLink} href="">
-                  {trackAuthor}
+                <Link className={styles.trackPlay__authorLink} href="#">
+                  {currentTrack.author === '-'
+                    ? 'Неизвестный'
+                    : currentTrack.author}
                 </Link>
               </div>
               <div className={styles.trackPlay__album}>
-                <Link className={styles.trackPlay__albumLink} href="">
-                  {trackAlbum}
+                <Link className={styles.trackPlay__albumLink} href="#">
+                  {currentTrack.album === '-'
+                    ? 'Без альбома'
+                    : currentTrack.album}
                 </Link>
               </div>
             </div>
@@ -301,14 +391,16 @@ export default function Bar() {
         <div className={styles.bar__volumeBlock}>
           <div className={styles.volume__content}>
             <div
-              className={clsx(styles.volume__image, { [styles.mute]: isMute })}
+              className={clsx(styles.volume__image, {
+                [styles.mute]: isMute,
+              })}
               onClick={toggleMute}
             >
               <svg className={styles.volume__svg}>
                 <use xlinkHref="/img/icon/sprite.svg#icon-volume" />
               </svg>
             </div>
-            <div className={styles.volume__progress}>
+            <div className={clsx(styles.volume__progress, styles.btn)}>
               <input
                 className={styles.volume__progressLine}
                 type="range"

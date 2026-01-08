@@ -6,7 +6,6 @@ import clsx from 'clsx'
 import styles from './TrackList.module.css'
 import Link from 'next/link'
 import Search from '@components/Search/Search'
-import { dataTrack } from 'src/data'
 import SortDropdown from '@components/SortDropdown/SortDropdown'
 import { useEffect, useState } from 'react'
 import { FiltersTagType } from 'src/sharedTypes/sharedTypes'
@@ -34,6 +33,11 @@ export default function TrackList({
   const isPlayTrack = useAppSelector((state) => state.tracks.isPlayTrack)
   const loadingList = useAppSelector((state) => state.auth.isLoadingTrackList)
   const listTracks = useAppSelector((state) => state.tracks.list)
+  const [isLoadingTrackList, setIsLoadingTrackList] = useState(false)
+  useEffect(() => {
+    setIsLoadingTrackList(listTracks && true)
+    console.log(isLoadingTrackList)
+  }, [listTracks])
 
   // Исправлено: принимаем FiltersTagType, а не string
   const handleTypeFilter = (filter: FiltersTagType) => {
@@ -60,13 +64,12 @@ export default function TrackList({
 
   const skeletonTracks = Array(5).fill(null)
 
-
   return (
     <div className={styles.centerblock}>
       <Search />
 
       <h2 className={styles.centerblock__h2}>
-        {!loadingList
+        {isLoadingTrackList
           ? categoryId
             ? `Треки по категории: ${categoryId}`
             : 'Треки'
@@ -88,7 +91,7 @@ export default function TrackList({
                 typeFilter === filter.value && styles.filter__button_active
               )}
             >
-              {loadingList ? <Skeleton width={80} /> : filter.label}
+              {!isLoadingTrackList ? <Skeleton width={80} /> : filter.label}
             </div>
             {typeFilter === filter.value && (
               <SortDropdown typeFilter={filter.value} />
@@ -116,7 +119,7 @@ export default function TrackList({
         </div>
 
         <div className={styles.content__playlist}>
-          {loadingList
+          {!isLoadingTrackList
             ? skeletonTracks.map((_, index) => (
                 <div key={index} className={styles.playlist__item}>
                   <div className={styles.playlist__track}>
@@ -153,88 +156,84 @@ export default function TrackList({
                 </div>
               ))
             : Array.isArray(listTracks) &&
-              listTracks.map(
-                (track, index) => (
-                  (
-                    <div
-                      key={index}
-                      className={styles.playlist__item}
-                      onClick={() => onClickTrack(track)}
-                    >
-                      <div className={styles.playlist__track}>
-                        <div className={styles.track__title}>
-                          <div className={styles.track__titleImage}>
-                            <svg
-                              className={clsx(styles.track__titleSvg, {
-                                [styles.active]:
-                                  track._id === playTrack && isPlayTrack,
-                                [styles.selected__active]:
-                                  track._id === playTrack && !isPlayTrack,
-                              })}
-                              viewBox="0 0 20 19"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <g className={styles.notePath}>
-                                <path
-                                  d="M8 16V1.9697L19 1V13"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  strokeLinecap="round"
-                                />
-                                <ellipse
-                                  cx="4.5"
-                                  cy="16"
-                                  rx="3.5"
-                                  ry="2"
-                                  fill="none"
-                                  stroke="currentColor"
-                                />
-                                <ellipse
-                                  cx="15.5"
-                                  cy="13"
-                                  rx="3.5"
-                                  ry="2"
-                                  fill="none"
-                                  stroke="currentColor"
-                                />
-                              </g>
-                              <path
-                                className={styles.playPath}
-                                d="M6 4.5 L14 9.5 L6 14.5 Z"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
-                          </div>
-                          <Link className={styles.track__titleLink} href="">
-                            {track.name}
-                          </Link>
-                        </div>
-                        <div className={styles.track__author}>
-                          <Link className={styles.track__authorLink} href="">
-                            {track.author}
-                          </Link>
-                        </div>
-                        <div className={styles.track__album}>
-                          <Link className={styles.track__albumLink} href="">
-                            {track.album}
-                          </Link>
-                        </div>
-                        <div className={styles.track__time}>
-                          <svg className={styles.track__timeSvg}>
-                            <use xlinkHref="/img/icon/sprite.svg#icon-like" />
-                          </svg>
-                          <span className={styles.track__timeText}>
-                            {track.duration_in_seconds}
-                          </span>
-                        </div>
+              listTracks.map((track, index) => (
+                <div
+                  key={index}
+                  className={styles.playlist__item}
+                  onClick={() => onClickTrack(track)}
+                >
+                  <div className={styles.playlist__track}>
+                    <div className={styles.track__title}>
+                      <div className={styles.track__titleImage}>
+                        <svg
+                          className={clsx(styles.track__titleSvg, {
+                            [styles.active]:
+                              track._id === playTrack && isPlayTrack,
+                            [styles.selected__active]:
+                              track._id === playTrack && !isPlayTrack,
+                          })}
+                          viewBox="0 0 20 19"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <g className={styles.notePath}>
+                            <path
+                              d="M8 16V1.9697L19 1V13"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeLinecap="round"
+                            />
+                            <ellipse
+                              cx="4.5"
+                              cy="16"
+                              rx="3.5"
+                              ry="2"
+                              fill="none"
+                              stroke="currentColor"
+                            />
+                            <ellipse
+                              cx="15.5"
+                              cy="13"
+                              rx="3.5"
+                              ry="2"
+                              fill="none"
+                              stroke="currentColor"
+                            />
+                          </g>
+                          <path
+                            className={styles.playPath}
+                            d="M6 4.5 L14 9.5 L6 14.5 Z"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
                       </div>
+                      <Link className={styles.track__titleLink} href="">
+                        {track.name}
+                      </Link>
                     </div>
-                  )
-                )
-              )}
+                    <div className={styles.track__author}>
+                      <Link className={styles.track__authorLink} href="">
+                        {track.author}
+                      </Link>
+                    </div>
+                    <div className={styles.track__album}>
+                      <Link className={styles.track__albumLink} href="">
+                        {track.album}
+                      </Link>
+                    </div>
+                    <div className={styles.track__time}>
+                      <svg className={styles.track__timeSvg}>
+                        <use xlinkHref="/img/icon/sprite.svg#icon-like" />
+                      </svg>
+                      <span className={styles.track__timeText}>
+                        {track.duration_in_seconds}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
         </div>
       </div>
     </div>

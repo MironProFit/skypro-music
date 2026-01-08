@@ -1,7 +1,8 @@
 'use client'
 import styles from './SortDropdown.module.css'
-import { FiltersTagType, TrackType } from 'src/sharedTypes/sharedTypes'
+import { FiltersTagType } from 'src/sharedTypes/sharedTypes'
 import useChangeFilters from '@utils/useChangeFilters'
+
 
 interface SortDropdownProps {
   typeFilter: FiltersTagType

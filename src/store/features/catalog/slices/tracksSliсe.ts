@@ -11,7 +11,7 @@ type initialStateType = {
 }
 
 const loadTrackFromLocalStorage = (): Track[] => {
-  if (typeof window !== 'undefined') {
+  if (typeof window === 'undefined') {
     return []
   }
   try {
@@ -24,7 +24,7 @@ const loadTrackFromLocalStorage = (): Track[] => {
 }
 
 const initialState: initialStateType = {
-  list: loadTrackFromLocalStorage(),
+  list: [],
   loading: false,
   error: null,
   currentTrack: null,
@@ -40,6 +40,9 @@ const trackSlice = createSlice({
     },
     setIsPlayTrack: (state, action: PayloadAction<boolean>) => {
       state.isPlayTrack = action.payload
+    },
+    setTracksFromCache: (state, action: PayloadAction<Track[]>) => {
+      state.list = action.payload
     },
   },
   extraReducers: (builder) => {
@@ -67,5 +70,6 @@ const trackSlice = createSlice({
   },
 })
 
-export const { setCurrentTrack, setIsPlayTrack } = trackSlice.actions
+export const { setCurrentTrack, setIsPlayTrack, setTracksFromCache } =
+  trackSlice.actions
 export const trackSliceReducer = trackSlice.reducer
