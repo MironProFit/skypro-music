@@ -8,9 +8,7 @@ import { useEffect } from 'react'
 
 export default function Sidebar() {
   const userName = useAppSelector((state) => state.auth.formData.username)
-  useEffect(() => {
-    console.log(userName)
-  }, [userName])
+ 
 
   return (
     <div className={styles.main__sidebar}>

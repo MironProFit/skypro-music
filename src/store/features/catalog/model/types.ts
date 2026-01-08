@@ -10,3 +10,6 @@ export interface Track {
   track_file: string
   stared_user: string[]
 }
+
+export interface TrackApiResponse {data: Track[]}
+

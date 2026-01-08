@@ -1,6 +1,6 @@
-import { TrackType } from './sharedTypes/sharedTypes'
+import { Track } from '@store/catalog'
 
-export const dataTrack: TrackType[] = [
+export const dataTrack: Track[] = [
   {
     _id: 8,
     name: 'Chase',

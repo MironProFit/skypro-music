@@ -1,9 +1,9 @@
 'use client'
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { registerUser } from '../api/register'
-import { loginUser } from '../api/login'
-import { getUserToken } from '../api/token'
+import { registerUser } from '../api/registerThunk'
+import { loginUser } from '../api/loginThunk'
+import { getUserToken } from '../api/tokenThunk'
 import { AuthFormData } from '../model/types'
 
 // === Получение данных из localStorage ===

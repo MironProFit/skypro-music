@@ -1,5 +1,5 @@
 import { TokenResponse } from '@store/auth'
-import axios, { isAxiosError } from 'axios'
+import { isAxiosError } from 'axios'
 import { TOKEN_ENDPOINT } from 'src/config/apiEndpoints'
 
 import { apiClient } from 'src/services/apiClient'

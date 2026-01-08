@@ -19,9 +19,9 @@ export type {
 } from './model/types'
 
 // --- THUNK'и ---
-export { loginUser } from './api/login'
-export { registerUser } from './api/register'
-export { getUserToken } from './api/token'
+export { loginUser } from './api/loginThunk'
+export { registerUser } from './api/registerThunk'
+export { getUserToken } from './api/tokenThunk'
 
 // --- ACTIONS ---
 

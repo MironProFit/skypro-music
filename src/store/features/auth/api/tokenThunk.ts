@@ -10,6 +10,7 @@ export const getUserToken = createAsyncThunk<
 >(
   'auth/tokenUser',
   async ({ email, password }, { rejectWithValue }) => {
+    
     try {
       const response = await getTokenApi(email, password)
 
@@ -33,7 +34,8 @@ export const getUserToken = createAsyncThunk<
       // Проверяем, есть ли уже токены
       if (tokenAccess || tokenRefresh) {
         console.log('Токены уже есть, выполнение пропущено')
-        return false
+
+        return true
       }
 
       // Проверка наличия email и password в args

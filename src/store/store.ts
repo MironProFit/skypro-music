@@ -14,7 +14,7 @@ export const makeStore = () => {
 
   return configureStore({
     reducer: combineReducers({
-      track: trackSliceReducer,
+      tracks: trackSliceReducer,
       auth: authSliceReducer, // ← теперь определён
     }),
     devTools: isDev

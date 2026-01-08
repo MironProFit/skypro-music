@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { Track } from '../model/types'
-import { fetchTracks } from '../api/tracksThunks'
+import { fetchTracks } from '../api/tracksThunk'
 
 type initialStateType = {
   list: Track[]
@@ -10,8 +10,21 @@ type initialStateType = {
   isPlayTrack: boolean
 }
 
+const loadTrackFromLocalStorage = (): Track[] => {
+  if (typeof window !== 'undefined') {
+    return []
+  }
+  try {
+    const cached = localStorage.getItem('tracks_cache')
+    return cached ? JSON.parse(cached) : []
+  } catch (error) {
+    console.warn('Не удалось загрузить треки из localStorage:', error)
+    return []
+  }
+}
+
 const initialState: initialStateType = {
-  list: [],
+  list: loadTrackFromLocalStorage(),
   loading: false,
   error: null,
   currentTrack: null,
@@ -38,12 +51,19 @@ const trackSlice = createSlice({
       .addCase(fetchTracks.fulfilled, (state, action) => {
         state.loading = false
         state.list = action.payload
+
+        if (typeof window !== 'undefined') {
+          try {
+            localStorage.setItem('tracks_cache', JSON.stringify(action.payload))
+          } catch (error) {
+            console.warn('Не удалось сохранить треки в localStorage:', error)
+          }
+        }
       })
       .addCase(fetchTracks.rejected, (state, action) => {
         state.loading = false
         state.error = action.payload ?? 'Неизвестная ошибка'
       })
-      
   },
 })
 

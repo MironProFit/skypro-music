@@ -1,6 +1,7 @@
 import { LoginResponse } from '@store/auth'
-import axios, { isAxiosError } from 'axios'
+import { isAxiosError } from 'axios'
 import { SIGNIN_ENDPOINT } from 'src/config/apiEndpoints'
+import { apiClient } from 'src/services/apiClient'
 
 export const loginApi = async (
   email: string,
@@ -8,7 +9,7 @@ export const loginApi = async (
   signal?: AbortSignal
 ): Promise<LoginResponse> => {
   try {
-    const res = await axios.post<LoginResponse>(
+    const res = await apiClient.post<LoginResponse>(
       SIGNIN_ENDPOINT,
       { email, password },
       {
