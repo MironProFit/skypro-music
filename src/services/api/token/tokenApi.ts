@@ -1,22 +1,20 @@
-import { TokenUserResponse } from '@store/auth/model/tokenUser.types'
+import { TokenResponse } from '@store/auth'
 import axios, { isAxiosError } from 'axios'
-import { BASE_API_URL, TOKEN_ENDPOINT } from 'src/constants'
+import { TOKEN_ENDPOINT } from 'src/config/apiEndpoints'
+
+import { apiClient } from 'src/services/apiClient'
 
 export const getTokenApi = async (
   email: string,
   password: string,
   signal?: AbortSignal
-): Promise<TokenUserResponse> => {
+): Promise<TokenResponse> => {
   try {
-    const res = await axios.post<TokenUserResponse>(
-      `${BASE_API_URL}${TOKEN_ENDPOINT}`,
+    const res = await apiClient.post<TokenResponse>(
+      TOKEN_ENDPOINT,
       { email, password },
       {
         signal,
-        timeout: 10_000,
-        headers: {
-          'Content-Type': 'application/json',
-        },
       }
     )
     return res.data

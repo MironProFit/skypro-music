@@ -1,22 +1,18 @@
-import { LoginUserResponse } from '@store/auth/model/loginUser.types'
+import { LoginResponse } from '@store/auth'
 import axios, { isAxiosError } from 'axios'
-import { BASE_API_URL, SIGNIN_ENDPOINT } from 'src/constants'
+import { SIGNIN_ENDPOINT } from 'src/config/apiEndpoints'
 
 export const loginApi = async (
   email: string,
   password: string,
   signal?: AbortSignal
-): Promise<LoginUserResponse> => {
+): Promise<LoginResponse> => {
   try {
-    const res = await axios.post<LoginUserResponse>(
-      `${BASE_API_URL}${SIGNIN_ENDPOINT}`,
+    const res = await axios.post<LoginResponse>(
+      SIGNIN_ENDPOINT,
       { email, password },
       {
         signal,
-        timeout: 10_000,
-        headers: {
-          'Content-Type': 'application/json',
-        },
       }
     )
     return res.data

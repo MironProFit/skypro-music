@@ -1,13 +1,11 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
-import {
-  RegisterUserData,
-  RegisterUserResponse,
-} from '../model/registerUser.types'
+
 import { registerApi } from 'src/services/api/auth/registerApi'
+import { RegisterRequest, RegisterResponse } from '../model/types'
 
 export const registerUser = createAsyncThunk<
-  RegisterUserResponse,
-  RegisterUserData,
+  RegisterResponse,
+  RegisterRequest,
   { rejectValue: string }
 >(
   'auth/registerUser',
