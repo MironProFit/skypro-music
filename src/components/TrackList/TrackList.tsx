@@ -1,5 +1,3 @@
-// src/components/TrackList/TrackList.tsx
-
 'use client'
 
 import clsx from 'clsx'
@@ -7,7 +5,7 @@ import styles from './TrackList.module.css'
 import Link from 'next/link'
 import Search from '@components/Search/Search'
 import SortDropdown from '@components/SortDropdown/SortDropdown'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { FiltersTagType } from 'src/sharedTypes/sharedTypes'
 import { Track } from '@store/catalog'
 import {
@@ -16,6 +14,7 @@ import {
 } from '@store/catalog/slices/tracksSliсe'
 import { useAppDispatch, useAppSelector } from 'src/store/store'
 import Skeleton from '@components/Skeleton/Skeleton'
+import { useFilters } from 'src/hooks/useSelectedFilter'
 
 type TrackListProps = {
   categoryId?: string | null
@@ -31,15 +30,61 @@ export default function TrackList({
   const [typeFilter, setTypeFilter] = useState<FilterState>('')
   const playTrack = useAppSelector((state) => state.tracks.currentTrack?._id)
   const isPlayTrack = useAppSelector((state) => state.tracks.isPlayTrack)
-  const loadingList = useAppSelector((state) => state.auth.isLoadingTrackList)
   const listTracks = useAppSelector((state) => state.tracks.list)
-  const [isLoadingTrackList, setIsLoadingTrackList] = useState(false)
-  useEffect(() => {
-    setIsLoadingTrackList(listTracks && true)
-    console.log(isLoadingTrackList)
-  }, [listTracks])
 
-  // Исправлено: принимаем FiltersTagType, а не string
+  const { filters: selectedFilters, toggleFilter } = useFilters()
+
+  const isLoadingTrackList = Array.isArray(listTracks)
+
+  // Подсчёт количества треков с заполненным полем для каждого типа фильтра
+  const allCountsByType = useMemo(() => {
+    if (!isLoadingTrackList) {
+      return { author: 0, release_date: 0, genre: 0 }
+    }
+
+    const counts = {
+      author: 0,
+      release_date: 0,
+      genre: 0,
+    } as Record<FiltersTagType, number>
+
+    for (const track of listTracks) {
+      if (track.author && track.author !== '-') counts.author++
+      if (track.release_date && track.release_date !== '-')
+        counts.release_date++
+      if (track.genre) {
+        const genres = Array.isArray(track.genre) ? track.genre : [track.genre]
+        if (genres.some((g) => g && g !== '-')) counts.genre++
+      }
+    }
+
+    return counts
+  }, [listTracks, isLoadingTrackList])
+
+  // Фильтрация треков по выбранным значениям
+  const filteredTracks = useMemo(() => {
+    if (!isLoadingTrackList) return []
+
+    return listTracks.filter((track) => {
+      for (const [key, values] of Object.entries(selectedFilters)) {
+        const filterKey = key as FiltersTagType
+        if (filterKey === 'genre') {
+          const trackGenres = Array.isArray(track.genre)
+            ? track.genre
+            : [track.genre]
+          if (!values.some((v) => trackGenres.includes(v))) {
+            return false
+          }
+        } else {
+          if (!values.includes(track[filterKey])) {
+            return false
+          }
+        }
+      }
+      return true
+    })
+  }, [listTracks, selectedFilters, isLoadingTrackList])
+
   const handleTypeFilter = (filter: FiltersTagType) => {
     setTypeFilter((prev) => (prev === filter ? '' : filter))
   }
@@ -79,25 +124,44 @@ export default function TrackList({
       <div className={styles.centerblock__filter}>
         <div className={styles.filter__title}>Искать по:</div>
 
-        {filters.map((filter) => (
-          <div
-            className={styles.filter__wrapFilter__buttons}
-            key={filter.value}
-          >
+        {filters.map((filter) => {
+          const selectedCount = selectedFilters[filter.value]?.length || 0
+
+          return (
             <div
-              onClick={() => handleTypeFilter(filter.value)}
-              className={clsx(
-                styles.filter__button,
-                typeFilter === filter.value && styles.filter__button_active
-              )}
+              className={styles.filter__wrapFilter__buttons}
+              key={filter.value}
             >
-              {!isLoadingTrackList ? <Skeleton width={80} /> : filter.label}
+              {/* Кружок только если выбрано хотя бы одно значение */}
+              <div
+                className={clsx(styles.filter__button_count, {
+                  [styles.active_filtr]: selectedCount > 0,
+                })}
+              >
+                {selectedCount}
+              </div>
+
+              <div
+                onClick={() => handleTypeFilter(filter.value)}
+                className={clsx(
+                  styles.filter__button,
+                  selectedCount > 0 && styles.filter__button_active
+                )}
+              >
+                {!isLoadingTrackList ? <Skeleton width={80} /> : filter.label}
+              </div>
+
+              {typeFilter === filter.value && (
+                <SortDropdown
+                  typeFilter={filter.value}
+                  selectedValues={selectedFilters[filter.value] || []}
+                  onToggle={(value) => toggleFilter(filter.value, value)}
+                  onClose={() => setTypeFilter('')}
+                />
+              )}
             </div>
-            {typeFilter === filter.value && (
-              <SortDropdown typeFilter={filter.value} />
-            )}
-          </div>
-        ))}
+          )
+        })}
       </div>
 
       <div className={styles.centerblock__content}>
@@ -155,10 +219,9 @@ export default function TrackList({
                   </div>
                 </div>
               ))
-            : Array.isArray(listTracks) &&
-              listTracks.map((track, index) => (
+            : filteredTracks.map((track) => (
                 <div
-                  key={index}
+                  key={track._id}
                   className={styles.playlist__item}
                   onClick={() => onClickTrack(track)}
                 >

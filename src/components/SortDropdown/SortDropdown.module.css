@@ -17,6 +17,7 @@
   max-height: 232px;
   padding-right: 24px;
   overflow-y: auto;
+  position: relative;
 }
 
 /* Стиль для всей полосы прокрутки */
@@ -41,9 +42,17 @@
   cursor: pointer;
   transition: 0.3s;
 }
+.modalItem_reset {
+  color: #b672ff;
+  margin-bottom: 10px;
+  border-bottom: 1px solid red;
+}
 
 .modalItem:hover {
   color: #b672ff;
   text-decoration: underline;
   cursor: pointer;
+}
+.modalItem_active {
+  color: #b672ff;
 }

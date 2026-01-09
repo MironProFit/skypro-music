@@ -37,6 +37,7 @@
 }
 
 .filter__button {
+  position: relative;
   font-style: normal;
   font-weight: 400;
   font-size: 16px;
@@ -47,7 +48,28 @@
   color: #ffffff;
   transition: 0.3s;
   cursor: pointer;
+  z-index: 1;
 }
+.filter__button_count {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  right: -8px;
+  top: -10px;
+  color: white;
+  border-radius: 50%;
+  background-color: #ad61ff;
+  z-index: 2;
+  opacity: 0;
+  transition: 0.3s;
+}
+.filter__button_count.active_filtr {
+  opacity: 1;
+}
+
 .filter__button.loading {
   color: transparent;
   animation: loadingMove 20s linear infinite;
@@ -60,10 +82,10 @@
   opacity: 0.5;
 }
 
-.filter__button_active {
+/* .filter__button_active {
   color: #b672ff;
   border: 1px solid #b672ff;
-}
+} */
 
 .centerblock__content {
   display: flex;
