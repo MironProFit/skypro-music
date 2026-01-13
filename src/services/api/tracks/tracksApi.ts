@@ -6,6 +6,13 @@ import { apiClient } from 'src/services/apiClient'
 export const getTracksApi = async (): Promise<Track[]> => {
   try {
     const response = await apiClient.get<TrackApiResponse>(GET_ALL_TRACKS)
+    if (!response.data.success) {
+      console.error(
+        'Ошибка API:',
+        response.data.message || 'Не удалось загрузить треки'
+      )
+    }
+
     return response.data.data
   } catch (error) {
     if (isAxiosError(error)) {

@@ -16,6 +16,7 @@ const loadTrackFromLocalStorage = (): Track[] => {
   }
   try {
     const cached = localStorage.getItem('tracks_cache')
+    
     return cached ? JSON.parse(cached) : []
   } catch (error) {
     console.warn('Не удалось загрузить треки из localStorage:', error)

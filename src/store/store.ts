@@ -7,6 +7,7 @@ import {
   useSelector,
   useStore,
 } from 'react-redux'
+import { selectionsReducer } from '@store/catalog/slices/selectionSlice'
 
 export const makeStore = () => {
   const isDev =
@@ -16,6 +17,7 @@ export const makeStore = () => {
     reducer: combineReducers({
       tracks: trackSliceReducer,
       auth: authSliceReducer, // ← теперь определён
+      selections: selectionsReducer,
     }),
     devTools: isDev
       ? {

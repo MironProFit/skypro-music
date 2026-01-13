@@ -3,11 +3,12 @@
 import Image from 'next/image'
 import styles from './Sidebar.module.css'
 import Link from 'next/link'
-import { useAppSelector } from 'src/store/store'
+import { useAppDispatch, useAppSelector } from 'src/store/store'
 import { useEffect, useState } from 'react'
 
 export default function Sidebar() {
   const [userName, setuserName] = useState('')
+  const dispatch = useAppDispatch()
 
   useEffect(() => {
     const userName = localStorage.getItem('userData')
@@ -20,6 +21,10 @@ export default function Sidebar() {
       setuserName('Гость')
     }
   }, [])
+
+  const handleSelectionClick = (id: number) => {
+    
+  }
 
   return (
     <div className={styles.main__sidebar}>
@@ -38,18 +43,19 @@ export default function Sidebar() {
         <div className={styles.sidebar__list}>
           {[1, 2, 3].map((id) => (
             <div key={id} className={styles.sidebar__item}>
-              <Link
+              <div
                 className={styles.sidebar__link}
-                href={`/music/category/${id}`}
+                // href={`/music/category/${id}`}
+                onClick={() => handleSelectionClick(id)}
               >
                 <Image
                   className={styles.sidebar__img}
-                  src={`/img/playlist0${id}.png`}
+                  src={`/img/selection${id}.svg`}
                   alt="day's playlist"
                   width={250}
                   height={150}
                 />
-              </Link>
+              </div>
             </div>
           ))}
         </div>

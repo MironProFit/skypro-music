@@ -51,11 +51,9 @@ export default function SigninPage() {
       <Loading />
       <form onSubmit={handleSubmit} className={styles.modal__form}>
         {/* Логотип */}
-        <Link href="/music/main">
           <div className={styles.modal__logo}>
             <img src="/img/logo_modal.png" alt="logo" />
           </div>
-        </Link>
 
         {/* Поле Email */}
         <input

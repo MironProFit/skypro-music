@@ -1,6 +1,5 @@
 // src/store/selections/api/selectionsThunk.ts
 import { createAsyncThunk } from '@reduxjs/toolkit'
-import { Selection } from '../model/types'
 import { apiClient } from 'src/services/apiClient'
 import { GET_ALL_SELECTIONS } from 'src/config/apiEndpoints'
 import { isAxiosError } from 'axios'

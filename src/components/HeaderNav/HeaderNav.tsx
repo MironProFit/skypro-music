@@ -3,17 +3,31 @@
 import Image from 'next/image'
 import styles from './HeaderNav.module.css'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import clsx from 'clsx'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useAppDispatch } from 'src/store/store'
+import { resetFormData } from '@store/auth'
+import { useRouter } from 'next/navigation'
 
 export default function HeaderNav() {
   const [isOpenBurger, setIsOpenBurger] = useState(false)
+  const dispatch = useAppDispatch()
+  const router = useRouter()
 
   const toggleBurgerMenu = () => {
     setIsOpenBurger((prev) => !prev)
   }
+  const handleLogout = () => {
+    dispatch(resetFormData())
+    router.push('/auth/signin')
+    // setIsOpenBurger(false)
+  }
 
+  const handleSelectionClick = () => {
+    router.push('/music/main')
+    toggleBurgerMenu()
+  }
 
   return (
     <nav className={styles.main__nav}>
@@ -62,19 +76,26 @@ export default function HeaderNav() {
           >
             <ul className={styles.menu__list}>
               <li className={styles.menu__item}>
-                <Link href="#" className={styles.menu__link}>
+                <button
+                  //  href="/music/main"
+                  onClick={handleSelectionClick}
+                  className={styles.menu__link_btn}
+                >
                   Главное
-                </Link>
+                </button>
               </li>
               <li className={styles.menu__item}>
-                <Link href="#" className={styles.menu__link}>
+                <Link href="/playlist" className={styles.menu__link}>
                   Мой плейлист
                 </Link>
               </li>
               <li className={styles.menu__item}>
-                <Link href="../signin.html" className={styles.menu__link}>
-                  Войти
-                </Link>
+                <button
+                  onClick={handleLogout}
+                  className={styles.menu__link_btn}
+                >
+                  Выйти
+                </button>
               </li>
             </ul>
           </motion.div>
