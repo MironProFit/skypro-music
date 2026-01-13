@@ -4,7 +4,7 @@ import { apiClient } from 'src/services/apiClient'
 import { GET_ALL_SELECTIONS } from 'src/config/apiEndpoints'
 import { isAxiosError } from 'axios'
 
-export const fetchAllSelections = createAsyncThunk<
+export const fetchAllSelectionsApi = createAsyncThunk<
   Selection[],
   void,
   { rejectValue: string }

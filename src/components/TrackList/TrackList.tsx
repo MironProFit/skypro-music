@@ -5,95 +5,78 @@ import styles from './TrackList.module.css'
 import Link from 'next/link'
 import Search from '@components/Search/Search'
 import SortDropdown from '@components/SortDropdown/SortDropdown'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { FiltersTagType } from 'src/sharedTypes/sharedTypes'
-import { Track } from '@store/catalog'
+import { Track } from '@store/catalog/model/types'
 import {
   setCurrentTrack,
   setIsPlayTrack,
-} from '@store/catalog/slices/tracksSliсe'
+} from '@store/catalog/slices/tracksSlice'
 import { useAppDispatch, useAppSelector } from 'src/store/store'
 import Skeleton from '@components/Skeleton/Skeleton'
 import { useFilters } from 'src/hooks/useSelectedFilter'
 
 type TrackListProps = {
-  categoryId?: string | null
-  categoryTracks?: Track[] | null
+  categoryName?: string
+  categoryTrackIds?: number[]
 }
 
 type FilterState = '' | FiltersTagType
 
 export default function TrackList({
-  categoryId,
-  categoryTracks,
+  categoryName,
+  categoryTrackIds,
 }: TrackListProps) {
   const [typeFilter, setTypeFilter] = useState<FilterState>('')
+  const [yearMode, setYearMode] = useState<'default' | 'new-first' | 'old-first'>('default')
   const playTrack = useAppSelector((state) => state.tracks.currentTrack?._id)
   const isPlayTrack = useAppSelector((state) => state.tracks.isPlayTrack)
-  const listTracks = useAppSelector((state) => state.tracks.list)
+  const allTracks = useAppSelector((state) => state.tracks.list)
 
   const { filters: selectedFilters, toggleFilter } = useFilters()
 
-  const isLoadingTrackList = Array.isArray(listTracks)
+  const isLoading = Array.isArray(allTracks) && allTracks.length > 0
 
-  // Подсчёт количества треков с заполненным полем для каждого типа фильтра
-  const allCountsByType = useMemo(() => {
-    if (!isLoadingTrackList) {
-      return { author: 0, release_date: 0, genre: 0 }
+  const tracksToDisplay = useMemo(() => {
+    if (!categoryTrackIds || categoryTrackIds.length === 0) {
+      return allTracks
     }
+    const idSet = new Set(categoryTrackIds)
+    return allTracks.filter((track) => idSet.has(track._id))
+  }, [allTracks, categoryTrackIds])
 
-    const counts = {
-      author: 0,
-      release_date: 0,
-      genre: 0,
-    } as Record<FiltersTagType, number>
+  const processedTracks = useMemo(() => {
+    if (!isLoading) return []
 
-    for (const track of listTracks) {
-      if (track.author && track.author !== '-') counts.author++
-      if (track.release_date && track.release_date !== '-')
-        counts.release_date++
-      if (track.genre) {
-        const genres = Array.isArray(track.genre) ? track.genre : [track.genre]
-        if (genres.some((g) => g && g !== '-')) counts.genre++
-      }
-    }
-
-    return counts
-  }, [listTracks, isLoadingTrackList])
-
-  // Фильтрация треков по выбранным значениям
-  const filteredTracks = useMemo(() => {
-    if (!isLoadingTrackList) return []
-
-    return listTracks.filter((track) => {
+    let result = [...tracksToDisplay].filter((track) => {
       for (const [key, values] of Object.entries(selectedFilters)) {
         const filterKey = key as FiltersTagType
         if (filterKey === 'genre') {
-          const trackGenres = Array.isArray(track.genre)
-            ? track.genre
-            : [track.genre]
-          if (!values.some((v) => trackGenres.includes(v))) {
-            return false
-          }
-        } else {
-          if (!values.includes(track[filterKey])) {
-            return false
-          }
+          const trackGenres = Array.isArray(track.genre) ? track.genre : [track.genre]
+          if (!values.some((v) => trackGenres.includes(v))) return false
+        } else if (filterKey === 'author') {
+          if (!values.includes(track.author)) return false
         }
       }
       return true
     })
-  }, [listTracks, selectedFilters, isLoadingTrackList])
+
+    if (yearMode === 'new-first') {
+      result.sort((a, b) => (parseInt(b.release_date, 10) || 0) - (parseInt(a.release_date, 10) || 0))
+    } else if (yearMode === 'old-first') {
+      result.sort((a, b) => (parseInt(a.release_date, 10) || 0) - (parseInt(b.release_date, 10) || 0))
+    }
+
+    return result
+  }, [tracksToDisplay, selectedFilters, yearMode, isLoading])
 
   const handleTypeFilter = (filter: FiltersTagType) => {
     setTypeFilter((prev) => (prev === filter ? '' : filter))
   }
 
-  const filters = [
-    { label: 'исполнителю', value: 'author' as const },
-    { label: 'году выпуска', value: 'release_date' as const },
-    { label: 'жанру', value: 'genre' as const },
-  ]
+  const handleYearToggle = (mode: string) => {
+    setYearMode(mode as 'default' | 'new-first' | 'old-first')
+  }
 
   const dispatch = useAppDispatch()
 
@@ -109,14 +92,20 @@ export default function TrackList({
 
   const skeletonTracks = Array(5).fill(null)
 
+  const filters = [
+    { label: 'исполнителю', value: 'author' as const },
+    { label: 'году выпуска', value: 'release_date' as const },
+    { label: 'жанру', value: 'genre' as const },
+  ]
+
   return (
     <div className={styles.centerblock}>
       <Search />
 
       <h2 className={styles.centerblock__h2}>
-        {isLoadingTrackList
-          ? categoryId
-            ? `Треки по категории: ${categoryId}`
+        {isLoading
+          ? categoryName
+            ? `${categoryName}`
             : 'Треки'
           : 'Загрузка...'}
       </h2>
@@ -125,14 +114,16 @@ export default function TrackList({
         <div className={styles.filter__title}>Искать по:</div>
 
         {filters.map((filter) => {
-          const selectedCount = selectedFilters[filter.value]?.length || 0
+          // 🔥 Логика счётчика для кругляшка
+          const selectedCount = filter.value === 'release_date'
+            ? (yearMode !== 'default' ? 1 : 0)
+            : (selectedFilters[filter.value]?.length || 0)
 
           return (
             <div
               className={styles.filter__wrapFilter__buttons}
               key={filter.value}
             >
-              {/* Кружок только если выбрано хотя бы одно значение */}
               <div
                 className={clsx(styles.filter__button_count, {
                   [styles.active_filtr]: selectedCount > 0,
@@ -148,14 +139,24 @@ export default function TrackList({
                   selectedCount > 0 && styles.filter__button_active
                 )}
               >
-                {!isLoadingTrackList ? <Skeleton width={80} /> : filter.label}
+                {!isLoading ? <Skeleton width={80} /> : filter.label}
               </div>
 
               {typeFilter === filter.value && (
                 <SortDropdown
                   typeFilter={filter.value}
-                  selectedValues={selectedFilters[filter.value] || []}
-                  onToggle={(value) => toggleFilter(filter.value, value)}
+                  selectedValues={
+                    filter.value === 'release_date'
+                      ? [yearMode]
+                      : selectedFilters[filter.value] || []
+                  }
+                  onToggle={(value) => {
+                    if (filter.value === 'release_date') {
+                      handleYearToggle(value)
+                    } else {
+                      toggleFilter(filter.value, value)
+                    }
+                  }}
                   onClose={() => setTypeFilter('')}
                 />
               )}
@@ -183,7 +184,7 @@ export default function TrackList({
         </div>
 
         <div className={styles.content__playlist}>
-          {!isLoadingTrackList
+          {!isLoading
             ? skeletonTracks.map((_, index) => (
                 <div key={index} className={styles.playlist__item}>
                   <div className={styles.playlist__track}>
@@ -219,7 +220,7 @@ export default function TrackList({
                   </div>
                 </div>
               ))
-            : filteredTracks.map((track) => (
+            : processedTracks.map((track) => (
                 <div
                   key={track._id}
                   className={styles.playlist__item}

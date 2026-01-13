@@ -175,7 +175,7 @@ const authSlice = createSlice({
 
 export const { setFormData, resetFormData, setIsLoadingTrackList } =
   authSlice.actions
-export default authSlice.reducer
+export const authSliceSliceReducer = authSlice.reducer
 
 // === СЕЛЕКТОРЫ ===
 import { RootState } from 'src/store/store'

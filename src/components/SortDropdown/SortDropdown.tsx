@@ -19,6 +19,38 @@ export default function SortDropdown({
   onToggle,
   onClose,
 }: SortDropdownProps) {
+  // 🔥 Специальная обработка для "года выпуска"
+  if (typeFilter === 'release_date') {
+    const yearOptions = [
+      { label: 'По умолчанию', value: 'default' },
+      { label: 'Сначала новые', value: 'new-first' },
+      { label: 'Сначала старые', value: 'old-first' },
+    ]
+
+    return (
+      <div className={styles.modalWrap}>
+        <ul className={styles.modalList}>
+          {yearOptions.map((option) => (
+            <li
+              key={option.value}
+              onClick={() => {
+                onToggle(option.value)
+                onClose()
+              }}
+              className={clsx(
+                styles.modalItem,
+                selectedValues.includes(option.value) && styles.modalItem_active
+              )}
+            >
+              {option.label}
+            </li>
+          ))}
+        </ul>
+      </div>
+    )
+  }
+
+  // Обычное поведение для author, genre
   const uniqueValues = useChangeFilters(typeFilter)
 
   return (
@@ -28,10 +60,13 @@ export default function SortDropdown({
           uniqueValues.map((value) => (
             <li
               key={value}
-              onClick={() => onToggle(value)}
+              onClick={() => {
+                onToggle(value)
+                onClose()
+              }}
               className={clsx(
                 styles.modalItem,
-                selectedValues.includes(value) && styles.modalItem_active // ← подсветка
+                selectedValues.includes(value) && styles.modalItem_active
               )}
             >
               {value}

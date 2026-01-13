@@ -31,7 +31,7 @@ export default function HeaderNav() {
 
   return (
     <nav className={styles.main__nav}>
-      <Link href="/">
+      <Link href="/music/main">
         <div className={styles.nav__logo}>
           <Image
             width={250}

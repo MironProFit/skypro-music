@@ -1,3 +1,4 @@
+// Track
 export interface Track {
   _id: number
   name: string
@@ -11,6 +12,24 @@ export interface Track {
   stared_user: string[]
 }
 
+// Selection
+export interface Selection {
+  _id: number
+  name: string
+  items: number[]
+  owner: number[]
+  __v: number
+}
+
+// State
+export interface SelectionsState {
+  list: Selection[]
+  currentCollection: string
+  loading: boolean
+  error: string | null
+}
+
+// API Responses
 export interface TrackApiResponse {
   success: boolean
   data: Track[]
@@ -29,19 +48,4 @@ export interface TracksByIdsRequest {
 export interface TracksByIdsResponse {
   success: boolean
   data: Track[]
-}
-
-export interface Selection {
-  _id: string
-  name: string
-  items: string[]
-  owner: string
-  __v: number
-}
-
-export interface SelectionsState {
-  list: Selection[]
-  currentCollection: string
-  loading: boolean
-  error: string | null
 }

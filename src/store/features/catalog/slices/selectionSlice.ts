@@ -1,5 +1,5 @@
 // src/store/selections/slices/selectionsSlice.ts
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { SelectionsState } from '../model/types'
 import { fetchAllSelections } from '../api/selectionThunk'
 
@@ -13,7 +13,11 @@ const initialState: SelectionsState = {
 const selectionsSlice = createSlice({
   name: 'selections',
   initialState,
-  reducers: {},
+  reducers: {
+    setCurrentSelection: (state, action: PayloadAction<string>) => {
+      state.currentCollection = action.payload
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchAllSelections.pending, (state) => {
@@ -43,5 +47,5 @@ const selectionsSlice = createSlice({
       })
   },
 })
-
+export const { setCurrentSelection } = selectionsSlice.actions
 export const selectionsReducer = selectionsSlice.reducer

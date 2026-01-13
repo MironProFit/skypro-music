@@ -2,16 +2,27 @@
 
 import TrackList from '@components/TrackList/TrackList'
 import { useParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useMemo } from 'react'
+import { useAppSelector } from 'src/store/store'
 
 export default function CategoryPage() {
   const params = useParams<{ id: string }>()
-  const { id } = params
-  const [categoryId, setCategoryId] = useState<string | null>(null)
-  const [categoryTracks, setCategoryTracks] = useState<[] | null>(null)
-  useEffect(() => {
-    if (id) setCategoryId(id)
-  }, [id])
+  const selections = useAppSelector((state) => state.selections.list)
 
-  return <TrackList categoryId={categoryId} categoryTracks={categoryTracks} />
+  const categoryId = useMemo(() => {
+    const num = Number(params?.id)
+    return isNaN(num) ? null : num
+  }, [params?.id])
+
+  const currentSelection = useMemo(() => {
+    if (categoryId === null) return null
+    return selections.find((s) => s._id === categoryId) || null
+  }, [selections, categoryId])
+
+  return (
+    <TrackList
+      categoryName={currentSelection?.name}
+      categoryTrackIds={currentSelection?.items}
+    />
+  )
 }
