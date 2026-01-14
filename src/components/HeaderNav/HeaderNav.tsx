@@ -3,15 +3,16 @@
 import Image from 'next/image'
 import styles from './HeaderNav.module.css'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import clsx from 'clsx'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useAppDispatch } from 'src/store/store'
+import { useAppDispatch, useAppSelector } from 'src/store/store'
 import { resetFormData } from '@store/auth'
 import { useRouter } from 'next/navigation'
 
 export default function HeaderNav() {
   const [isOpenBurger, setIsOpenBurger] = useState(false)
+  const isLoggedIn = useAppSelector((state) => state.auth.isLoggedIn)
   const dispatch = useAppDispatch()
   const router = useRouter()
 
@@ -21,7 +22,6 @@ export default function HeaderNav() {
   const handleLogout = () => {
     dispatch(resetFormData())
     router.push('/auth/signin')
-    // setIsOpenBurger(false)
   }
 
   const handleSelectionClick = () => {
@@ -84,17 +84,19 @@ export default function HeaderNav() {
                   Главное
                 </button>
               </li>
-              <li className={styles.menu__item}>
-                <Link href="/playlist" className={styles.menu__link}>
-                  Мой плейлист
-                </Link>
-              </li>
+              {isLoggedIn && (
+                <li className={styles.menu__item}>
+                  <Link href="/playlist" className={styles.menu__link}>
+                    Мой плейлист
+                  </Link>
+                </li>
+              )}
               <li className={styles.menu__item}>
                 <button
                   onClick={handleLogout}
                   className={styles.menu__link_btn}
                 >
-                  Выйти
+                  {isLoggedIn ? 'Выйти' : 'Войти'}
                 </button>
               </li>
             </ul>

@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { Track } from '../model/types'
 import { fetchTracks } from '../api/tracksThunk'
+import { setIsLoadingTrackList } from '@store/auth'
 
 type initialStateType = {
   list: Track[]
@@ -45,6 +46,9 @@ const trackSlice = createSlice({
     setTracksFromCache: (state, action: PayloadAction<Track[]>) => {
       state.list = action.payload
     },
+    setIsLoadingTrackList: (state, action: PayloadAction<boolean>) => {
+      state.loading = action.payload
+    }
   },
   extraReducers: (builder) => {
     builder

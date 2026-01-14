@@ -47,7 +47,7 @@ export default function Sidebar() {
       // Опционально: сохранить имя в Redux
       dispatch(setCurrentSelection(selection.name))
       // Перейти на страницу категории
-      router.push(`/music/category/${_id - 1}`)
+      router.push(`/music/category/${_id}`)
     } else {
       console.warn(`Подборка с _id=${_id} не найдена`)
     }

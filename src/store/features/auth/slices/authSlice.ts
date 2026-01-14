@@ -93,7 +93,14 @@ const authSlice = createSlice({
       state.formData = initialState.formData
       state.error = null
       localStorage.removeItem('userData')
-      state.userData = initialState.userData
+      state.userData = {
+        id: undefined,
+        email: '',
+        username: '',
+        tokenAccess: '',
+        tokenRefresh: '',
+      }
+      state.isLoggedIn = false
     },
     setIsLoadingTrackList: (state, action: PayloadAction<boolean>) => {
       state.isLoadingTrackList = action.payload

@@ -6,12 +6,15 @@ import { useAppDispatch, useAppSelector } from 'src/store/store'
 
 import { fetchTracks } from '@store/catalog/api/tracksThunk'
 import { setTracksFromCache } from '@store/catalog'
+import { setIsLoadingTrackList } from '@store/auth'
 
 export function HydrationWrapper({ children }: { children: React.ReactNode }) {
   const dispatch = useAppDispatch()
   const list = useAppSelector((state) => state.tracks.list)
 
   useEffect(() => {
+    // dispatch(setIsLoadingTrackList(true))
+
     // Загружаем данные только если список пустой
     if (list.length === 0) {
       const cached = localStorage.getItem('tracks_cache')
