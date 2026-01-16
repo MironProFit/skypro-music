@@ -86,7 +86,7 @@ export default function HeaderNav() {
               </li>
               {isLoggedIn && (
                 <li className={styles.menu__item}>
-                  <Link href="/playlist" className={styles.menu__link}>
+                  <Link href="/music/playlist" className={styles.menu__link}>
                     Мой плейлист
                   </Link>
                 </li>
