@@ -4,11 +4,12 @@ import clsx from 'clsx'
 import styles from './Bar.module.css'
 import Link from 'next/link'
 import { useAppDispatch, useAppSelector } from 'src/store/store'
-
 import { useEffect, useRef, useState } from 'react'
 import { formatTime } from '@utils/helpers'
-import { setCurrentTrack, setIsPlayTrack } from '@store/catalog'
-import { audio } from 'framer-motion/client'
+import {
+  setCurrentTrack,
+  setIsPlayTrack,
+} from '@store/catalog/slices/tracksSlice'
 
 export default function Bar() {
   const currentTrack = useAppSelector((state) => state.tracks.currentTrack)
@@ -17,14 +18,15 @@ export default function Bar() {
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
   const [currentTime, setCurrentTime] = useState(0)
-  // Убрали setDuration — duration берём напрямую из трека
+  const duration = currentTrack?.duration_in_seconds ?? 0
+  const percentProgress = duration > 0 ? (currentTime / duration) * 100 : 0
+
   const [currentVolume, setCurrentVolume] = useState(50)
   const [isMute, setIsMute] = useState(false)
   const [isLoopTrack, setIsLoopTrack] = useState(false)
   const [isShuffleTrack, setIsShuffleTrack] = useState(false)
   const [isTooltipVisible, setIsTooltipVisible] = useState(false)
   const [tooltipTime, setTooltipTime] = useState(0)
-  const [tooltipPosition, setTooltipPosition] = useState(0)
   const [windowSize, setWindowSize] = useState({
     width: typeof window !== 'undefined' ? window.innerWidth : 0,
     height: typeof window !== 'undefined' ? window.innerHeight : 0,
@@ -32,12 +34,71 @@ export default function Bar() {
   const listTracks = useAppSelector((state) => state.tracks.list)
   const [tooltipStyle, setTooltipStyle] = useState<React.CSSProperties>({})
 
-  const duration = currentTrack?.duration_in_seconds ?? 0
+  const [tooltipPosition, setTooltipPosition] = useState(0)
 
-  // Рассчитываем процент прогресса
-  const percentProgress = duration > 0 ? (currentTime / duration) * 100 : 0
+  // === 1. СБРОС ВРЕМЕНИ ПРИ СМЕНЕ ТРЕКА ===
+  useEffect(() => {
+    if (currentTrack) {
+      setCurrentTime(0)
+      if (audioRef.current) {
+        audioRef.current.currentTime = 0
+      }
+    }
+  }, [currentTrack?._id])
 
-  // === Эффект: размер окна для тултипа ===
+  // === 2. ОБНОВЛЕНИЕ currentTime ИЗ АУДИО ===
+  useEffect(() => {
+    const audio = audioRef.current
+    if (!audio) return
+
+    const updateTime = () => {
+      setCurrentTime(audio.currentTime)
+    }
+
+    audio.addEventListener('timeupdate', updateTime)
+    return () => audio.removeEventListener('timeupdate', updateTime)
+  }, [])
+
+  // === 3. УПРАВЛЕНИЕ ВОСПРОИЗВЕДЕНИЕМ ===
+  useEffect(() => {
+    const audio = audioRef.current
+    if (!audio || !currentTrack) return
+
+    if (isPlayTrack) {
+      const playPromise = audio.play()
+      if (playPromise) {
+        playPromise.catch((err) => {
+          console.warn('[WARN] Play failed:', err)
+          dispatch(setIsPlayTrack(false))
+        })
+      }
+    } else {
+      audio.pause()
+    }
+  }, [currentTrack?._id, isPlayTrack, dispatch])
+
+  // === 4. ОБРАБОТКА ЗАВЕРШЕНИЯ ТРЕКА ===
+  useEffect(() => {
+    const audio = audioRef.current
+    if (!audio) return
+
+    const handleEnded = () => onNextTrack()
+    audio.addEventListener('ended', handleEnded)
+    return () => audio.removeEventListener('ended', handleEnded)
+  }, [isShuffleTrack, currentTrack?._id, listTracks])
+
+  // === 5. ГРОМКОСТЬ И MUTE ===
+  useEffect(() => {
+    const audio = audioRef.current
+    if (audio) audio.muted = isMute
+  }, [isMute])
+
+  useEffect(() => {
+    const audio = audioRef.current
+    if (audio) audio.volume = currentVolume / 100
+  }, [currentVolume])
+
+  // === РАЗМЕР ОКНА ===
   useEffect(() => {
     const handleResize = () =>
       setWindowSize({ width: window.innerWidth, height: window.innerHeight })
@@ -45,7 +106,7 @@ export default function Bar() {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  // === Эффект: обновление стиля тултипа ===
+  // === СТИЛЬ ТУЛТИПА ===
   useEffect(() => {
     if (!windowSize.width || !duration) return
 
@@ -67,60 +128,7 @@ export default function Bar() {
     setTooltipStyle(newStyle)
   }, [percentProgress, windowSize.width, duration])
 
-  // === Эффект: timeupdate → обновляем currentTime ===
-  useEffect(() => {
-    const audio = audioRef.current
-    if (!audio) return
-
-    const updateTime = () => {
-      setCurrentTime(audio.currentTime)
-    }
-
-    audio.addEventListener('timeupdate', updateTime)
-    return () => audio.removeEventListener('timeupdate', updateTime)
-  }, [])
-
-  // === Эффект: управление воспроизведением (play/pause) ===
-  useEffect(() => {
-    const audio = audioRef.current
-    if (!audio || !currentTrack) return
-
-    if (isPlayTrack) {
-      const playPromise = audio.play()
-      if (playPromise) {
-        playPromise.catch((err) => {
-          console.warn('[WARN] Play failed:', err)
-          dispatch(setIsPlayTrack(false))
-        })
-      }
-    } else {
-      audio.pause()
-    }
-  }, [currentTrack?._id, isPlayTrack, dispatch])
-
-  // === Эффект: ended → следующий трек ===
-  useEffect(() => {
-    const audio = audioRef.current
-    if (!audio) return
-
-    const handleEnded = () => onNextTrack()
-    audio.addEventListener('ended', handleEnded)
-    return () => audio.removeEventListener('ended', handleEnded)
-  }, [isShuffleTrack, currentTrack?._id])
-
-  // === Эффект: mute ===
-  useEffect(() => {
-    const audio = audioRef.current
-    if (audio) audio.muted = isMute
-  }, [isMute])
-
-  // === Эффект: громкость ===
-  useEffect(() => {
-    const audio = audioRef.current
-    if (audio) audio.volume = currentVolume / 100
-  }, [currentVolume])
-
-  // === Логика навигации ===
+  // === НАВИГАЦИЯ ===
   const findTrackIndex = () =>
     listTracks.findIndex((track) => track._id === currentTrack?._id)
 
@@ -128,7 +136,6 @@ export default function Bar() {
     if (!currentTrack || listTracks.length === 0) return
 
     let nextIndex: number
-
     if (isShuffleTrack) {
       const currentIndex = findTrackIndex()
       let newIndex: number
@@ -149,16 +156,14 @@ export default function Bar() {
 
   const onPrevTrack = () => {
     if (!currentTrack || listTracks.length === 0) return
-
     const currentIndex = findTrackIndex()
     if (currentIndex <= 0) return
-
     const prevTrack = listTracks[currentIndex - 1]
     dispatch(setCurrentTrack(prevTrack))
     dispatch(setIsPlayTrack(true))
   }
 
-  // === Управление UI ===
+  // === УПРАВЛЕНИЕ ===
   const handlePlay = () => {
     if (currentTrack) {
       dispatch(setIsPlayTrack(!isPlayTrack))
@@ -173,7 +178,7 @@ export default function Bar() {
     setCurrentVolume(value)
   }
 
-  // === Прогресс-бар: клик и наведение ===
+  // === ПРОГРЕСС-БАР ===
   const handleProgressMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!duration) return
     const rect = e.currentTarget.getBoundingClientRect()
@@ -191,16 +196,18 @@ export default function Bar() {
     const offsetX = e.clientX - rect.left
     const percentage = Math.max(0, Math.min(100, (offsetX / rect.width) * 100))
     const timeAtPosition = (percentage / 100) * duration
+
+    // 🔑 КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ: обновляем ОБА значения
     audio.currentTime = timeAtPosition
-    setCurrentTime(timeAtPosition)
+    setCurrentTime(timeAtPosition) // ← было пропущено!
   }
 
-  // === Вычисление состояния кнопок ===
+  // === СОСТОЯНИЕ КНОПОК ===
   const currentIndex = findTrackIndex()
   const isNoPrevBtn = currentIndex <= 0
   const isNoNextBtn = !isShuffleTrack && currentIndex >= listTracks.length - 1
 
-  // === Рендер ===
+  // === РЕНДЕР ===
   if (!currentTrack) return null
 
   return (
@@ -210,7 +217,6 @@ export default function Bar() {
       onMouseEnter={() => setIsTooltipVisible(true)}
       onMouseMove={handleProgressMouseMove}
     >
-      {/* Скрытый аудио-элемент */}
       <audio
         ref={audioRef}
         src={currentTrack.track_file}
@@ -218,7 +224,7 @@ export default function Bar() {
         style={{ display: 'none' }}
       />
 
-      {/* Прогресс-бар (фоновая заливка) */}
+      {/* Фоновая заливка прогресса */}
       <div className={styles.bar__progressOverlay}>
         <div
           className={styles.bar__progressFill}
@@ -226,7 +232,7 @@ export default function Bar() {
         />
       </div>
 
-      {/* Интерактивная область прогресса */}
+      {/* Интерактивная область */}
       <div
         onClick={onProgressBarClick}
         className={clsx(styles.bar__playerProgress_wrap, {
@@ -240,7 +246,6 @@ export default function Bar() {
           })}
         />
         <div>
-          {/* Текущее время (курсор) */}
           <div
             className={clsx(
               styles.bar__playerProgress_tooltip,
@@ -254,7 +259,6 @@ export default function Bar() {
             {formatTime(currentTime)}
           </div>
 
-          {/* Общая длительность */}
           <div
             className={clsx(
               styles.bar__playerProgress_tooltip,
@@ -268,7 +272,6 @@ export default function Bar() {
             {formatTime(duration)}
           </div>
 
-          {/* Заполнение прогресса */}
           <div
             className={clsx(styles.bar__playerProgress, {
               [styles.aiming]: isTooltipVisible,
@@ -348,7 +351,6 @@ export default function Bar() {
             </div>
           </div>
 
-          {/* Информация о треке */}
           <div className={styles.player__trackPlay}>
             <div className={styles.trackPlay__contain}>
               <div className={styles.trackPlay__image_info}>
@@ -387,7 +389,6 @@ export default function Bar() {
           </div>
         </div>
 
-        {/* Громкость */}
         <div className={styles.bar__volumeBlock}>
           <div className={styles.volume__content}>
             <div

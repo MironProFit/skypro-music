@@ -105,6 +105,9 @@ const authSlice = createSlice({
     setIsLoadingTrackList: (state, action: PayloadAction<boolean>) => {
       state.isLoadingTrackList = action.payload
     },
+    setAccessToken: (state, action: PayloadAction<string>) => {
+      state.userData.tokenAccess = action.payload
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -180,7 +183,7 @@ const authSlice = createSlice({
   },
 })
 
-export const { setFormData, resetFormData, setIsLoadingTrackList } =
+export const { setFormData, resetFormData, setIsLoadingTrackList, setAccessToken } =
   authSlice.actions
 export const authSliceSliceReducer = authSlice.reducer
 

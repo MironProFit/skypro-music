@@ -23,11 +23,7 @@ export interface User {
 }
 
 // --- ОТВЕТЫ НА ЛОГИН ---
-export interface LoginErrorResponse {
-  success: false
-  message: string
-}
-export type LoginResponse = User | LoginErrorResponse
+export type LoginResponse = User // Успешный ответ — это сам пользователь
 
 // --- ОТВЕТЫ НА РЕГИСТРАЦИЮ ---
 export interface RegisterSuccessResponse {
@@ -35,23 +31,37 @@ export interface RegisterSuccessResponse {
   message: string
   result: User
 }
+
+
 export interface RegisterErrorResponse {
   success: false
   message: string
 }
+
 export type RegisterResponse = RegisterSuccessResponse | RegisterErrorResponse
 
-// --- ОТВЕТЫ НА ТОКЕН ---
-export interface TokenSuccessResponse {
+// --- ОТВЕТЫ ОТ СЕРВЕРА (ОШИБКИ) ---
+export interface ServerErrorResponse {
+  detail: string
+  code: string
+}
+
+// --- ОТВЕТЫ НА ПОЛУЧЕНИЕ ТОКЕНОВ (/user/token/) ---
+export interface TokenPairResponse {
   refresh: string
   access: string
 }
-export interface TokenErrorResponse {
-  success: false
-  message: string
-}
-export type TokenResponse = TokenSuccessResponse | TokenErrorResponse
 
+export type TokenResponse = TokenPairResponse | ServerErrorResponse
+
+// --- ОТВЕТЫ НА ОБНОВЛЕНИЕ ТОКЕНА (/user/token/refresh/) ---
+export interface RefreshTokenResponse {
+  access: string
+}
+
+export type RefreshTokenResult = RefreshTokenResponse | ServerErrorResponse
+
+// --- ФОРМА АВТОРИЗАЦИИ ---
 export type AuthFormData = {
   email: string
   password: string

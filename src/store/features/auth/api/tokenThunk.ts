@@ -1,51 +1,36 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
-import { TokenSuccessResponse, TokenResponse } from '../model/types'
-import { getTokenApi } from '@api/token/tokenApi'
-import { RootState } from 'src/store/store'
+import { TokenPairResponse, ServerErrorResponse } from '../model/types'
+import { getTokenApi } from '@api/token/accessTokenApi'
 
 export const getUserToken = createAsyncThunk<
-  TokenResponse,
+  TokenPairResponse,
   { email: string; password: string },
   { rejectValue: string }
 >(
   'auth/tokenUser',
   async ({ email, password }, { rejectWithValue }) => {
-    
     try {
+      // Вызываем API
       const response = await getTokenApi(email, password)
 
+      // Проверяем: если есть токены — возвращаем их
       if ('refresh' in response && 'access' in response) {
-        return response as TokenSuccessResponse
-      } else {
-        return rejectWithValue(`❌ Ошибка регистрации: ${response.message}`)
+        return response as TokenPairResponse
       }
+
+      // Если сервер вернул ошибку (например, 400/401)
+      // Тип: { detail: string; code: string }
+      const errorResponse = response as ServerErrorResponse
+      
+      // Возвращаем ошибку через rejectWithValue
+      return rejectWithValue(`❌ Ошибка авторизации: ${errorResponse.detail}`)
     } catch (error) {
+      // Ловим любые другие ошибки (сетевые, таймаут и т.д.)
       const message =
         error instanceof Error ? error.message : 'Неизвестная ошибка'
+      
       console.error('💥 Критическая ошибка:', message)
-      return rejectWithValue(`💥 Критическая ошибка: ${message}`)
+      return rejectWithValue(`💥 ${message}`)
     }
-  },
-  {
-    condition: (args, { getState }) => {
-      const state = getState() as RootState
-      const { tokenAccess, tokenRefresh } = state.auth.userData
-
-      // Проверяем, есть ли уже токены
-      if (tokenAccess || tokenRefresh) {
-        console.log('Токены уже есть, выполнение пропущено')
-
-        return true
-      }
-
-      // Проверка наличия email и password в args
-      if (!args.email || !args.password) {
-        console.log('Отсутствуют email или password, выполнение пропущено')
-        return false
-      }
-
-      // Всё в порядке — запускать
-      return true
-    },
   }
 )
