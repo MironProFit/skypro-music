@@ -15,6 +15,7 @@ import {
 import { useAppDispatch, useAppSelector } from 'src/store/store'
 import Skeleton from '@components/Skeleton/Skeleton'
 import { useFilters } from 'src/hooks/useSelectedFilter'
+import { addTrackToFavorites, removeTrackFromFavorites } from '@store/catalog/api/favoritesThunk'
 
 type TrackListProps = {
   categoryName?: string
@@ -28,12 +29,17 @@ export default function TrackList({
   categoryTrackIds,
 }: TrackListProps) {
   const [typeFilter, setTypeFilter] = useState<FilterState>('')
-  const [yearMode, setYearMode] = useState<'default' | 'new-first' | 'old-first'>('default')
+  const [yearMode, setYearMode] = useState<
+    'default' | 'new-first' | 'old-first'
+  >('default')
+  
+  // ✅ Добавляем селектор для избранных треков
+  const favoriteTracks = useAppSelector((state) => state.favorites.favoriteTracks)
   const playTrack = useAppSelector((state) => state.tracks.currentTrack?._id)
   const isPlayTrack = useAppSelector((state) => state.tracks.isPlayTrack)
   const allTracks = useAppSelector((state) => state.tracks.list)
-
   const { filters: selectedFilters, toggleFilter } = useFilters()
+  const dispatch = useAppDispatch()
 
   const isLoading = Array.isArray(allTracks) && allTracks.length > 0
 
@@ -52,7 +58,9 @@ export default function TrackList({
       for (const [key, values] of Object.entries(selectedFilters)) {
         const filterKey = key as FiltersTagType
         if (filterKey === 'genre') {
-          const trackGenres = Array.isArray(track.genre) ? track.genre : [track.genre]
+          const trackGenres = Array.isArray(track.genre)
+            ? track.genre
+            : [track.genre]
           if (!values.some((v) => trackGenres.includes(v))) return false
         } else if (filterKey === 'author') {
           if (!values.includes(track.author)) return false
@@ -62,9 +70,17 @@ export default function TrackList({
     })
 
     if (yearMode === 'new-first') {
-      result.sort((a, b) => (parseInt(b.release_date, 10) || 0) - (parseInt(a.release_date, 10) || 0))
+      result.sort(
+        (a, b) =>
+          (parseInt(b.release_date, 10) || 0) -
+          (parseInt(a.release_date, 10) || 0),
+      )
     } else if (yearMode === 'old-first') {
-      result.sort((a, b) => (parseInt(a.release_date, 10) || 0) - (parseInt(b.release_date, 10) || 0))
+      result.sort(
+        (a, b) =>
+          (parseInt(a.release_date, 10) || 0) -
+          (parseInt(b.release_date, 10) || 0),
+      )
     }
 
     return result
@@ -78,8 +94,6 @@ export default function TrackList({
     setYearMode(mode as 'default' | 'new-first' | 'old-first')
   }
 
-  const dispatch = useAppDispatch()
-
   const onClickTrack = (track: Track) => {
     const isCurrentTrack = track._id === playTrack
     if (isCurrentTrack) {
@@ -87,6 +101,19 @@ export default function TrackList({
     } else {
       dispatch(setCurrentTrack(track))
       dispatch(setIsPlayTrack(true))
+    }
+  }
+
+  // ✅ Правильная функция переключения лайка (на уровне компонента)
+  const handleToggleLike = (trackId: number, e: React.MouseEvent) => {
+    e.stopPropagation() // ← ВАЖНО: предотвращаем клик по всему треку
+    
+    const isLiked = favoriteTracks.some(t => t._id === trackId)
+    
+    if (isLiked) {
+      dispatch(removeTrackFromFavorites(trackId))
+    } else {
+      dispatch(addTrackToFavorites(trackId))
     }
   }
 
@@ -114,10 +141,12 @@ export default function TrackList({
         <div className={styles.filter__title}>Искать по:</div>
 
         {filters.map((filter) => {
-          // 🔥 Логика счётчика для кругляшка
-          const selectedCount = filter.value === 'release_date'
-            ? (yearMode !== 'default' ? 1 : 0)
-            : (selectedFilters[filter.value]?.length || 0)
+          const selectedCount =
+            filter.value === 'release_date'
+              ? yearMode !== 'default'
+                ? 1
+                : 0
+              : selectedFilters[filter.value]?.length || 0
 
           return (
             <div
@@ -136,7 +165,7 @@ export default function TrackList({
                 onClick={() => handleTypeFilter(filter.value)}
                 className={clsx(
                   styles.filter__button,
-                  selectedCount > 0 && styles.filter__button_active
+                  selectedCount > 0 && styles.filter__button_active,
                 )}
               >
                 {!isLoading ? <Skeleton width={80} /> : filter.label}
@@ -220,84 +249,103 @@ export default function TrackList({
                   </div>
                 </div>
               ))
-            : processedTracks.map((track) => (
-                <div
-                  key={track._id}
-                  className={styles.playlist__item}
-                  onClick={() => onClickTrack(track)}
-                >
-                  <div className={styles.playlist__track}>
-                    <div className={styles.track__title}>
-                      <div className={styles.track__titleImage}>
-                        <svg
-                          className={clsx(styles.track__titleSvg, {
-                            [styles.active]:
-                              track._id === playTrack && isPlayTrack,
-                            [styles.selected__active]:
-                              track._id === playTrack && !isPlayTrack,
-                          })}
-                          viewBox="0 0 20 19"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <g className={styles.notePath}>
+            : processedTracks.map((track) => {
+                // ✅ Определяем статус лайка для текущего трека
+                const isLiked = favoriteTracks.some(t => t._id === track._id)
+                
+                return (
+                  <div
+                    key={track._id}
+                    className={styles.playlist__item}
+                    onClick={() => onClickTrack(track)}
+                  >
+                    <div className={styles.playlist__track}>
+                      <div className={styles.track__title}>
+                        <div className={styles.track__titleImage}>
+                          <svg
+                            className={clsx(styles.track__titleSvg, {
+                              [styles.active]:
+                                track._id === playTrack && isPlayTrack,
+                              [styles.selected__active]:
+                                track._id === playTrack && !isPlayTrack,
+                            })}
+                            viewBox="0 0 20 19"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <g className={styles.notePath}>
+                              <path
+                                d="M8 16V1.9697L19 1V13"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeLinecap="round"
+                              />
+                              <ellipse
+                                cx="4.5"
+                                cy="16"
+                                rx="3.5"
+                                ry="2"
+                                fill="none"
+                                stroke="currentColor"
+                              />
+                              <ellipse
+                                cx="15.5"
+                                cy="13"
+                                rx="3.5"
+                                ry="2"
+                                fill="none"
+                                stroke="currentColor"
+                              />
+                            </g>
                             <path
-                              d="M8 16V1.9697L19 1V13"
+                              className={styles.playPath}
+                              d="M6 4.5 L14 9.5 L6 14.5 Z"
                               fill="none"
                               stroke="currentColor"
-                              strokeLinecap="round"
+                              strokeWidth="2"
+                              strokeLinejoin="round"
                             />
-                            <ellipse
-                              cx="4.5"
-                              cy="16"
-                              rx="3.5"
-                              ry="2"
-                              fill="none"
-                              stroke="currentColor"
-                            />
-                            <ellipse
-                              cx="15.5"
-                              cy="13"
-                              rx="3.5"
-                              ry="2"
-                              fill="none"
-                              stroke="currentColor"
-                            />
-                          </g>
-                          <path
-                            className={styles.playPath}
-                            d="M6 4.5 L14 9.5 L6 14.5 Z"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinejoin="round"
+                          </svg>
+                        </div>
+                        <Link className={styles.track__titleLink} href="">
+                          {track.name}
+                        </Link>
+                      </div>
+                      <div className={styles.track__author}>
+                        <Link className={styles.track__authorLink} href="">
+                          {track.author}
+                        </Link>
+                      </div>
+                      <div className={styles.track__album}>
+                        <Link className={styles.track__albumLink} href="">
+                          {track.album}
+                        </Link>
+                      </div>
+                      <div className={styles.track__time}>
+                        {/* ✅ Отдельный элемент для времени */}
+                        <span className={styles.track__timeText}>
+                          {Math.floor(track.duration_in_seconds / 60)}:
+                          {(track.duration_in_seconds % 60).toString().padStart(2, '0')}
+                        </span>
+                        
+                        {/* ✅ Отдельный элемент для лайка */}
+                        <svg 
+                          className={clsx(styles.track__likeSvg, {
+                            [styles.liked]: isLiked
+                          })}
+                          onClick={(e) => handleToggleLike(track._id, e)}
+                          viewBox="0 0 16 14"
+                          fill="none"
+                        >
+                          <use 
+                            xlinkHref="/img/icon/sprite.svg#icon-like" 
+                            stroke={isLiked ? '#ff0000' : '#696969'}
                           />
                         </svg>
                       </div>
-                      <Link className={styles.track__titleLink} href="">
-                        {track.name}
-                      </Link>
-                    </div>
-                    <div className={styles.track__author}>
-                      <Link className={styles.track__authorLink} href="">
-                        {track.author}
-                      </Link>
-                    </div>
-                    <div className={styles.track__album}>
-                      <Link className={styles.track__albumLink} href="">
-                        {track.album}
-                      </Link>
-                    </div>
-                    <div className={styles.track__time}>
-                      <svg className={styles.track__timeSvg}>
-                        <use xlinkHref="/img/icon/sprite.svg#icon-like" />
-                      </svg>
-                      <span className={styles.track__timeText}>
-                        {track.duration_in_seconds}
-                      </span>
                     </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
         </div>
       </div>
     </div>

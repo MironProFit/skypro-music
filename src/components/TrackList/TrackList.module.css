@@ -75,7 +75,9 @@
   animation: loadingMove 20s linear infinite;
   background: linear-gradient(to right, #b672ff, black, gray);
   background-size: 2000% 400%;
-  background-position: 2000% 0%, 0% 0%;
+  background-position:
+    2000% 0%,
+    0% 0%;
 }
 
 .filter__button:hover {
@@ -278,16 +280,25 @@
   display: flex;
   align-items: center;
 }
-
-.track__timeSvg {
+.track__likeSvg {
   width: 14px;
   height: 12px;
   margin-right: 17px;
   fill: transparent;
-  stroke: #696969;
+  color: #696969;
+  transition: 0.3s;
+}
+.track__likeSvg:hover {
+  color: #b672ff;
+  transform: scale(1.2);
+}
+.track__likeSvg:active {
+  color: #b672ff;
+  transform: scale(1.4);
 }
 
 .track__timeText {
+  order: 2;
   font-size: 16px;
   line-height: 24px;
   text-align: right;

@@ -380,11 +380,13 @@ export default function Bar() {
                   <use xlinkHref="/img/icon/sprite.svg#icon-like" />
                 </svg>
               </div>
+
               <div className={clsx(styles.trackPlay__dislike, styles.btnIcon)}>
                 <svg className={styles.trackPlay__dislikeSvg}>
                   <use xlinkHref="/img/icon/sprite.svg#icon-dislike" />
                 </svg>
               </div>
+              
             </div>
           </div>
         </div>

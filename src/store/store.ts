@@ -9,6 +9,7 @@ import {
   useStore,
 } from 'react-redux'
 import { authSliceSliceReducer } from './features/auth/slices/authSlice'
+import { favoritesReducer } from '@store/catalog/slices/favoritesSlice'
 
 export const makeStore = () => {
   const isDev =
@@ -19,6 +20,7 @@ export const makeStore = () => {
       tracks: trackSliceReducer,
       auth: authSliceSliceReducer,
       selections: selectionsReducer,
+      favorites: favoritesReducer,
     }),
     devTools: isDev
       ? {

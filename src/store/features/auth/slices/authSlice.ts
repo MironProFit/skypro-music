@@ -1,6 +1,6 @@
 'use client'
 
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { createSlice, PayloadAction, createSelector } from '@reduxjs/toolkit'
 import { registerUser } from '../api/registerThunk'
 import { loginUser } from '../api/loginThunk'
 import { getUserToken } from '../api/tokenThunk'
@@ -107,7 +107,7 @@ const authSlice = createSlice({
     },
     setAccessToken: (state, action: PayloadAction<string>) => {
       state.userData.tokenAccess = action.payload
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -183,8 +183,12 @@ const authSlice = createSlice({
   },
 })
 
-export const { setFormData, resetFormData, setIsLoadingTrackList, setAccessToken } =
-  authSlice.actions
+export const {
+  setFormData,
+  resetFormData,
+  setIsLoadingTrackList,
+  setAccessToken,
+} = authSlice.actions
 export const authSliceSliceReducer = authSlice.reducer
 
 // === СЕЛЕКТОРЫ ===
@@ -196,7 +200,13 @@ export const selectAuthIsLoading = (state: RootState) =>
   state.auth.isDataLoading
 export const selectAuthError = (state: RootState) => state.auth.error
 export const selectIsLoggedIn = (state: RootState) => state.auth.isLoggedIn
-export const selectAuthTokens = (state: RootState) => ({
-  access: state.auth.userData.tokenAccess,
-  refresh: state.auth.userData.tokenRefresh,
-})
+
+// ✅ Исправленный селектор с мемоизацией
+export const selectAuthTokens = createSelector(
+  (state: RootState) => state.auth.userData.tokenAccess,
+  (state: RootState) => state.auth.userData.tokenRefresh,
+  (tokenAccess, tokenRefresh) => ({
+    tokenAccess,
+    tokenRefresh,
+  }),
+)

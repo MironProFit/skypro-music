@@ -1,32 +1,32 @@
-import { LoginResponse } from '@store/auth'
-import { isAxiosError } from 'axios'
-import { SIGNIN_ENDPOINT } from 'src/config/apiEndpoints'
 import { apiClient } from 'src/services/apiClient'
+import { SIGNIN_ENDPOINT } from 'src/config/apiEndpoints'
+import { isAxiosError } from 'axios'
+import {
+  LoginRequest,
+  LoginResponse,
+  ServerErrorResponse,
+} from '@store/auth/model/types'
 
 export const loginApi = async (
-  email: string,
-  password: string,
-  signal?: AbortSignal
+  credentials: LoginRequest,
 ): Promise<LoginResponse> => {
   try {
-    const res = await apiClient.post<LoginResponse>(
+    const response = await apiClient.post<LoginResponse | ServerErrorResponse>(
       SIGNIN_ENDPOINT,
-      { email, password },
-      {
-        signal,
-      }
+      credentials,
     )
-    return res.data
-  } catch (error: unknown) {
-    if (isAxiosError(error)) {
-      return {
-        success: false,
-        message: error.response?.data?.message || error.message,
-      }
+
+    if ('_id' in response.data) {
+      return response.data as LoginResponse
     }
-    return {
-      success: false,
-      message: 'Произошла неожиданная ошибка',
+
+    const errorResponse = response.data as ServerErrorResponse
+    throw new Error(errorResponse.detail)
+  } catch (error) {
+    if (isAxiosError(error) && error.response) {
+      const errorData = error.response.data as ServerErrorResponse
+      throw new Error(errorData.detail || 'Ошибка входа')
     }
+    throw new Error('Неизвестная ошибка сети')
   }
 }

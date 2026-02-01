@@ -38,7 +38,8 @@ export interface TrackApiResponse {
 
 export interface SelectionResponse {
   success: boolean
-  data: Selection
+  data: Selection[] 
+  message?: string   
 }
 
 export interface TracksByIdsRequest {
