@@ -1,33 +1,37 @@
-import { AxiosError } from 'axios'
+import { AxiosError, isAxiosError } from 'axios'
 import { AppDispatch } from 'src/store/store'
 import { refreshTokenApi } from './token/refreshTokenApi'
 import { setAccessToken } from '@store/auth/slices/authSlice'
 
 export const withReauth = async <T>(
   apiFunction: (access: string) => Promise<T>,
+  currentAccess: string,
   refresh: string,
   dispatch: AppDispatch,
 ): Promise<T> => {
   try {
-    // Пытаемся выполнить запрос
-    return await apiFunction('')
+    // ✅ Сначала пытаемся с текущим токеном
+    return await apiFunction(currentAccess)
   } catch (error) {
-    const axiosError = error as AxiosError
-
-    // Если ошибка 401, обновляем токен и повторяем запрос
-    if (axiosError.response?.status === 401) {
+    // ✅ Проверяем ТОЛЬКО ошибки 401 от Axios
+    if (isAxiosError(error) && error.response?.status === 401) {
+      console.log('🔐 401 — обновляем токен...')
+      
       try {
-        const newAccessToken = await refreshTokenApi(refresh) // Обновляем токен
+        const newAccessToken = await refreshTokenApi(refresh)
         dispatch(setAccessToken(newAccessToken.access))
-        // Повторяем исходный запрос
+        console.log('✅ Токен обновлён, повторяем запрос')
+        
+        // Повторяем с новым токеном
         return await apiFunction(newAccessToken.access)
       } catch (refreshError) {
-        // Если обновление токена не удалось, пробрасываем ошибку
-        throw refreshError
+        console.error('❌ Обновление токена не удалось')
+        // Пробрасываем понятную ошибку для обработки в компоненте
+        throw new Error('auth/invalid-token')
       }
     }
-
-    // Если ошибка не 401, пробрасываем её
+    
+    // Все остальные ошибки пробрасываем без изменений
     throw error
   }
 }

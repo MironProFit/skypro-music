@@ -1,28 +1,29 @@
 'use client'
-import { selectAuthTokens } from '@store/auth'
-import { fetchFavoriteTracks } from '@store/catalog/api/favoritesThunk'
-import { fetchTracks } from '@store/catalog/api/tracksThunk'
 import { useEffect } from 'react'
 import { useAppDispatch, useAppSelector } from 'src/store/store'
+import { fetchFavoriteTracks } from '@store/catalog/api/favoritesThunk'
+import { selectAuthTokens } from '@store/auth/slices/authSlice' 
 
-export default function InitialDataLoader() {
+import { fetchTracks } from '@store/catalog/api/tracksThunk'
+
+ const useInitialData = () => {
   const dispatch = useAppDispatch()
-  const { tokenAccess } = useAppSelector(selectAuthTokens)
   const tracksLoaded = useAppSelector((state) => state.tracks.list.length > 0)
+  const tracksLoading = useAppSelector((state) => state.tracks.loading)
+
+  const { tokenAccess } = useAppSelector(selectAuthTokens)
 
   useEffect(() => {
-    // Загружаем все треки при старте
-    if (!tracksLoaded) {
+    // Загружаем треки только если они ещё не загружены и не загружаются
+    if (!tracksLoaded && !tracksLoading) {
       dispatch(fetchTracks())
     }
-  }, [dispatch, tracksLoaded])
+  }, [dispatch, tracksLoaded, tracksLoading])
 
   useEffect(() => {
-    // Загружаем избранное при наличии токена
-    if (tokenAccess && tracksLoaded) {
+    if (tokenAccess && tracksLoaded && !tracksLoading) {
       dispatch(fetchFavoriteTracks())
     }
-  }, [dispatch, tokenAccess, tracksLoaded])
-
-  return null
+  }, [dispatch, tokenAccess, tracksLoaded, tracksLoading])
 }
+export default useInitialData

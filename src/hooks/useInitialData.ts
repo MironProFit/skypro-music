@@ -8,7 +8,7 @@ import { fetchTracks } from '@store/catalog/api/tracksThunk'
 export const useInitialData = () => {
   const dispatch = useAppDispatch()
   const tracksLoaded = useAppSelector((state) => state.tracks.list.length > 0)
-  const tokenAccess = useAppSelector(selectAuthTokens).access
+  const tokenAccess = useAppSelector(selectAuthTokens).tokenAccess
 
   useEffect(() => {
     // Загружаем все треки при первом рендере

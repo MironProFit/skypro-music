@@ -1,16 +1,13 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
-import { RootState, AppDispatch } from 'src/store/store'
+import { Track } from '../model/types'
+import { AppDispatch, RootState } from 'src/store/store'
 import { withReauth } from '@api/reauth'
-import { Track } from '@store/catalog/model/types'
 import {
   addLike,
   getFavoriteTracksApi,
   removeLike,
-} from '@api/favoritesTrack/favoritesTrackApi'
+} from '@api/favoritesTrack/favoritesApi'
 
-// ==================================================
-// ДОБАВИТЬ ТРЕК В ИЗБРАННОЕ
-// ==================================================
 export const addTrackToFavorites = createAsyncThunk<
   Track,
   number,
@@ -21,15 +18,17 @@ export const addTrackToFavorites = createAsyncThunk<
     try {
       const { tokenAccess, tokenRefresh } = getState().auth.userData
 
-      if (!tokenAccess) {
+      if (!tokenAccess || !tokenRefresh) {
         return rejectWithValue('Нет авторизации')
       }
 
       const result = await withReauth<Track>(
-        (token) => addLike(token || tokenAccess, trackId),
-        tokenRefresh || '',
-        dispatch,
+        (token) => addLike(token, trackId), // 1. apiFunction
+        tokenAccess, // 2. currentAccess ← НОВЫЙ аргумент!
+        tokenRefresh || '', // 3. refresh
+        dispatch, // 4. dispatch
       )
+      console.log(result);
 
       return result
     } catch (error) {
@@ -40,9 +39,6 @@ export const addTrackToFavorites = createAsyncThunk<
   },
 )
 
-// ==================================================
-// УДАЛИТЬ ТРЕК ИЗ ИЗБРАННОГО
-// ==================================================
 export const removeTrackFromFavorites = createAsyncThunk<
   number,
   number,
@@ -53,14 +49,16 @@ export const removeTrackFromFavorites = createAsyncThunk<
     try {
       const { tokenAccess, tokenRefresh } = getState().auth.userData
 
-      if (!tokenAccess) {
+      if (!tokenAccess || !tokenRefresh) {
         return rejectWithValue('Нет авторизации')
       }
 
+      // ✅ Теперь передаём 4 аргумента вместо 3
       await withReauth<void>(
-        (token) => removeLike(token || tokenAccess, trackId),
-        tokenRefresh || '',
-        dispatch,
+        (token) => removeLike(token, trackId), // 1. apiFunction
+        tokenAccess, // 2. currentAccess ← НОВЫЙ аргумент!
+        tokenRefresh || '', // 3. refresh
+        dispatch, // 4. dispatch
       )
 
       return trackId
@@ -72,9 +70,6 @@ export const removeTrackFromFavorites = createAsyncThunk<
   },
 )
 
-// ==================================================
-// ПОЛУЧИТЬ ИЗБРАННЫЕ ТРЕКИ
-// ==================================================
 export const fetchFavoriteTracks = createAsyncThunk<
   Track[],
   void,
@@ -82,18 +77,22 @@ export const fetchFavoriteTracks = createAsyncThunk<
 >(
   'favorites/fetchFavoriteTracks',
   async (_, { getState, dispatch, rejectWithValue }) => {
+    console.log('Запуск fetchFavoriteTracks');
     try {
+
       const { tokenAccess, tokenRefresh } = getState().auth.userData
 
-      if (!tokenAccess) {
+      if (!tokenAccess || !tokenRefresh) {
         return rejectWithValue('Нет авторизации')
       }
 
       const tracks = await withReauth<Track[]>(
-        (token) => getFavoriteTracksApi(token || tokenAccess),
+        (token) => getFavoriteTracksApi(token),
+        tokenAccess,
         tokenRefresh || '',
         dispatch,
       )
+      console.log(tracks);
 
       return tracks
     } catch (error) {

@@ -1,39 +1,93 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
-
-import { loginApi } from '@api/auth/loginApi'
 import { LoginRequest, User } from '../index'
 import { fetchTracks } from '@store/catalog/api/tracksThunk'
 import { fetchAllSelections } from '@store/catalog/api/selectionThunk'
+import { loginApi } from '@api/auth/loginApi'
+import { getUserToken } from './tokenThunk' // ✅ Добавляем импорт
+import { RootState, AppDispatch } from 'src/store/store'
 
 export const loginUser = createAsyncThunk<
   User,
   LoginRequest,
-  { rejectValue: string }
+  {
+    state: RootState
+    dispatch: AppDispatch
+    rejectValue: string
+  }
 >(
   'auth/loginUser',
-  async ({ email, password }, { rejectWithValue, dispatch }) => {
+  async ({ email, password }, { rejectWithValue, dispatch, getState }) => {
     try {
-      const data = await loginApi(email, password)
-      await dispatch(fetchAllSelections())
+      console.log('📤 Начинаем авторизацию:', { email })
 
-      // Проверка, что это успешный ответ (объект с _id)
+      const data = await loginApi({ email, password })
+
+      console.log('✅ Ответ от loginApi:', data)
+
       if ('_id' in data) {
-        // Успешный ответ
-        console.log('✅ Успешная авторизация:', data._id)
-        await dispatch(fetchTracks())
+        console.log('✅ Успешная авторизация, пользователь ID:', data._id)
+
+        // ✅ Получаем токен после успешного логина
+        try {
+          const tokenResult = await dispatch(
+            getUserToken({ email, password }),
+          ).unwrap()
+          console.log('✅ Токен получен:', tokenResult.access)
+        } catch (tokenError) {
+          console.warn('⚠️ Ошибка получения токена:', tokenError)
+          // Не прерываем выполнение — продолжаем
+        }
+
+        // ✅ Загружаем подборки (треки уже загружены в InitialDataLoader)
+        try {
+          await dispatch(fetchAllSelections())
+          console.log('✅ Подборки загружены')
+        } catch (selectionError) {
+          console.warn('⚠️ Ошибка загрузки подборок:', selectionError)
+        }
 
         return data
       } else {
-        // Обработка ошибки, если success отсутствует или false
-        const message = data?.message || 'Ошибка авторизации'
-        console.warn('❌ Ошибка авторизации:', message)
-        return rejectWithValue(`❌ Ошибка авторизации: ${message}`)
+        // Обработка ошибки от сервера
+        const message =
+          (data as { message?: string; detail?: string })?.message ||
+          (data as { message?: string; detail?: string })?.detail ||
+          'Ошибка авторизации'
+
+        console.warn('❌ Ошибка авторизации от сервера:', message)
+        return rejectWithValue(`❌ ${message}`)
       }
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'Неизвестная ошибка'
-      console.error('💥 Критическая ошибка:', message)
-      return rejectWithValue(`💥 Критическая ошибка: ${message}`)
+      console.error('💥 Критическая ошибка в loginUser:', error)
+
+      let errorMessage = 'Неизвестная ошибка сети'
+
+      if (error instanceof Error) {
+        errorMessage = error.message
+
+        // Специальная обработка для разных типов ошибок
+        if (errorMessage.includes('timeout')) {
+          errorMessage = '⏱️ Таймаут запроса. Проверьте интернет-соединение.'
+        } else if (
+          errorMessage.includes('Network Error') ||
+          errorMessage.includes('ERR_NETWORK')
+        ) {
+          errorMessage =
+            '🌐 Проблема с сетью. Проверьте подключение к интернету.'
+        } else if (errorMessage.includes('401')) {
+          errorMessage = '🔐 Неверный логин или пароль.'
+        } else if (errorMessage.includes('400')) {
+          errorMessage = '❌ Некорректные данные. Проверьте логин и пароль.'
+        } else if (
+          errorMessage.includes('CORS') ||
+          errorMessage.includes('blocked')
+        ) {
+          errorMessage = '🔒 Ошибка CORS. Обратитесь к администратору сервера.'
+        }
+      }
+
+      console.error('💥 Итоговое сообщение об ошибке:', errorMessage)
+      return rejectWithValue(`💥 ${errorMessage}`)
     }
-  }
+  },
 )

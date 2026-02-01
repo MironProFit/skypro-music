@@ -296,6 +296,11 @@
   color: #b672ff;
   transform: scale(1.4);
 }
+.track__likeSvg .liked {
+ color: #b672ff;
+  transform: scale(1.2);
+
+}
 
 .track__timeText {
   order: 2;

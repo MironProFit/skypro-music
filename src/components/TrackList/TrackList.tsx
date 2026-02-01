@@ -15,7 +15,12 @@ import {
 import { useAppDispatch, useAppSelector } from 'src/store/store'
 import Skeleton from '@components/Skeleton/Skeleton'
 import { useFilters } from 'src/hooks/useSelectedFilter'
-import { addTrackToFavorites, removeTrackFromFavorites } from '@store/catalog/api/favoritesThunk'
+import {
+  addTrackToFavorites,
+  removeTrackFromFavorites,
+} from '@store/catalog/api/favoritesThunk'
+import { selectAuthTokens } from '@store/auth/slices/authSlice'
+import { addTrackLocally, removeTrackLocally } from '@store/catalog/slices/favoritesSlice'
 
 type TrackListProps = {
   categoryName?: string
@@ -32,9 +37,15 @@ export default function TrackList({
   const [yearMode, setYearMode] = useState<
     'default' | 'new-first' | 'old-first'
   >('default')
-  
-  // ✅ Добавляем селектор для избранных треков
-  const favoriteTracks = useAppSelector((state) => state.favorites.favoriteTracks)
+
+  const { tokenAccess } = useAppSelector(selectAuthTokens)
+  const favoriteTracks = useAppSelector((state) => {
+    const tracks = state.favorites.favoriteTracks
+    if (!Array.isArray(tracks)) {
+      console.warn('⚠️ favoriteTracks не является массивом:', tracks)
+    }
+    return tracks || []
+  })
   const playTrack = useAppSelector((state) => state.tracks.currentTrack?._id)
   const isPlayTrack = useAppSelector((state) => state.tracks.isPlayTrack)
   const allTracks = useAppSelector((state) => state.tracks.list)
@@ -104,16 +115,46 @@ export default function TrackList({
     }
   }
 
-  // ✅ Правильная функция переключения лайка (на уровне компонента)
-  const handleToggleLike = (trackId: number, e: React.MouseEvent) => {
-    e.stopPropagation() // ← ВАЖНО: предотвращаем клик по всему треку
+  const handleToggleLike = async (
+    trackId: number, 
+    e: React.MouseEvent, 
+    isLiked: boolean, 
+    track: Track
+  ) => {
+    e.stopPropagation()
     
-    const isLiked = favoriteTracks.some(t => t._id === trackId)
-    
+    // Защита: проверяем авторизацию
+    if (!tokenAccess) {
+      console.warn('⚠️ Попытка поставить лайк без авторизации')
+      return
+    }
+
     if (isLiked) {
-      dispatch(removeTrackFromFavorites(trackId))
+      dispatch(removeTrackLocally(trackId)) // Удаляем из избранного локально
     } else {
-      dispatch(addTrackToFavorites(trackId))
+      dispatch(addTrackLocally(track)) // Добавляем в избранное локально
+    }
+
+    try {
+      if (isLiked) {
+        await dispatch(removeTrackFromFavorites(trackId)).unwrap()
+        console.log('✅ Трек удалён из избранного на сервере')
+      } else {
+        await dispatch(addTrackToFavorites(trackId)).unwrap()
+        console.log('✅ Трек добавлен в избранное на сервере')
+      }
+      // ✅ Сервер подтвердил → состояние остаётся обновлённым
+    } catch (error) {
+      console.error('❌ Ошибка при обновлении лайка:', error)
+      
+      if (isLiked) {
+        dispatch(addTrackLocally(track)) // Возвращаем трек обратно
+      } else {
+        dispatch(removeTrackLocally(trackId)) // Убираем трек
+      }
+      
+      // Дополнительно: можно показать уведомление пользователю
+      // Например: toast.error('Не удалось обновить избранное. Попробуйте позже')
     }
   }
 
@@ -250,9 +291,10 @@ export default function TrackList({
                 </div>
               ))
             : processedTracks.map((track) => {
-                // ✅ Определяем статус лайка для текущего трека
-                const isLiked = favoriteTracks.some(t => t._id === track._id)
-                
+                const isLiked = Array.isArray(favoriteTracks)
+                  ? favoriteTracks.some((t) => t._id === track._id)
+                  : false
+
                 return (
                   <div
                     key={track._id}
@@ -321,26 +363,29 @@ export default function TrackList({
                         </Link>
                       </div>
                       <div className={styles.track__time}>
-                        {/* ✅ Отдельный элемент для времени */}
                         <span className={styles.track__timeText}>
                           {Math.floor(track.duration_in_seconds / 60)}:
-                          {(track.duration_in_seconds % 60).toString().padStart(2, '0')}
+                          {(track.duration_in_seconds % 60)
+                            .toString()
+                            .padStart(2, '0')}
                         </span>
-                        
-                        {/* ✅ Отдельный элемент для лайка */}
-                        <svg 
-                          className={clsx(styles.track__likeSvg, {
-                            [styles.liked]: isLiked
-                          })}
-                          onClick={(e) => handleToggleLike(track._id, e)}
-                          viewBox="0 0 16 14"
-                          fill="none"
-                        >
-                          <use 
-                            xlinkHref="/img/icon/sprite.svg#icon-like" 
-                            stroke={isLiked ? '#ff0000' : '#696969'}
-                          />
-                        </svg>
+
+                        {tokenAccess ? (
+                          <svg
+                            className={clsx(styles.track__likeSvg, {
+                              [styles.liked]: isLiked,
+                            })}
+                            onClick={(e) => handleToggleLike(track._id, e, isLiked, track)}
+                            viewBox="0 0 16 14"
+                            fill="none"
+                          >
+                            <use
+                              xlinkHref={`/img/icon/sprite.svg#icon-like${isLiked ? '-filled' : ''}`}
+                            />
+                          </svg>
+                        ) : (
+                          <span className={styles.track__likePlaceholder} />
+                        )}
                       </div>
                     </div>
                   </div>

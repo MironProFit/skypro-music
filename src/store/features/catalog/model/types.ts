@@ -50,3 +50,8 @@ export interface TracksByIdsResponse {
   success: boolean
   data: Track[]
 }
+
+export interface AddLikeResponse {
+  success: boolean
+  data: string
+}

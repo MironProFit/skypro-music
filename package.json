@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint --config eslint.config.mjs '**/*.{js,ts,tsx}'"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.11.0",
@@ -29,6 +29,7 @@
     "baseline-browser-mapping": "^2.9.19",
     "eslint": "^9",
     "eslint-config-next": "16.0.3",
+    "eslint-plugin-prettier": "^5.5.5",
     "typescript": "^5"
   }
 }

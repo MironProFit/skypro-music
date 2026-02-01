@@ -24,7 +24,7 @@ const favoritesSlice = createSlice({
   reducers: {
     addTrackLocally: (state, action: PayloadAction<Track>) => {
       if (!state.favoriteTracks.some((t) => t._id === action.payload._id)) {
-        state.favoriteTracks.push(action.payload)
+        state.favoriteTracks = [...state.favoriteTracks, action.payload]
       }
     },
     removeTrackLocally: (state, action: PayloadAction<number>) => {
@@ -46,7 +46,9 @@ const favoritesSlice = createSlice({
       })
       .addCase(fetchFavoriteTracks.fulfilled, (state, action) => {
         state.isLoading = false
-        state.favoriteTracks = action.payload
+        state.favoriteTracks = Array.isArray(action.payload)
+          ? action.payload
+          : []
       })
       .addCase(fetchFavoriteTracks.rejected, (state, action) => {
         state.isLoading = false
@@ -56,7 +58,7 @@ const favoritesSlice = createSlice({
       // Добавление в избранное
       .addCase(addTrackToFavorites.fulfilled, (state, action) => {
         if (!state.favoriteTracks.some((t) => t._id === action.payload._id)) {
-          state.favoriteTracks.push(action.payload)
+          state.favoriteTracks = [...state.favoriteTracks, action.payload]
         }
       })
       .addCase(addTrackToFavorites.rejected, (state, action) => {
