@@ -1,11 +1,11 @@
 * {
-    box-sizing: border-box;
-    padding: 0;
-    margin: 0;
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
 }
 
 body {
-    font-family: var(--font-montserrat), 'Arial';
+  font-family: var(--font-montserrat), 'Arial';
 }
 
 h1,
@@ -15,20 +15,20 @@ h4,
 h5,
 h6,
 p {
-    margin: 0;
-    font-family: var(--font-montserrat), 'Arial';
+  margin: 0;
+  font-family: var(--font-montserrat), 'Arial';
 }
 
 a,
 input,
 button {
-    font-family: var(--font-montserrat), 'Arial';
+  font-family: var(--font-montserrat), 'Arial';
 }
 a {
-    text-decoration: none;
-    color: inherit;
+  text-decoration: none;
+  color: inherit;
 }
 
 li {
-    list-style: none;
+  list-style: none;
 }

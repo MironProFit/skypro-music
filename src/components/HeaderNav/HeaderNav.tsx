@@ -3,27 +3,56 @@
 import Image from 'next/image'
 import styles from './HeaderNav.module.css'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import clsx from 'clsx'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useAppDispatch, useAppSelector } from 'src/store/store'
+import { resetFormData } from '@store/auth'
+import { useParams, usePathname, useRouter } from 'next/navigation'
 
 export default function HeaderNav() {
   const [isOpenBurger, setIsOpenBurger] = useState(false)
+  const isLoggedIn = useAppSelector((state) => state.auth.isLoggedIn)
+  const dispatch = useAppDispatch()
+
+  const router = useRouter()
 
   const toggleBurgerMenu = () => {
     setIsOpenBurger((prev) => !prev)
   }
 
+  const handleLogout = () => {
+    setIsOpenBurger(false)
+    if (isLoggedIn) {
+      dispatch(resetFormData())
+      router.push('/music/main')
+    } else {
+      router.push('/auth/signin')
+    }
+  }
+
+  const handleSelectionClick = () => {
+    router.push('/music/main')
+    toggleBurgerMenu()
+  }
+
+  const handleLinkClick = () => {
+    setIsOpenBurger(false)
+  }
+
   return (
     <nav className={styles.main__nav}>
-      <div className={styles.nav__logo}>
-        <Image
-          width={250}
-          height={170}
-          className={styles.logo__image}
-          src="/img/logo.png"
-          alt="logo"
-        />
-      </div>
+      <Link href="/music/main">
+        <div className={styles.nav__logo}>
+          <Image
+            width={250}
+            height={170}
+            className={styles.logo__image}
+            src="/img/logo.png"
+            alt="logo"
+          />
+        </div>
+      </Link>
       <div
         onClick={toggleBurgerMenu}
         className={clsx(styles.nav__burger, {
@@ -47,27 +76,47 @@ export default function HeaderNav() {
         ></span>
       </div>
 
-      {isOpenBurger && (
-        <div className={styles.nav__menu}>
-          <ul className={styles.menu__list}>
-            <li className={styles.menu__item}>
-              <Link href="#" className={styles.menu__link}>
-                Главное
-              </Link>
-            </li>
-            <li className={styles.menu__item}>
-              <Link href="#" className={styles.menu__link}>
-                Мой плейлист
-              </Link>
-            </li>
-            <li className={styles.menu__item}>
-              <Link href="../signin.html" className={styles.menu__link}>
-                Войти
-              </Link>
-            </li>
-          </ul>
-        </div>
-      )}
+      <AnimatePresence>
+        {isOpenBurger && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            transition={{ duration: 0.25, ease: 'easeInOut' }}
+            className={styles.modal__block}
+          >
+            <ul className={styles.menu__list}>
+              <li className={styles.menu__item}>
+                <button
+                  onClick={handleSelectionClick}
+                  className={styles.menu__link_btn}
+                >
+                  Главное
+                </button>
+              </li>
+              {isLoggedIn && (
+                <li className={styles.menu__item}>
+                  <Link
+                    href="/music/playlist"
+                    onClick={handleLinkClick}
+                    className={styles.menu__link}
+                  >
+                    Мой плейлист
+                  </Link>
+                </li>
+              )}
+              <li className={styles.menu__item}>
+                <button
+                  onClick={handleLogout}
+                  className={styles.menu__link_btn}
+                >
+                  {isLoggedIn ? 'Выйти' : 'Войти'}
+                </button>
+              </li>
+            </ul>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </nav>
   )
 }

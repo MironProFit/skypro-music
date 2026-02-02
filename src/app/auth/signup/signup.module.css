@@ -1,0 +1,110 @@
+/* Основной контейнер формы */
+.modal__form {
+  width: 366px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 43px 44px 47px 40px;
+}
+
+/* Логотип */
+.modal__logo {
+  width: 140px;
+  height: 21px;
+  margin-bottom: 34px;
+}
+
+.modal__logo img {
+  width: 140px;
+  height: auto;
+}
+
+/* Поля ввода */
+.modal__input {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid #d0cece;
+  padding: 8px 1px;
+  font-size: 18px;
+  line-height: 24px;
+  letter-spacing: -0.05px;
+  color: #000;
+}
+
+.modal__input::placeholder {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 24px;
+  letter-spacing: -0.05px;
+  color: #d0cece;
+}
+
+/* Универсальный отступ 30px для элементов */
+/* .marginBottom30 {
+  margin-bottom: 30px;
+} */
+
+/* Блок ошибок */
+.errorContainer {
+  font-size: 12px;
+  color: #e74c3c;
+  min-height: 14px;
+  opacity: 0;
+  visibility: hidden;
+  margin-top: 4px;
+  margin-bottom: 12px;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  width: 100%;
+  text-align: left;
+}
+
+.errorContainer.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Кнопка "Зарегистрироваться" */
+.modal__btnEnter {
+  width: 278px;
+  height: 52px;
+  background-color: #580ea2;
+  border-radius: 6px;
+  margin-top: 60px;
+  margin-bottom: 20px;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 24px;
+  letter-spacing: -0.05px;
+  color: #ffffff;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.modal__btnSignup:hover {
+  background-color: #f4f5f6;
+}
+
+.modal__btnSignup:active {
+  background-color: #d9d9d9;
+}
+
+/* Состояние отключенной кнопки */
+
+.modal__btnEnter:disabled {
+  background-color: #cccccc;
+  color: #666666;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.warning {
+  color: red;
+  text-align: center;
+}

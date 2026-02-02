@@ -58,7 +58,9 @@
 }
 
 .sidebar__img {
-  /* width: auto; */
-  /* height: auto; */
-  display: block;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.sidebar__img:hover{
+  opacity: 0.8;
 }

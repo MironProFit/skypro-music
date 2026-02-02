@@ -37,6 +37,7 @@
 }
 
 .filter__button {
+  position: relative;
   font-style: normal;
   font-weight: 400;
   font-size: 16px;
@@ -47,16 +48,46 @@
   color: #ffffff;
   transition: 0.3s;
   cursor: pointer;
+  z-index: 1;
+}
+.filter__button_count {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  right: -8px;
+  top: -10px;
+  color: white;
+  border-radius: 50%;
+  background-color: #ad61ff;
+  z-index: 2;
+  opacity: 0;
+  transition: 0.3s;
+}
+.filter__button_count.active_filtr {
+  opacity: 1;
+}
+
+.filter__button.loading {
+  color: transparent;
+  animation: loadingMove 20s linear infinite;
+  background: linear-gradient(to right, #b672ff, black, gray);
+  background-size: 2000% 400%;
+  background-position:
+    2000% 0%,
+    0% 0%;
 }
 
 .filter__button:hover {
   opacity: 0.5;
 }
 
-.filter__button_active {
+/* .filter__button_active {
   color: #b672ff;
   border: 1px solid #b672ff;
-}
+} */
 
 .centerblock__content {
   display: flex;
@@ -249,18 +280,53 @@
   display: flex;
   align-items: center;
 }
-
-.track__timeSvg {
+.track__likeSvg {
   width: 14px;
   height: 12px;
   margin-right: 17px;
   fill: transparent;
-  stroke: #696969;
+  color: #696969;
+  transition: 0.3s;
+}
+.track__likeSvg:hover {
+  color: #b672ff;
+  transform: scale(1.2);
+}
+.track__likeSvg:active {
+  color: #b672ff;
+  transform: scale(1.4);
+}
+.track__likeSvg .liked {
+  color: #b672ff;
+  transform: scale(1.2);
 }
 
 .track__timeText {
+  order: 2;
   font-size: 16px;
   line-height: 24px;
   text-align: right;
   color: #696969;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: #696969;
+  text-align: center;
+}
+
+.emptyState p {
+  font-size: 24px;
+  margin: 0;
+  font-weight: 400;
+}
+
+.emptyStateSubtitle {
+  font-size: 18px;
+  margin-top: 8px;
+  opacity: 0.7;
 }

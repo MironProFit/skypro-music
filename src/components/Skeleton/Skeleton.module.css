@@ -1,0 +1,20 @@
+/* src/components/Skeleton/Skeleton.module.css */
+
+.skeleton {
+  background: linear-gradient(90deg, #3a3a3a, #4a4a4a, #3a3a3a);
+  background-size: 200% 100%;
+  border-radius: 6px;
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+  animation: loading 1.8s ease-in-out infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
