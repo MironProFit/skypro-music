@@ -243,24 +243,18 @@
   height: 17px;
   color: #4e4e4e;
 }
-.trackPlay__svg:active {
-  color: red;
-}
+/* .trackPlay__svg:active {
+  color: ;
+} */
 
-.trackPlay__dislike_wrap {
+.trackPlay__like_wrap {
   display: flex;
 }
 
 .trackPlay__likeSvg {
-  width: 14px;
-  height: 12px;
-  color: #696969;
-}
-
-.trackPlay__dislikeSvg {
-  width: 14.34px;
+  width: 15px;
   height: 13px;
-  color: #696969;
+  color: #b672ff;
 }
 
 .volume__svg {
@@ -496,4 +490,20 @@
   border: 2px solid white;
   border-radius: 50%;
   margin-top: -7px;
+}
+.trackPlay__like.liked svg {
+  stroke: #ff0000 !important;
+  animation: pulse 0.3s ease-out;
+}
+
+.trackPlay__like:hover svg {
+  stroke: #b672ff !important;
+  transform: scale(1.1);
+  transition: all 0.2s ease;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
 }

@@ -1,23 +1,37 @@
-// src/components/Sidebar.tsx
+// src/components/Sidebar/Sidebar.tsx
 'use client'
 
 import Image from 'next/image'
 import styles from './Sidebar.module.css'
-import Link from 'next/link'
 import { useAppDispatch, useAppSelector } from 'src/store/store'
 import { useEffect, useState } from 'react'
 import { fetchAllSelections } from '@store/catalog/api/selectionThunk'
-import { setCurrentSelection } from '@store/catalog/slices/selectionSlice'
 import { useRouter } from 'next/navigation'
+import { resetFormData } from '@store/auth/slices/authSlice'
 
 export default function Sidebar() {
-  const [userName, setUserName] = useState<string>('Гость')
   const dispatch = useAppDispatch()
   const router = useRouter()
+
+  // ✅ ЛОКАЛЬНОЕ СОСТОЯНИЕ ДЛЯ ГИДРАТАЦИИ (начальное значение "Гость")
+  const [userName, setUserName] = useState('Гость')
+
+  // Получаем данные из Redux для обновления после гидратации
+  const reduxUserName = useAppSelector((state) => state.auth.userData?.username)
+  const isLoggedIn = useAppSelector((s) => s.auth.isLoggedIn)
 
   // Получаем подборки из Redux store
   const selections = useAppSelector((state) => state.selections.list)
   const selectionsLoading = useAppSelector((state) => state.selections.loading)
+
+  // ✅ ОБНОВЛЯЕМ ИМЯ ТОЛЬКО НА КЛИЕНТЕ (после гидратации)
+  useEffect(() => {
+    if (reduxUserName && reduxUserName.trim() !== '') {
+      setUserName(reduxUserName)
+    } else {
+      setUserName('Гость')
+    }
+  }, [reduxUserName])
 
   // Загружаем подборки при монтировании (если ещё не загружены)
   useEffect(() => {
@@ -26,30 +40,22 @@ export default function Sidebar() {
     }
   }, [dispatch, selections.length, selectionsLoading])
 
-  // Загружаем имя пользователя
-  useEffect(() => {
-    const userData = localStorage.getItem('userData')
-    if (userData) {
-      try {
-        const user = JSON.parse(userData)
-        setUserName(user.username || 'Пользователь')
-      } catch (e) {
-        console.warn('Не удалось распарсить userData')
-      }
-    }
-  }, [])
-
   // Обработка клика по подборке
   const handleSelectionClick = (_id: number) => {
     const selection = selections.find((s) => s._id === _id)
     if (selection) {
-      console.log('Выбрана подборка:', selection)
-      // Опционально: сохранить имя в Redux
-      dispatch(setCurrentSelection(selection.name))
-      // Перейти на страницу категории
       router.push(`/music/category/${_id}`)
     } else {
       console.warn(`Подборка с _id=${_id} не найдена`)
+    }
+  }
+
+  const handleLogout = () => {
+    if (isLoggedIn) {
+      dispatch(resetFormData())
+      router.push('/music/main')
+    } else {
+      router.push('/auth/signin')
     }
   }
 
@@ -60,19 +66,18 @@ export default function Sidebar() {
     .sort(
       (a, b) =>
         featuredIds.indexOf(a._id as number) -
-        featuredIds.indexOf(b._id as number)
+        featuredIds.indexOf(b._id as number),
     )
 
   return (
     <div className={styles.main__sidebar}>
       <div className={styles.sidebar__personal}>
+        {/* ✅ ТОЛЬКО ИМЯ ПОЛЬЗОВАТЕЛЯ (без лишних кнопок) */}
         <p className={styles.sidebar__personalName}>{userName}</p>
-        <div className={styles.sidebar__icon}>
-          <Link href={'/auth/signin'}>
-            <svg className={styles.sidebar__iconSvg}>
-              <use xlinkHref="/img/icon/sprite.svg#logout" />
-            </svg>
-          </Link>
+        <div onClick={handleLogout} className={styles.sidebar__icon}>
+          <svg className={styles.sidebar__iconSvg}>
+            <use xlinkHref="/img/icon/sprite.svg#logout" />
+          </svg>
         </div>
       </div>
       <div className={styles.sidebar__block}>
@@ -89,6 +94,8 @@ export default function Sidebar() {
                         handleSelectionClick(selection._id)
                       }
                     }}
+                    role="button"
+                    aria-label={`Перейти в подборку ${selection.name}`}
                   >
                     <Image
                       className={styles.sidebar__img}

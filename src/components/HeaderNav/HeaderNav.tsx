@@ -8,25 +8,36 @@ import clsx from 'clsx'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAppDispatch, useAppSelector } from 'src/store/store'
 import { resetFormData } from '@store/auth'
-import { useRouter } from 'next/navigation'
+import { useParams, usePathname, useRouter } from 'next/navigation'
 
 export default function HeaderNav() {
   const [isOpenBurger, setIsOpenBurger] = useState(false)
   const isLoggedIn = useAppSelector((state) => state.auth.isLoggedIn)
   const dispatch = useAppDispatch()
+
   const router = useRouter()
 
   const toggleBurgerMenu = () => {
     setIsOpenBurger((prev) => !prev)
   }
+
   const handleLogout = () => {
-    dispatch(resetFormData())
-    router.push('/auth/signin')
+    setIsOpenBurger(false)
+    if (isLoggedIn) {
+      dispatch(resetFormData())
+      router.push('/music/main')
+    } else {
+      router.push('/auth/signin')
+    }
   }
 
   const handleSelectionClick = () => {
     router.push('/music/main')
     toggleBurgerMenu()
+  }
+
+  const handleLinkClick = () => {
+    setIsOpenBurger(false)
   }
 
   return (
@@ -77,7 +88,6 @@ export default function HeaderNav() {
             <ul className={styles.menu__list}>
               <li className={styles.menu__item}>
                 <button
-                  //  href="/music/main"
                   onClick={handleSelectionClick}
                   className={styles.menu__link_btn}
                 >
@@ -86,7 +96,11 @@ export default function HeaderNav() {
               </li>
               {isLoggedIn && (
                 <li className={styles.menu__item}>
-                  <Link href="/music/playlist" className={styles.menu__link}>
+                  <Link
+                    href="/music/playlist"
+                    onClick={handleLinkClick}
+                    className={styles.menu__link}
+                  >
                     Мой плейлист
                   </Link>
                 </li>

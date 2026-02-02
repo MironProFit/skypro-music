@@ -1,3 +1,4 @@
+// src/components/Bar/Bar.tsx
 'use client'
 
 import clsx from 'clsx'
@@ -10,11 +11,28 @@ import {
   setCurrentTrack,
   setIsPlayTrack,
 } from '@store/catalog/slices/tracksSlice'
+import { useToggleLike } from 'src/hooks/useToggleLike'
+import { Track } from '@store/catalog/model/types'
 
 export default function Bar() {
   const currentTrack = useAppSelector((state) => state.tracks.currentTrack)
   const isPlayTrack = useAppSelector((state) => state.tracks.isPlayTrack)
+  const favoriteTracks = useAppSelector(
+    (state) => state.favorites.favoriteTracks,
+  )
   const dispatch = useAppDispatch()
+
+  const { toggleLike, tokenAccess } = useToggleLike()
+
+  const isCurrentTrackLiked = currentTrack
+    ? Array.isArray(favoriteTracks) &&
+      favoriteTracks.some((t) => t._id === currentTrack._id)
+    : false
+
+  useEffect(() => {
+    console.log('isCurrentTrackLiked', isCurrentTrackLiked)
+  }, [currentTrack])
+
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
   const [currentTime, setCurrentTime] = useState(0)
@@ -33,10 +51,8 @@ export default function Bar() {
   })
   const listTracks = useAppSelector((state) => state.tracks.list)
   const [tooltipStyle, setTooltipStyle] = useState<React.CSSProperties>({})
-
   const [tooltipPosition, setTooltipPosition] = useState(0)
 
-  // === 1. СБРОС ВРЕМЕНИ ПРИ СМЕНЕ ТРЕКА ===
   useEffect(() => {
     if (currentTrack) {
       setCurrentTime(0)
@@ -46,7 +62,6 @@ export default function Bar() {
     }
   }, [currentTrack?._id])
 
-  // === 2. ОБНОВЛЕНИЕ currentTime ИЗ АУДИО ===
   useEffect(() => {
     const audio = audioRef.current
     if (!audio) return
@@ -59,7 +74,6 @@ export default function Bar() {
     return () => audio.removeEventListener('timeupdate', updateTime)
   }, [])
 
-  // === 3. УПРАВЛЕНИЕ ВОСПРОИЗВЕДЕНИЕМ ===
   useEffect(() => {
     const audio = audioRef.current
     if (!audio || !currentTrack) return
@@ -77,7 +91,6 @@ export default function Bar() {
     }
   }, [currentTrack?._id, isPlayTrack, dispatch])
 
-  // === 4. ОБРАБОТКА ЗАВЕРШЕНИЯ ТРЕКА ===
   useEffect(() => {
     const audio = audioRef.current
     if (!audio) return
@@ -87,7 +100,6 @@ export default function Bar() {
     return () => audio.removeEventListener('ended', handleEnded)
   }, [isShuffleTrack, currentTrack?._id, listTracks])
 
-  // === 5. ГРОМКОСТЬ И MUTE ===
   useEffect(() => {
     const audio = audioRef.current
     if (audio) audio.muted = isMute
@@ -98,7 +110,6 @@ export default function Bar() {
     if (audio) audio.volume = currentVolume / 100
   }, [currentVolume])
 
-  // === РАЗМЕР ОКНА ===
   useEffect(() => {
     const handleResize = () =>
       setWindowSize({ width: window.innerWidth, height: window.innerHeight })
@@ -106,7 +117,6 @@ export default function Bar() {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  // === СТИЛЬ ТУЛТИПА ===
   useEffect(() => {
     if (!windowSize.width || !duration) return
 
@@ -128,7 +138,6 @@ export default function Bar() {
     setTooltipStyle(newStyle)
   }, [percentProgress, windowSize.width, duration])
 
-  // === НАВИГАЦИЯ ===
   const findTrackIndex = () =>
     listTracks.findIndex((track) => track._id === currentTrack?._id)
 
@@ -163,7 +172,6 @@ export default function Bar() {
     dispatch(setIsPlayTrack(true))
   }
 
-  // === УПРАВЛЕНИЕ ===
   const handlePlay = () => {
     if (currentTrack) {
       dispatch(setIsPlayTrack(!isPlayTrack))
@@ -178,7 +186,6 @@ export default function Bar() {
     setCurrentVolume(value)
   }
 
-  // === ПРОГРЕСС-БАР ===
   const handleProgressMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!duration) return
     const rect = e.currentTarget.getBoundingClientRect()
@@ -197,17 +204,19 @@ export default function Bar() {
     const percentage = Math.max(0, Math.min(100, (offsetX / rect.width) * 100))
     const timeAtPosition = (percentage / 100) * duration
 
-    // 🔑 КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ: обновляем ОБА значения
     audio.currentTime = timeAtPosition
-    setCurrentTime(timeAtPosition) // ← было пропущено!
+    setCurrentTime(timeAtPosition)
   }
 
-  // === СОСТОЯНИЕ КНОПОК ===
   const currentIndex = findTrackIndex()
   const isNoPrevBtn = currentIndex <= 0
   const isNoNextBtn = !isShuffleTrack && currentIndex >= listTracks.length - 1
 
-  // === РЕНДЕР ===
+  const handleCurrentTrackLike = async () => {
+    if (!currentTrack) return
+    await toggleLike(currentTrack._id, isCurrentTrackLiked, currentTrack)
+  }
+
   if (!currentTrack) return null
 
   return (
@@ -224,7 +233,6 @@ export default function Bar() {
         style={{ display: 'none' }}
       />
 
-      {/* Фоновая заливка прогресса */}
       <div className={styles.bar__progressOverlay}>
         <div
           className={styles.bar__progressFill}
@@ -232,7 +240,6 @@ export default function Bar() {
         />
       </div>
 
-      {/* Интерактивная область */}
       <div
         onClick={onProgressBarClick}
         className={clsx(styles.bar__playerProgress_wrap, {
@@ -249,7 +256,7 @@ export default function Bar() {
           <div
             className={clsx(
               styles.bar__playerProgress_tooltip,
-              styles.tooltip_current
+              styles.tooltip_current,
             )}
             style={{
               visibility: isTooltipVisible ? 'visible' : 'hidden',
@@ -262,7 +269,7 @@ export default function Bar() {
           <div
             className={clsx(
               styles.bar__playerProgress_tooltip,
-              styles.tooltip_duration
+              styles.tooltip_duration,
             )}
             style={{
               opacity: isTooltipVisible ? 1 : 0,
@@ -281,7 +288,6 @@ export default function Bar() {
         </div>
       </div>
 
-      {/* Панель управления */}
       <div className={styles.bar__playerBlock}>
         <div className={styles.bar__player}>
           <div className={styles.player__controls}>
@@ -374,19 +380,25 @@ export default function Bar() {
               </div>
             </div>
 
-            <div className={styles.trackPlay__dislike_wrap}>
-              <div className={clsx(styles.trackPlay__like, styles.btnIcon)}>
-                <svg className={styles.trackPlay__likeSvg}>
-                  <use xlinkHref="/img/icon/sprite.svg#icon-like" />
-                </svg>
-              </div>
-
-              <div className={clsx(styles.trackPlay__dislike, styles.btnIcon)}>
-                <svg className={styles.trackPlay__dislikeSvg}>
-                  <use xlinkHref="/img/icon/sprite.svg#icon-dislike" />
-                </svg>
-              </div>
-              
+            <div className={styles.trackPlay__like_wrap}>
+              {tokenAccess && (
+                <div
+                  className={clsx(styles.trackPlay__like, styles.btnIcon)}
+                  onClick={handleCurrentTrackLike}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <svg
+                    className={clsx(styles.trackPlay__likeSvg, {
+                      [styles.liked]: isCurrentTrackLiked,
+                    })}
+                  >
+                    <use
+                      xlinkHref={`/img/icon/sprite.svg#icon-like${isCurrentTrackLiked ? '-filled' : ''}`}
+                      color={isCurrentTrackLiked ? '#b672ff' : '#d9d9d9'}
+                    />
+                  </svg>
+                </div>
+              )}
             </div>
           </div>
         </div>

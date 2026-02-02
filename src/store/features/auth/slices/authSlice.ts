@@ -201,7 +201,6 @@ export const selectAuthIsLoading = (state: RootState) =>
 export const selectAuthError = (state: RootState) => state.auth.error
 export const selectIsLoggedIn = (state: RootState) => state.auth.isLoggedIn
 
-// ✅ Исправленный селектор с мемоизацией
 export const selectAuthTokens = createSelector(
   (state: RootState) => state.auth.userData.tokenAccess,
   (state: RootState) => state.auth.userData.tokenRefresh,

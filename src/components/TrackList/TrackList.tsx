@@ -1,3 +1,4 @@
+// src/components/TrackList/TrackList.tsx
 'use client'
 
 import clsx from 'clsx'
@@ -37,6 +38,8 @@ export default function TrackList({
   const [yearMode, setYearMode] = useState<
     'default' | 'new-first' | 'old-first'
   >('default')
+  // ✅ ДОБАВЛЕНО: состояние поиска
+  const [searchQuery, setSearchQuery] = useState('')
 
   const { tokenAccess } = useAppSelector(selectAuthTokens)
   const favoriteTracks = useAppSelector((state) => {
@@ -62,10 +65,28 @@ export default function TrackList({
     return allTracks.filter((track) => idSet.has(track._id))
   }, [allTracks, categoryTrackIds])
 
+  // ✅ ДОБАВЛЕНА: фильтрация по поиску
   const processedTracks = useMemo(() => {
     if (!isLoading) return []
 
-    let result = [...tracksToDisplay].filter((track) => {
+    let result = [...tracksToDisplay]
+
+    // Фильтрация по поисковому запросу
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase()
+      result = result.filter((track) => {
+        return (
+          track.name.toLowerCase().includes(query) ||
+          track.author.toLowerCase().includes(query) ||
+          track.album.toLowerCase().includes(query) ||
+          (Array.isArray(track.genre) && 
+           track.genre.some(g => g.toLowerCase().includes(query)))
+        )
+      })
+    }
+
+    // Фильтрация по другим критериям (жанр, автор)
+    result = result.filter((track) => {
       for (const [key, values] of Object.entries(selectedFilters)) {
         const filterKey = key as FiltersTagType
         if (filterKey === 'genre') {
@@ -80,6 +101,7 @@ export default function TrackList({
       return true
     })
 
+    // Сортировка
     if (yearMode === 'new-first') {
       result.sort(
         (a, b) =>
@@ -95,7 +117,7 @@ export default function TrackList({
     }
 
     return result
-  }, [tracksToDisplay, selectedFilters, yearMode, isLoading])
+  }, [tracksToDisplay, searchQuery, selectedFilters, yearMode, isLoading])
 
   const handleTypeFilter = (filter: FiltersTagType) => {
     setTypeFilter((prev) => (prev === filter ? '' : filter))
@@ -123,16 +145,15 @@ export default function TrackList({
   ) => {
     e.stopPropagation()
     
-    // Защита: проверяем авторизацию
     if (!tokenAccess) {
       console.warn('⚠️ Попытка поставить лайк без авторизации')
       return
     }
 
     if (isLiked) {
-      dispatch(removeTrackLocally(trackId)) // Удаляем из избранного локально
+      dispatch(removeTrackLocally(trackId))
     } else {
-      dispatch(addTrackLocally(track)) // Добавляем в избранное локально
+      dispatch(addTrackLocally(track))
     }
 
     try {
@@ -143,18 +164,14 @@ export default function TrackList({
         await dispatch(addTrackToFavorites(trackId)).unwrap()
         console.log('✅ Трек добавлен в избранное на сервере')
       }
-      // ✅ Сервер подтвердил → состояние остаётся обновлённым
     } catch (error) {
       console.error('❌ Ошибка при обновлении лайка:', error)
       
       if (isLiked) {
-        dispatch(addTrackLocally(track)) // Возвращаем трек обратно
+        dispatch(addTrackLocally(track))
       } else {
-        dispatch(removeTrackLocally(trackId)) // Убираем трек
+        dispatch(removeTrackLocally(trackId))
       }
-      
-      // Дополнительно: можно показать уведомление пользователю
-      // Например: toast.error('Не удалось обновить избранное. Попробуйте позже')
     }
   }
 
@@ -168,7 +185,11 @@ export default function TrackList({
 
   return (
     <div className={styles.centerblock}>
-      <Search />
+      {/* ✅ ПЕРЕДАЁМ ЗНАЧЕНИЕ И ОБРАБОТЧИК */}
+      <Search 
+        value={searchQuery} 
+        onChange={(e) => setSearchQuery(e.target.value)} 
+      />
 
       <h2 className={styles.centerblock__h2}>
         {isLoading
@@ -290,107 +311,119 @@ export default function TrackList({
                   </div>
                 </div>
               ))
-            : processedTracks.map((track) => {
-                const isLiked = Array.isArray(favoriteTracks)
-                  ? favoriteTracks.some((t) => t._id === track._id)
-                  : false
+            : processedTracks.length === 0 ? (
+                // ✅ СООБЩЕНИЕ ОБ ОТСУТСТВИИ РЕЗУЛЬТАТОВ
+                <div className={styles.emptyState}>
+                  <p>Ничего не найдено</p>
+                  {searchQuery && (
+                    <p className={styles.emptyStateSubtitle}>
+                      по запросу "{searchQuery}"
+                    </p>
+                  )}
+                </div>
+              ) : (
+                processedTracks.map((track) => {
+                  const isLiked = Array.isArray(favoriteTracks)
+                    ? favoriteTracks.some((t) => t._id === track._id)
+                    : false
 
-                return (
-                  <div
-                    key={track._id}
-                    className={styles.playlist__item}
-                    onClick={() => onClickTrack(track)}
-                  >
-                    <div className={styles.playlist__track}>
-                      <div className={styles.track__title}>
-                        <div className={styles.track__titleImage}>
-                          <svg
-                            className={clsx(styles.track__titleSvg, {
-                              [styles.active]:
-                                track._id === playTrack && isPlayTrack,
-                              [styles.selected__active]:
-                                track._id === playTrack && !isPlayTrack,
-                            })}
-                            viewBox="0 0 20 19"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <g className={styles.notePath}>
+                  return (
+                    <div
+                      key={track._id}
+                      className={styles.playlist__item}
+                      onClick={() => onClickTrack(track)}
+                    >
+                      <div className={styles.playlist__track}>
+                        <div className={styles.track__title}>
+                          <div className={styles.track__titleImage}>
+                            <svg
+                              className={clsx(styles.track__titleSvg, {
+                                [styles.active]:
+                                  track._id === playTrack && isPlayTrack,
+                                [styles.selected__active]:
+                                  track._id === playTrack && !isPlayTrack,
+                              })}
+                              viewBox="0 0 20 19"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <g className={styles.notePath}>
+                                <path
+                                  d="M8 16V1.9697L19 1V13"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeLinecap="round"
+                                />
+                                <ellipse
+                                  cx="4.5"
+                                  cy="16"
+                                  rx="3.5"
+                                  ry="2"
+                                  fill="none"
+                                  stroke="currentColor"
+                                />
+                                <ellipse
+                                  cx="15.5"
+                                  cy="13"
+                                  rx="3.5"
+                                  ry="2"
+                                  fill="none"
+                                  stroke="currentColor"
+                                />
+                              </g>
                               <path
-                                d="M8 16V1.9697L19 1V13"
+                                className={styles.playPath}
+                                d="M6 4.5 L14 9.5 L6 14.5 Z"
                                 fill="none"
                                 stroke="currentColor"
-                                strokeLinecap="round"
+                                strokeWidth="2"
+                                strokeLinejoin="round"
                               />
-                              <ellipse
-                                cx="4.5"
-                                cy="16"
-                                rx="3.5"
-                                ry="2"
-                                fill="none"
-                                stroke="currentColor"
-                              />
-                              <ellipse
-                                cx="15.5"
-                                cy="13"
-                                rx="3.5"
-                                ry="2"
-                                fill="none"
-                                stroke="currentColor"
-                              />
-                            </g>
-                            <path
-                              className={styles.playPath}
-                              d="M6 4.5 L14 9.5 L6 14.5 Z"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinejoin="round"
-                            />
-                          </svg>
+                            </svg>
+                          </div>
+                          <Link className={styles.track__titleLink} href="">
+                            {track.name}
+                          </Link>
                         </div>
-                        <Link className={styles.track__titleLink} href="">
-                          {track.name}
-                        </Link>
-                      </div>
-                      <div className={styles.track__author}>
-                        <Link className={styles.track__authorLink} href="">
-                          {track.author}
-                        </Link>
-                      </div>
-                      <div className={styles.track__album}>
-                        <Link className={styles.track__albumLink} href="">
-                          {track.album}
-                        </Link>
-                      </div>
-                      <div className={styles.track__time}>
-                        <span className={styles.track__timeText}>
-                          {Math.floor(track.duration_in_seconds / 60)}:
-                          {(track.duration_in_seconds % 60)
-                            .toString()
-                            .padStart(2, '0')}
-                        </span>
+                        <div className={styles.track__author}>
+                          <Link className={styles.track__authorLink} href="">
+                            {track.author}
+                          </Link>
+                        </div>
+                        <div className={styles.track__album}>
+                          <Link className={styles.track__albumLink} href="">
+                            {track.album}
+                          </Link>
+                        </div>
+                        <div className={styles.track__time}>
+                          <span className={styles.track__timeText}>
+                            {Math.floor(track.duration_in_seconds / 60)}:
+                            {(track.duration_in_seconds % 60)
+                              .toString()
+                              .padStart(2, '0')}
+                          </span>
 
-                        {tokenAccess ? (
-                          <svg
-                            className={clsx(styles.track__likeSvg, {
-                              [styles.liked]: isLiked,
-                            })}
-                            onClick={(e) => handleToggleLike(track._id, e, isLiked, track)}
-                            viewBox="0 0 16 14"
-                            fill="none"
-                          >
-                            <use
-                              xlinkHref={`/img/icon/sprite.svg#icon-like${isLiked ? '-filled' : ''}`}
-                            />
-                          </svg>
-                        ) : (
-                          <span className={styles.track__likePlaceholder} />
-                        )}
+                          {tokenAccess ? (
+                            <svg
+                              className={clsx(styles.track__likeSvg, {
+                                [styles.liked]: isLiked,
+                              })}
+                              onClick={(e) => handleToggleLike(track._id, e, isLiked, track)}
+                              viewBox="0 0 16 14"
+                              fill="none"
+                            >
+                              <use
+                                xlinkHref={`/img/icon/sprite.svg#icon-like${isLiked ? '-filled' : ''}`}
+                              />
+                            </svg>
+                          ) : (
+                            <span className={styles.track__likePlaceholder} />
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )
-              })}
+                  )
+                })
+              )}
         </div>
       </div>
     </div>

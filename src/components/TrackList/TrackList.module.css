@@ -297,9 +297,8 @@
   transform: scale(1.4);
 }
 .track__likeSvg .liked {
- color: #b672ff;
+  color: #b672ff;
   transform: scale(1.2);
-
 }
 
 .track__timeText {
@@ -309,5 +308,25 @@
   text-align: right;
   color: #696969;
 }
-@keyframes identifier {
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: #696969;
+  text-align: center;
+}
+
+.emptyState p {
+  font-size: 24px;
+  margin: 0;
+  font-weight: 400;
+}
+
+.emptyStateSubtitle {
+  font-size: 18px;
+  margin-top: 8px;
+  opacity: 0.7;
 }

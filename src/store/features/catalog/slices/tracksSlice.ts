@@ -65,8 +65,7 @@ const trackSlice = createSlice({
         state.error = action.payload ?? 'Неизвестная ошибка'
       })
 
-    // ✅ Удалён код с добавлением isFavorite (это не должно быть в tracksSlice)
-    // Логика избранного должна быть в favoritesSlice или в селекторах
+   
   },
 })
 
