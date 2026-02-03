@@ -12,8 +12,22 @@ interface FavoritesState {
   error: string | null
 }
 
+const loadFromLocalStorage = (): Track[] => {
+  if (typeof window !== undefined) return []
+  try {
+    const stored = localStorage.getItem('favoriteTracks')
+    if (stored) {
+      const parsed = JSON.parse(stored)
+      return Array.isArray(parsed) ? parsed : []
+    }
+  } catch (error) {
+    console.error('Ошибка загрузки избранного из localStorage:', error)
+  }
+  return []
+}
+
 const initialState: FavoritesState = {
-  favoriteTracks: [],
+  favoriteTracks: loadFromLocalStorage(),
   isLoading: false,
   error: null,
 }
@@ -49,6 +63,17 @@ const favoritesSlice = createSlice({
         state.favoriteTracks = Array.isArray(action.payload)
           ? action.payload
           : []
+
+        try {
+          if (typeof window !== 'undefined') {
+            localStorage.setItem(
+              'favoriteTracks',
+              JSON.stringify(state.favoriteTracks),
+            )
+          }
+        } catch (error) {
+          console.error('Ошибка при сохранении favoriteTracks:', error)
+        }
       })
       .addCase(fetchFavoriteTracks.rejected, (state, action) => {
         state.isLoading = false
@@ -59,6 +84,17 @@ const favoritesSlice = createSlice({
       .addCase(addTrackToFavorites.fulfilled, (state, action) => {
         if (!state.favoriteTracks.some((t) => t._id === action.payload._id)) {
           state.favoriteTracks = [...state.favoriteTracks, action.payload]
+
+          try {
+            if (typeof window !== 'undefined') {
+              localStorage.setItem(
+                'favoriteTracks',
+                JSON.stringify(action.payload),
+              )
+            }
+          } catch (error) {
+            console.error('Ошибка добавления в LocalStorage:', error)
+          }
         }
       })
       .addCase(addTrackToFavorites.rejected, (state, action) => {
@@ -70,7 +106,16 @@ const favoritesSlice = createSlice({
         state.favoriteTracks = state.favoriteTracks.filter(
           (track) => track._id !== action.payload,
         )
+        try {
+          localStorage.setItem(
+            'favoriteTracks',
+            JSON.stringify(state.favoriteTracks),
+          )
+        } catch (error) {
+          console.error('Ошибка добавления в LocalStorage:', error)
+        }
       })
+
       .addCase(removeTrackFromFavorites.rejected, (state, action) => {
         state.error = action.payload ?? 'Ошибка удаления из избранного'
       })

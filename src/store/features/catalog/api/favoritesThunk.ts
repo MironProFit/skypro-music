@@ -53,7 +53,6 @@ export const removeTrackFromFavorites = createAsyncThunk<
         return rejectWithValue('Нет авторизации')
       }
 
-      // ✅ Теперь передаём 4 аргумента вместо 3
       await withReauth<void>(
         (token) => removeLike(token, trackId), // 1. apiFunction
         tokenAccess, // 2. currentAccess ← НОВЫЙ аргумент!
