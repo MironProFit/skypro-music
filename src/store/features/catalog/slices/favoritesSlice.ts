@@ -49,6 +49,13 @@ const favoritesSlice = createSlice({
     clearFavorites: (state) => {
       state.favoriteTracks = []
       state.error = null
+      try {
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('favoriteTracks')
+        }
+      } catch (error) {
+        console.error('Не смог удалить localStorage по причине:', error)
+      }
     },
   },
   extraReducers: (builder) => {

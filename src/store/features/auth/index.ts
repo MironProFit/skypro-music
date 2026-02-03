@@ -9,13 +9,10 @@ export type {
   AuthFormData,
   // Ответы
   LoginResponse,
-  LoginErrorResponse,
   RegisterResponse,
   RegisterSuccessResponse,
   RegisterErrorResponse,
   TokenResponse,
-  TokenSuccessResponse,
-  TokenErrorResponse,
 } from './model/types'
 
 // --- THUNK'и ---
