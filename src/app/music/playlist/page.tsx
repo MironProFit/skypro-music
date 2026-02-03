@@ -9,10 +9,10 @@ import { fetchFavoriteTracks } from '@store/catalog/api/favoritesThunk'
 import styles from './page.module.css'
 import { usePathname, useRouter } from 'next/navigation'
 
-
 export default function PlaylistPage() {
   const dispatch = useAppDispatch()
   const { tokenAccess } = useAppSelector(selectAuthTokens)
+  const isLoggedIn = useAppSelector((s) => s.auth.isLoggedIn)
   const pathname = usePathname()
   const router = useRouter()
 
@@ -22,8 +22,8 @@ export default function PlaylistPage() {
   })
 
   useEffect(() => {
-   !tokenAccess && pathname === '/music/playlist' && router.push('/')
-  }, [pathname,tokenAccess])
+    !isLoggedIn && pathname === '/music/playlist' && router.push('/')
+  }, [pathname, isLoggedIn])
 
   const favoritesLoading = useAppSelector((s) => s.favorites.isLoading)
   const favoritesError = useAppSelector((s) => s.favorites.error)
