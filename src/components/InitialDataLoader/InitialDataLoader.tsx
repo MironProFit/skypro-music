@@ -2,11 +2,11 @@
 import { useEffect } from 'react'
 import { useAppDispatch, useAppSelector } from 'src/store/store'
 import { fetchFavoriteTracks } from '@store/catalog/api/favoritesThunk'
-import { selectAuthTokens } from '@store/auth/slices/authSlice' 
+import { selectAuthTokens } from '@store/auth/slices/authSlice'
 
 import { fetchTracks } from '@store/catalog/api/tracksThunk'
 
- const useInitialData = () => {
+const useInitialData = () => {
   const dispatch = useAppDispatch()
   const tracksLoaded = useAppSelector((state) => state.tracks.list.length > 0)
   const tracksLoading = useAppSelector((state) => state.tracks.loading)
@@ -26,4 +26,9 @@ import { fetchTracks } from '@store/catalog/api/tracksThunk'
     }
   }, [dispatch, tokenAccess, tracksLoaded, tracksLoading])
 }
-export default useInitialData
+const InitialDataLoader = () => {
+  useInitialData()
+  return null
+}
+
+export default InitialDataLoader
