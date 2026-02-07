@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
     "target": "ES2017",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -20,16 +24,42 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@components/*": ["src/components/*"],
-      "@utils/*": ["src/utils/*"],
-      "@styles/*": ["src/styles/*"],
-      "@store/*": ["src/store/features/*"],
-      "@thunks/auth/*": ["src/store/features/auth/thunks/*"],
-      "@slices/auth": ["src/store/features/auth/authSlice.ts"],
-      "@api/*": ["src/services/api/*"],
-      "@types/auth/*": ["src/store/features/auth/model/*"]
+      "@components/*": [
+        "src/components/*"
+      ],
+      "@utils/*": [
+        "src/utils/*"
+      ],
+      "@styles/*": [
+        "src/styles/*"
+      ],
+      "@store/*": [
+        "src/store/features/*"
+      ],
+      "@thunks/auth/*": [
+        "src/store/features/auth/thunks/*"
+      ],
+      "@slices/auth": [
+        "src/store/features/auth/authSlice.ts"
+      ],
+      "@api/*": [
+        "src/services/api/*"
+      ],
+      "@types/auth/*": [
+        "src/store/features/auth/model/*"
+      ]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", "**/*.test.ts", "**/*.spec.ts"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/*.test.ts",
+    "**/*.spec.ts"
+  ]
 }

@@ -1,7 +1,9 @@
 /* Основной контейнер формы */
 .modal__form {
   width: 366px;
-  background-color: #ffffff;
+  /* background-color: #ffffff; */
+  background-color: #666666;
+
   border-radius: 12px;
   display: flex;
   flex-direction: column;
@@ -22,7 +24,7 @@
 }
 
 /* Поля ввода */
-.modal__input {
+/* .modal__input {
   width: 100%;
   border: none;
   border-bottom: 1px solid #d0cece;
@@ -40,12 +42,69 @@
   line-height: 24px;
   letter-spacing: -0.05px;
   color: #d0cece;
+} */
+
+/* Поля ввода */
+.modal__input {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid #d0cece;
+  padding: 8px 1px;
+  font-size: 18px;
+  line-height: 24px;
+  letter-spacing: -0.05px;
+  color: #ffffff;
+  background-color: #666;
+
+  /* Плавные переходы */
+  transition: border-bottom-color 0.3s ease;
+
+  /* Убираем стандартный фокус */
+  outline: none;
 }
 
-/* Универсальный отступ 30px для элементов */
-/* .marginBottom30 {
-  margin-bottom: 30px;
-} */
+/* Фокус на инпуте */
+.modal__input:focus {
+  border-bottom-color: #ffffff;
+}
+
+/* Плейсхолдер */
+.modal__input::placeholder {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 24px;
+  letter-spacing: -0.05px;
+  color: #d0cece;
+  opacity: 1; /* Важно для некоторых браузеров */
+}
+
+/* ===== РЕШЕНИЕ АВТОЗАПОЛНЕНИЯ ===== */
+.modal__input:-webkit-autofill,
+.modal__input:-webkit-autofill:hover,
+.modal__input:-webkit-autofill:focus,
+.modal__input:-webkit-autofill:active {
+  /* Фон */
+  -webkit-box-shadow: 0 0 0 30px #666 inset !important;
+  box-shadow: 0 0 0 30px #666 inset !important;
+
+  /* Цвет текста */
+  -webkit-text-fill-color: #ffffff !important;
+  color: #ffffff !important;
+
+  /* Убираем анимацию */
+  transition: background-color 5000s ease-in-out 0s !important;
+  animation: none !important;
+
+  /* Убираем градиент */
+  -webkit-background-clip: text !important;
+}
+
+/* Для остальных браузеров */
+.modal__input:-internal-autofill-selected {
+  background-color: #666 !important;
+  color: #ffffff !important;
+}
 
 /* Блок ошибок */
 .errorContainer {
@@ -56,7 +115,9 @@
   visibility: hidden;
   margin-top: 4px;
   margin-bottom: 12px;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    visibility 0.3s ease;
   width: 100%;
   text-align: left;
 }
