@@ -15,7 +15,6 @@ interface FavoriteTracksResponse {
   message?: string
 }
 
-// ✅ ПРОСТОЙ ВАРИАНТ БЕЗ ОБРАБОТКИ ОШИБОК
 export const getFavoriteTracksApi = async (
   token: string
 ): Promise<Track[]> => {
@@ -28,7 +27,6 @@ export const getFavoriteTracksApi = async (
     }
   )
 
-  // Проверяем бизнес-логику (сервер вернул 200, но success: false)
   if (!response.data.success) {
     throw new Error(response.data.message || 'Не удалось загрузить избранное')
   }

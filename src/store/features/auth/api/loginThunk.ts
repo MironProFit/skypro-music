@@ -3,7 +3,7 @@ import { LoginRequest, User } from '../index'
 import { fetchTracks } from '@store/catalog/api/tracksThunk'
 import { fetchAllSelections } from '@store/catalog/api/selectionThunk'
 import { loginApi } from '@api/auth/loginApi'
-import { getUserToken } from './tokenThunk' // ✅ Добавляем импорт
+import { getUserToken } from './tokenThunk'
 import { RootState, AppDispatch } from 'src/store/store'
 
 export const loginUser = createAsyncThunk<

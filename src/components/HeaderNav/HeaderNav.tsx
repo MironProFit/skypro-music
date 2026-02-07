@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useAppDispatch, useAppSelector } from 'src/store/store'
 import { resetFormData } from '@store/auth'
 import { useParams, usePathname, useRouter } from 'next/navigation'
+import { clearFavorites } from '@store/catalog/slices/favoritesSlice'
 
 export default function HeaderNav() {
   const [isOpenBurger, setIsOpenBurger] = useState(false)
@@ -25,6 +26,7 @@ export default function HeaderNav() {
     setIsOpenBurger(false)
     if (isLoggedIn) {
       dispatch(resetFormData())
+      dispatch(clearFavorites())
       router.push('/music/main')
     } else {
       router.push('/auth/signin')

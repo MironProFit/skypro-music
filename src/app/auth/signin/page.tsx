@@ -19,7 +19,7 @@ export default function SigninPage() {
     !!errors.email || !!errors.password || !formData.email || !formData.password
 
   useEffect(() => {
-    dispatch(resetFormData())
+    dispatch(resetFormData())    
     setErrors({ email: '', password: '' })
   }, [dispatch, setErrors])
 
