@@ -10,6 +10,7 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Loading from '@components/Loading/Loading'
 import { getUserToken, loginUser, resetFormData } from '@store/auth'
+import { toast } from 'react-toastify'
 
 export default function SigninPage() {
   const { handleChange, formData, errors, setErrors } = useAuth()
@@ -19,25 +20,32 @@ export default function SigninPage() {
     !!errors.email || !!errors.password || !formData.email || !formData.password
 
   useEffect(() => {
-    dispatch(resetFormData())    
+    dispatch(resetFormData())
     setErrors({ email: '', password: '' })
   }, [dispatch, setErrors])
+
+  useEffect(() => {
+    if (errorMes) {
+      toast.error(errorMes)
+    }
+  }, [errorMes])
 
   const router = useRouter()
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     dispatch(
-      loginUser({ email: formData.email, password: formData.password })
+      loginUser({ email: formData.email, password: formData.password }),
     ).then((resultAction) => {
       if (loginUser.fulfilled.match(resultAction)) {
         // После успешного логина вызываем получение токенов
         dispatch(
-          getUserToken({ email: formData.email, password: formData.password })
+          getUserToken({ email: formData.email, password: formData.password }),
         ).then((tokenResult) => {
           if (getUserToken.fulfilled.match(tokenResult)) {
+            toast.success('Успешный вход')
             // После успешного получения токена переходим на главную
-            router.push('/')
+            router.push('/music/main')
           }
         })
       } else {
@@ -90,9 +98,6 @@ export default function SigninPage() {
         >
           {errors.password}
         </div>
-
-        {/* Кнопка Войти */}
-        <div className={styles.warning}>{errorMes}</div>
 
         <button
           disabled={isDisabled}

@@ -10,6 +10,7 @@ import { useAppDispatch, useAppSelector } from 'src/store/store'
 import { resetFormData } from '@store/auth'
 import { useParams, usePathname, useRouter } from 'next/navigation'
 import { clearFavorites } from '@store/catalog/slices/favoritesSlice'
+import { toast } from 'react-toastify'
 
 export default function HeaderNav() {
   const [isOpenBurger, setIsOpenBurger] = useState(false)
@@ -28,6 +29,7 @@ export default function HeaderNav() {
       dispatch(resetFormData())
       dispatch(clearFavorites())
       router.push('/music/main')
+      toast.info('Вы вышли из аккаунта')
     } else {
       router.push('/auth/signin')
     }

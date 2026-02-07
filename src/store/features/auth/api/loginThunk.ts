@@ -86,8 +86,8 @@ export const loginUser = createAsyncThunk<
         }
       }
 
-      console.error('💥 Итоговое сообщение об ошибке:', errorMessage)
-      return rejectWithValue(`💥 ${errorMessage}`)
+      console.error(' Итоговое сообщение об ошибке:', errorMessage)
+      return rejectWithValue(` ${errorMessage}`)
     }
   },
 )
