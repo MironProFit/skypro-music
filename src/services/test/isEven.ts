@@ -1,0 +1,1 @@
+export const isEven = (a: number): boolean => a % 2 === 0

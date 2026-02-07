@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint --config eslint.config.mjs '**/*.{js,ts,tsx}'"
+    "lint": "eslint --config eslint.config.mjs '**/*.{js,ts,tsx}'",
+    "test": "jest"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.11.0",
@@ -21,7 +22,9 @@
     "react-redux": "^9.2.0"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
     "@types/classnames": "^2.3.0",
+    "@types/jest": "^30.0.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
@@ -30,6 +33,9 @@
     "eslint": "^9",
     "eslint-config-next": "16.0.3",
     "eslint-plugin-prettier": "^5.5.5",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^30.2.0",
+    "ts-jest": "^29.4.6",
     "typescript": "^5"
   }
 }
