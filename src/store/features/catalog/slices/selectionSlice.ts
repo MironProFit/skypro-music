@@ -2,7 +2,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { SelectionsState } from '../model/types'
 import { fetchAllSelections } from '../api/selectionThunk'
-import { useAppSelector } from 'src/store/store'
 
 const initialState: SelectionsState = {
   list: [],
@@ -31,19 +30,6 @@ const selectionsSlice = createSlice({
       .addCase(fetchAllSelections.fulfilled, (state, action) => {
         state.loading = false
         state.list = action.payload
-
-        if (action.payload.length > 0) {
-          try {
-            if (typeof window !== 'undefined') {
-              localStorage.setItem(
-                'selections_cache',
-                JSON.stringify(action.payload),
-              )
-            }
-          } catch (error) {
-            console.warn('Не удалось сохранить подборки в localStorage:', error)
-          }
-        }
       })
       .addCase(fetchAllSelections.rejected, (state, action) => {
         state.loading = false
@@ -51,6 +37,8 @@ const selectionsSlice = createSlice({
       })
   },
 })
+
 export const { setCurrentSelection, clearSelectionCache } =
   selectionsSlice.actions
+
 export const selectionsReducer = selectionsSlice.reducer

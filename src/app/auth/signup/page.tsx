@@ -16,7 +16,6 @@ export default function SignUpPage() {
   const router = useRouter() //  Вызываем ОДИН РАЗ на верхнем уровне
   const error = useAppSelector((state) => state.auth.error)
 
-  //  Исправленные селекторы (убраны фигурные скобки!)
   const tokenAccessData = useAppSelector((s) => s.auth.userData.tokenAccess)
   const tokenRefreshData = useAppSelector((s) => s.auth.userData.tokenRefresh)
 

@@ -8,7 +8,7 @@ import {
   useSelector,
   useStore,
 } from 'react-redux'
-import { authSliceSliceReducer } from './features/auth/slices/authSlice'
+import { authSliceReducer } from './features/auth/slices/authSlice'
 import { favoritesReducer } from '@store/catalog/slices/favoritesSlice'
 
 export const makeStore = () => {
@@ -18,7 +18,7 @@ export const makeStore = () => {
   return configureStore({
     reducer: combineReducers({
       tracks: trackSliceReducer,
-      auth: authSliceSliceReducer,
+      auth: authSliceReducer,
       selections: selectionsReducer,
       favorites: favoritesReducer,
     }),
