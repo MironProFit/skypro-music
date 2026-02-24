@@ -5,7 +5,7 @@ import Link from 'next/link'
 import clsx from 'clsx'
 import { useAuth } from '../context/AuthContext'
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation' //  Хук на верхнем уровне
+import { useRouter } from 'next/navigation'
 import { useAppDispatch, useAppSelector } from 'src/store/store'
 import { getUserToken, registerUser, resetFormData } from '@store/auth'
 import { toast } from 'react-toastify'
@@ -29,14 +29,13 @@ export default function SignUpPage() {
     setErrors({ email: '', password: '' })
     setPasswordConfirm('')
     setConfirmError('')
-  }, [dispatch, setErrors]) //  Убрали лишнюю зависимость param
+  }, [dispatch, setErrors])
 
-   useEffect(() => {
+  useEffect(() => {
     if (error) {
       toast.error(error)
     }
   }, [error])
-
 
   // Валидация подтверждения пароля
   const validateConfirm = (password: string, confirm: string) => {
@@ -76,7 +75,6 @@ export default function SignUpPage() {
               email: formData.email,
               password: formData.password,
             }),
-          
           ).then((tokenResult) => {
             if (getUserToken.fulfilled.match(tokenResult)) {
               //  Перенаправляем на главную
@@ -157,7 +155,6 @@ export default function SignUpPage() {
       >
         {confirmError}
       </div>
-
 
       {/* Кнопка "Зарегистрироваться" */}
       <button

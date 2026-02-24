@@ -6,17 +6,17 @@ import { useAppDispatch, useAppSelector } from 'src/store/store'
 
 import { fetchTracks } from '@store/catalog/api/tracksThunk'
 import { setTracksFromCache } from '@store/catalog'
-import { setIsLoadingTrackList } from '@store/auth'
 
 export function HydrationWrapper({ children }: { children: React.ReactNode }) {
+  const isLoggedIn = useAppSelector((state) => state.auth.isLoggedIn)
   const dispatch = useAppDispatch()
   const list = useAppSelector((state) => state.tracks.list)
 
   useEffect(() => {
-    // dispatch(setIsLoadingTrackList(true))
-
     // Загружаем данные только если список пустой
-    if (list.length === 0) {
+    console.log('isLoggedIn:', isLoggedIn);
+    
+    if (list.length === 0 && isLoggedIn) {
       const cached = localStorage.getItem('tracks_cache')
       if (cached) {
         try {
@@ -30,7 +30,7 @@ export function HydrationWrapper({ children }: { children: React.ReactNode }) {
         dispatch(fetchTracks())
       }
     }
-  }, [dispatch, list.length])
+  }, [dispatch, list.length, isLoggedIn])
 
   return <>{children}</>
 }

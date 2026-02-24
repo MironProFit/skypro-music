@@ -2,6 +2,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { SelectionsState } from '../model/types'
 import { fetchAllSelections } from '../api/selectionThunk'
+import { useAppSelector } from 'src/store/store'
 
 const initialState: SelectionsState = {
   list: [],
@@ -16,6 +17,9 @@ const selectionsSlice = createSlice({
   reducers: {
     setCurrentSelection: (state, action: PayloadAction<string>) => {
       state.currentCollection = action.payload
+    },
+    clearSelectionCache: (state) => {
+      state.currentCollection = ''
     },
   },
   extraReducers: (builder) => {
@@ -33,7 +37,7 @@ const selectionsSlice = createSlice({
             if (typeof window !== 'undefined') {
               localStorage.setItem(
                 'selections_cache',
-                JSON.stringify(action.payload)
+                JSON.stringify(action.payload),
               )
             }
           } catch (error) {
@@ -47,5 +51,6 @@ const selectionsSlice = createSlice({
       })
   },
 })
-export const { setCurrentSelection } = selectionsSlice.actions
+export const { setCurrentSelection, clearSelectionCache } =
+  selectionsSlice.actions
 export const selectionsReducer = selectionsSlice.reducer

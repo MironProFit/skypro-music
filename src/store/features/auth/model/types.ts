@@ -44,6 +44,7 @@ export type RegisterResponse = RegisterSuccessResponse | RegisterErrorResponse
 export interface ServerErrorResponse {
   detail: string
   code: string
+  message?: string
 }
 
 // --- ОТВЕТЫ НА ПОЛУЧЕНИЕ ТОКЕНОВ (/user/token/) ---

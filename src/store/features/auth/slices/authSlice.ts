@@ -6,45 +6,12 @@ import { loginUser } from '../api/loginThunk'
 import { getUserToken } from '../api/tokenThunk'
 import { AuthFormData } from '../model/types'
 
-// === Получение данных из localStorage ===
-export const getStoredUserData = (): UserData => {
-  if (typeof window === 'undefined') {
-    return {
-      id: undefined,
-      email: '',
-      username: '',
-      tokenAccess: '',
-      tokenRefresh: '',
-    }
-  }
-
-  const data = localStorage.getItem('userData')
-  if (data) {
-    try {
-      const parsed = JSON.parse(data)
-      if (parsed.tokenAccess || parsed.tokenRefresh) {
-        return parsed
-      }
-    } catch (e) {
-      console.error('Ошибка парсинга userData:', e)
-    }
-  }
-  return {
-    id: undefined,
-    email: '',
-    username: '',
-    tokenAccess: '',
-    tokenRefresh: '',
-  }
-}
-
-// === Типы ===
-type UserData = {
+export type UserData = {
   id?: number
   email?: string
   username?: string
-  tokenAccess?: string
-  tokenRefresh?: string
+  tokenAccess?: string | null
+  tokenRefresh?: string | null
 }
 
 type AuthState = {
@@ -56,7 +23,37 @@ type AuthState = {
   isLoggedIn: boolean
 }
 
-// === Начальное состояние ===
+const getStoredUserData = (): UserData => {
+  if (typeof window === 'undefined') return getInitialUserData()
+
+  const data = localStorage.getItem('userData')
+  if (data) {
+    try {
+      const parsed = JSON.parse(data)
+      if (parsed.tokenAccess || parsed.tokenRefresh) {
+        return parsed
+      }
+    } catch (e) {
+      console.error('Ошибка парсинга userData из localStorage:', e)
+    }
+  }
+  return getInitialUserData()
+}
+
+const getInitialUserData = (): UserData => ({
+  id: undefined,
+  email: '',
+  username: '',
+  tokenAccess: null,
+  tokenRefresh: null,
+})
+
+const getNameUserFromEmail = (email: string): string => {
+  return (
+    email.split('@')[0].charAt(0).toUpperCase() + email.split('@')[0].slice(1)
+  )
+}
+
 const initialState: AuthState = {
   formData: {
     email: '',
@@ -68,17 +65,9 @@ const initialState: AuthState = {
   error: null,
   isDataLoading: false,
   isLoadingTrackList: false,
-  isLoggedIn: !!getStoredUserData().id && !!getStoredUserData().tokenRefresh,
+  isLoggedIn: !!(getStoredUserData().id && getStoredUserData().tokenRefresh),
 }
 
-// === Вспомогательная функция ===
-const getNameUserFromEmail = (email: string): string => {
-  return (
-    email.split('@')[0].charAt(0).toUpperCase() + email.split('@')[0].slice(1)
-  )
-}
-
-// === Slice ===
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -89,29 +78,39 @@ const authSlice = createSlice({
         state.formData.username = getNameUserFromEmail(action.payload.email)
       }
     },
+
     resetFormData: (state) => {
-      state.formData = initialState.formData
+      state.formData = { ...initialState.formData }
       state.error = null
-      localStorage.removeItem('userData')
-      state.userData = {
-        id: undefined,
-        email: '',
-        username: '',
-        tokenAccess: '',
-        tokenRefresh: '',
-      }
-      state.isLoggedIn = false
     },
+
     setIsLoadingTrackList: (state, action: PayloadAction<boolean>) => {
       state.isLoadingTrackList = action.payload
     },
+
     setAccessToken: (state, action: PayloadAction<string>) => {
       state.userData.tokenAccess = action.payload
+    },
+
+    clearError: (state) => {
+      state.error = null
+    },
+
+    logoutUser: (state) => {
+      state.formData = { ...initialState.formData }
+      state.userData = getInitialUserData()
+      state.isLoggedIn = false
+      state.error = null
+      state.isDataLoading = false
+      state.isLoadingTrackList = false
+
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('userData')
+      }
     },
   },
   extraReducers: (builder) => {
     builder
-      // registerUser
       .addCase(registerUser.pending, (state) => {
         state.isDataLoading = true
         state.error = null
@@ -119,7 +118,7 @@ const authSlice = createSlice({
       .addCase(registerUser.fulfilled, (state, action) => {
         state.isDataLoading = false
         state.error = null
-        if (action.payload.success) {
+        if (action.payload.success && '_id' in action.payload.result) {
           const result = action.payload.result
           state.userData = {
             ...state.userData,
@@ -127,7 +126,9 @@ const authSlice = createSlice({
             email: result.email,
             username: getNameUserFromEmail(result.email),
           }
-          localStorage.setItem('userData', JSON.stringify(state.userData))
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('userData', JSON.stringify(state.userData))
+          }
         }
       })
       .addCase(registerUser.rejected, (state, action) => {
@@ -135,7 +136,6 @@ const authSlice = createSlice({
         state.error = action.payload ?? 'Ошибка регистрации'
       })
 
-      // loginUser
       .addCase(loginUser.pending, (state) => {
         state.isDataLoading = true
         state.error = null
@@ -159,7 +159,6 @@ const authSlice = createSlice({
           action.payload ?? 'Ошибка входа. Проверьте правильность данных'
       })
 
-      // getUserToken
       .addCase(getUserToken.pending, (state) => {
         state.isDataLoading = true
         state.error = null
@@ -171,41 +170,50 @@ const authSlice = createSlice({
           state.userData.tokenAccess = access
           state.userData.tokenRefresh = refresh
           state.isLoggedIn = true
-          localStorage.setItem('userData', JSON.stringify(state.userData))
+
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('userData', JSON.stringify(state.userData))
+          }
         }
       })
       .addCase(getUserToken.rejected, (state, action) => {
         state.isDataLoading = false
-        if (action.payload) {
-          state.error = action.payload
+        state.error = action.payload ?? 'Ошибка получения токенов'
+        state.isLoggedIn = false
+        state.userData = getInitialUserData()
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('userData')
         }
       })
   },
 })
+
+export const authSliceSliceReducer = authSlice.reducer
 
 export const {
   setFormData,
   resetFormData,
   setIsLoadingTrackList,
   setAccessToken,
+  clearError,
+  logoutUser,
 } = authSlice.actions
-export const authSliceSliceReducer = authSlice.reducer
 
-// === СЕЛЕКТОРЫ ===
-import { RootState } from 'src/store/store'
-
-export const selectAuthFormData = (state: RootState) => state.auth.formData
-export const selectAuthUser = (state: RootState) => state.auth.userData
-export const selectAuthIsLoading = (state: RootState) =>
+export const selectAuthFormData = (state: { auth: AuthState }) =>
+  state.auth.formData
+export const selectAuthUser = (state: { auth: AuthState }) =>
+  state.auth.userData
+export const selectAuthIsLoading = (state: { auth: AuthState }) =>
   state.auth.isDataLoading
-export const selectAuthError = (state: RootState) => state.auth.error
-export const selectIsLoggedIn = (state: RootState) => state.auth.isLoggedIn
+export const selectAuthError = (state: { auth: AuthState }) => state.auth.error
+export const selectIsLoggedIn = (state: { auth: AuthState }) =>
+  state.auth.isLoggedIn
 
 export const selectAuthTokens = createSelector(
-  (state: RootState) => state.auth.userData.tokenAccess,
-  (state: RootState) => state.auth.userData.tokenRefresh,
+  (state: { auth: { userData: UserData } }) => state.auth.userData.tokenAccess,
+  (state: { auth: { userData: UserData } }) => state.auth.userData.tokenRefresh,
   (tokenAccess, tokenRefresh) => ({
-    tokenAccess,
-    tokenRefresh,
+    tokenAccess: tokenAccess || null,
+    tokenRefresh: tokenRefresh || null,
   }),
 )

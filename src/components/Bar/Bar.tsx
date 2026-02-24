@@ -1,4 +1,3 @@
-// src/components/Bar/Bar.tsx
 'use client'
 
 import clsx from 'clsx'
@@ -64,15 +63,51 @@ export default function Bar() {
 
   useEffect(() => {
     const audio = audioRef.current
-    if (!audio) return
+    if (!audio || !isPlayTrack) return
+
+    let isMounted = true
 
     const updateTime = () => {
-      setCurrentTime(audio.currentTime)
+      if (isMounted && audio.currentTime !== currentTime) {
+        setCurrentTime(audio.currentTime)
+      }
     }
 
+    const fallbackInterval = setInterval(() => {
+      if (isMounted && audio.currentTime !== currentTime) {
+        setCurrentTime(audio.currentTime)
+      }
+    }, 200)
+
     audio.addEventListener('timeupdate', updateTime)
-    return () => audio.removeEventListener('timeupdate', updateTime)
-  }, [])
+
+    const handleCanPlay = () => {
+      if (isMounted && audio.currentTime === 0 && currentTime === 0) {
+        setCurrentTime(0.1)
+      }
+    }
+    audio.addEventListener('canplay', handleCanPlay)
+
+    return () => {
+      isMounted = false
+      clearInterval(fallbackInterval)
+      audio.removeEventListener('timeupdate', updateTime)
+      audio.removeEventListener('canplay', handleCanPlay)
+    }
+  }, [isPlayTrack, currentTrack?._id])
+
+  useEffect(() => {
+    if (currentTrack) {
+      setCurrentTime(0)
+      if (audioRef.current) {
+        setTimeout(() => {
+          if (audioRef.current) {
+            audioRef.current.currentTime = 0
+          }
+        }, 50)
+      }
+    }
+  }, [currentTrack?._id])
 
   useEffect(() => {
     const audio = audioRef.current

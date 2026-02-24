@@ -85,8 +85,9 @@ export const loginUser = createAsyncThunk<
           errorMessage = '🔒 Ошибка CORS. Обратитесь к администратору сервера.'
         }
       }
+      console.log ('errorMessage', errorMessage);
 
-      console.error(' Итоговое сообщение об ошибке:', errorMessage)
+      // console.error(' Итоговое сообщение об ошибке:', errorMessage)
       return rejectWithValue(` ${errorMessage}`)
     }
   },

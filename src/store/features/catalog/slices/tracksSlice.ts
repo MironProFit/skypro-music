@@ -1,11 +1,7 @@
+// src/store/catalog/slices/tracksSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { Track } from '../model/types'
 import { fetchTracks } from '../api/tracksThunk'
-import {
-  addTrackToFavorites,
-  fetchFavoriteTracks,
-  removeTrackFromFavorites,
-} from '../api/favoritesThunk'
 
 type initialStateType = {
   list: Track[]
@@ -14,8 +10,6 @@ type initialStateType = {
   currentTrack: Track | null
   isPlayTrack: boolean
 }
-
-
 
 const initialState: initialStateType = {
   list: [],
@@ -41,31 +35,38 @@ const trackSlice = createSlice({
     setIsLoadingTrackList: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload
     },
+    clearTracksCache: (state) => {
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.removeItem('tracks_cache')
+          console.log('🧹 Кэш треков удален из localStorage')
+        } catch (error) {
+          console.warn('⚠️ Не удалось удалить треки из localStorage:', error)
+        }
+      }
+      state.list = []
+      state.loading = false // 🔑 Гарантируем сброс загрузки
+      console.log('🧹 Кэш треков очищен из редьюсера')
+    },
   },
   extraReducers: (builder) => {
     builder
       .addCase(fetchTracks.pending, (state) => {
         state.loading = true
         state.error = null
+        console.log('⏳ fetchTracks: pending')
       })
       .addCase(fetchTracks.fulfilled, (state, action) => {
-        state.loading = false
+        state.loading = false // 🔑 Обязательно сбрасываем
         state.list = action.payload
-
-        if (typeof window !== 'undefined') {
-          try {
-            localStorage.setItem('tracks_cache', JSON.stringify(action.payload))
-          } catch (error) {
-            console.warn('Не удалось сохранить треки в localStorage:', error)
-          }
-        }
+        state.error = null
+        console.log('✅ fetchTracks: fulfilled, треков:', action.payload.length)
       })
       .addCase(fetchTracks.rejected, (state, action) => {
-        state.loading = false
+        state.loading = false // 🔑 Обязательно сбрасываем
         state.error = action.payload ?? 'Неизвестная ошибка'
+        console.log('❌ fetchTracks: rejected', state.error)
       })
-
-   
   },
 })
 
@@ -74,5 +75,7 @@ export const {
   setIsPlayTrack,
   setTracksFromCache,
   setIsLoadingTrackList,
+  clearTracksCache,
 } = trackSlice.actions
+
 export const trackSliceReducer = trackSlice.reducer
