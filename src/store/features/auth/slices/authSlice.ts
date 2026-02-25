@@ -1,4 +1,3 @@
-// src/store/auth/slice/authSlice.ts
 'use client'
 
 import { createSlice, PayloadAction, createSelector } from '@reduxjs/toolkit'
@@ -24,10 +23,39 @@ type AuthState = {
   isLoggedIn: boolean
 }
 
-// === УДАЛЕНО: getStoredUserData() ===
-// === УДАЛЕНО: getInitialUserData() ===
+const getStoredUserData = (): UserData => {
+  if (typeof window === 'undefined') return getInitialUserData()
+  try {
+    const data = localStorage.getItem('userData')
+    if (data) {
+      const parsed = JSON.parse(data)
+      if (
+        typeof parsed === 'object' &&
+        (parsed.id !== undefined || parsed.email !== undefined)
+      ) {
+        return parsed
+      }
+    }
+  } catch (e) {
+    console.warn('Не удалось прочитать userData из localStorage:', e)
+  }
+  return getInitialUserData()
+}
 
-// Новое начальное состояние
+const getInitialUserData = (): UserData => ({
+  id: undefined,
+  email: '',
+  username: '',
+  tokenAccess: null,
+  tokenRefresh: null,
+})
+
+const getNameUserFromEmail = (email: string): string => {
+  return (
+    email.split('@')[0].charAt(0).toUpperCase() + email.split('@')[0].slice(1)
+  )
+}
+
 const initialState: AuthState = {
   formData: {
     email: '',
@@ -35,23 +63,11 @@ const initialState: AuthState = {
     username: '',
     passwordConfirm: '',
   },
-  userData: {
-    id: undefined,
-    email: '',
-    username: '',
-    tokenAccess: null,
-    tokenRefresh: null,
-  },
+  userData: getStoredUserData(),
   error: null,
   isDataLoading: false,
   isLoadingTrackList: false,
-  isLoggedIn: false, // По умолчанию пользователь не залогинен
-}
-
-const getNameUserFromEmail = (email: string): string => {
-  return (
-    email.split('@')[0].charAt(0).toUpperCase() + email.split('@')[0].slice(1)
-  )
+  isLoggedIn: !!(getStoredUserData().id && getStoredUserData().tokenRefresh),
 }
 
 const authSlice = createSlice({
@@ -76,6 +92,9 @@ const authSlice = createSlice({
 
     setAccessToken: (state, action: PayloadAction<string>) => {
       state.userData.tokenAccess = action.payload
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('userData', JSON.stringify(state.userData))
+      }
     },
 
     clearError: (state) => {
@@ -83,14 +102,15 @@ const authSlice = createSlice({
     },
 
     logoutUser: (state) => {
-      // === УДАЛЕНО: localStorage.removeItem('userData') ===
-      // Просто сбрасываем состояние в Redux
       state.formData = { ...initialState.formData }
-      state.userData = { ...initialState.userData }
+      state.userData = getInitialUserData()
       state.isLoggedIn = false
       state.error = null
       state.isDataLoading = false
       state.isLoadingTrackList = false
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('userData')
+      }
     },
   },
   extraReducers: (builder) => {
@@ -110,7 +130,9 @@ const authSlice = createSlice({
             email: result.email,
             username: getNameUserFromEmail(result.email),
           }
-          // === УДАЛЕНО: localStorage.setItem('userData', ...) ===
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('userData', JSON.stringify(state.userData))
+          }
         }
       })
       .addCase(registerUser.rejected, (state, action) => {
@@ -133,6 +155,9 @@ const authSlice = createSlice({
             email: result.email,
             username: getNameUserFromEmail(result.email),
           }
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('userData', JSON.stringify(state.userData))
+          }
         }
       })
       .addCase(loginUser.rejected, (state, action) => {
@@ -148,20 +173,24 @@ const authSlice = createSlice({
           state.userData.tokenAccess = access
           state.userData.tokenRefresh = refresh
           state.isLoggedIn = true
-          // === УДАЛЕНО: localStorage.setItem('userData', ...) ===
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('userData', JSON.stringify(state.userData))
+          }
         }
       })
       .addCase(getUserToken.rejected, (state, action) => {
         state.isDataLoading = false
         state.error = action.payload ?? 'Ошибка получения токенов'
         state.isLoggedIn = false
-        state.userData = { ...initialState.userData }
-        // === УДАЛЕНО: localStorage.removeItem('userData') ===
+        state.userData = getInitialUserData()
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('userData')
+        }
       })
   },
 })
 
-export const authSliceReducer = authSlice.reducer // Исправлена опечатка в названии
+export const authSliceReducer = authSlice.reducer
 
 export const {
   setFormData,
@@ -172,7 +201,6 @@ export const {
   logoutUser,
 } = authSlice.actions
 
-// ... остальные селекторы остаются без изменений ...
 export const selectAuthFormData = (state: { auth: AuthState }) =>
   state.auth.formData
 export const selectAuthUser = (state: { auth: AuthState }) =>
