@@ -1,5 +1,5 @@
 // jest.setup.ts
-import '@testing-library/jest-dom';
+import "@testing-library/jest-dom";
 
 declare global {
   interface Window {
@@ -16,7 +16,7 @@ declare global {
 
 let storage: Record<string, string> = {}; // Здесь определяем объект для хранения данных
 
-Object.defineProperty(global.window, 'localStorage', {
+Object.defineProperty(global.window, "localStorage", {
   writable: true,
   configurable: true,
   value: {

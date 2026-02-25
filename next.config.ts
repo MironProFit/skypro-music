@@ -1,18 +1,16 @@
-import type { NextConfig } from 'next'
+import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
   async redirects() {
     return [
       {
-        source: '/',
-        destination: '/music/main',
-        permanent: false, 
+        source: "/",
+        destination: "/music/main",
+        permanent: false,
       },
-    ]
+    ];
   },
-}
+};
 
-
-
-export default nextConfig
+export default nextConfig;

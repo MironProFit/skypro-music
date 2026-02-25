@@ -4,24 +4,40 @@ import prettierPlugin from 'eslint-plugin-prettier'
 import typescriptEslintPlugin from '@typescript-eslint/eslint-plugin'
 
 export default [
-    {
-        files: ['**/*.ts', '**/*.tsx'],
-        languageOptions: {
-            parser: typescriptParser,
-            parserOptions: {
-                ecmaFeatures: { jsx: true },
-                sourceType: 'module',
-            },
-        },
-        plugins: {
-            '@next/next': next,
-            '@typescript-eslint': typescriptEslintPlugin,
-            prettier: prettierPlugin,
-        },
-        rules: {
-            '@next/next/no-html-link-for-pages': 'error',
-            'prettier/prettier': 'error',
-            '@typescript-eslint/no-explicit-any': 'error',
-        },
+  {
+    files: ['**/*.ts', '**/*.tsx'],
+    languageOptions: {
+      parser: typescriptParser,
+      parserOptions: {
+        ecmaFeatures: { jsx: true },
+        sourceType: 'module',
+      },
     },
+    plugins: {
+      '@next/next': next,
+      '@typescript-eslint': typescriptEslintPlugin,
+      prettier: prettierPlugin,
+    },
+    rules: {
+      '@next/next/no-html-link-for-pages': 'error',
+      'prettier/prettier': 'error',
+      '@typescript-eslint/no-explicit-any': 'error',
+      'no-warning-comments': [
+        'warn',
+        {
+          terms: [
+            'TODO',
+            'FIXME',
+            'XXX',
+            'HACK',
+            'УДАЛЕНО',
+            'ОШИБКА',
+            'DEBUG',
+            '===',
+          ],
+          location: 'anywhere',
+        },
+      ],
+    },
+  },
 ]
