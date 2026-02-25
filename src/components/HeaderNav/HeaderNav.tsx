@@ -28,7 +28,7 @@ export default function HeaderNav() {
     if (isLoggedIn) {
       await logout()
       router.push('/music/main')
-      toast.info('Вы вышли из аккаунта')
+      // toast.info('Вы вышли из аккаунта')
     } else {
       router.push('/auth/signin')
     }
