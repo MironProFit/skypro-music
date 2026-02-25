@@ -29,24 +29,9 @@ const trackSlice = createSlice({
     setIsPlayTrack: (state, action: PayloadAction<boolean>) => {
       state.isPlayTrack = action.payload
     },
-    setTracksFromCache: (state, action: PayloadAction<Track[]>) => {
-      state.list = action.payload
-    },
+    // === УДАЛЕНО: setTracksFromCache ===
     setIsLoadingTrackList: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload
-    },
-    clearTracksCache: (state) => {
-      if (typeof window !== 'undefined') {
-        try {
-          localStorage.removeItem('tracks_cache')
-          console.log('🧹 Кэш треков удален из localStorage')
-        } catch (error) {
-          console.warn('⚠️ Не удалось удалить треки из localStorage:', error)
-        }
-      }
-      state.list = []
-      state.loading = false // 🔑 Гарантируем сброс загрузки
-      console.log('🧹 Кэш треков очищен из редьюсера')
     },
   },
   extraReducers: (builder) => {
@@ -54,18 +39,15 @@ const trackSlice = createSlice({
       .addCase(fetchTracks.pending, (state) => {
         state.loading = true
         state.error = null
-        console.log('⏳ fetchTracks: pending')
       })
       .addCase(fetchTracks.fulfilled, (state, action) => {
-        state.loading = false // 🔑 Обязательно сбрасываем
+        state.loading = false
         state.list = action.payload
         state.error = null
-        console.log('✅ fetchTracks: fulfilled, треков:', action.payload.length)
       })
       .addCase(fetchTracks.rejected, (state, action) => {
-        state.loading = false // 🔑 Обязательно сбрасываем
+        state.loading = false
         state.error = action.payload ?? 'Неизвестная ошибка'
-        console.log('❌ fetchTracks: rejected', state.error)
       })
   },
 })
@@ -73,9 +55,7 @@ const trackSlice = createSlice({
 export const {
   setCurrentTrack,
   setIsPlayTrack,
-  setTracksFromCache,
   setIsLoadingTrackList,
-  clearTracksCache,
 } = trackSlice.actions
 
 export const trackSliceReducer = trackSlice.reducer

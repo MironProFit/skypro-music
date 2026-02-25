@@ -1,7 +1,6 @@
 // src/hooks/useLogout.ts
 import { useAppDispatch, useAppSelector } from 'src/store/store'
 import { clearFavorites } from '@store/catalog/slices/favoritesSlice'
-import { clearTracksCache } from '@store/catalog/slices/tracksSlice'
 import { clearSelectionCache } from '@store/catalog/slices/selectionSlice'
 import { resetFormData } from '@store/auth'
 import { useRouter } from 'next/navigation'
@@ -38,10 +37,6 @@ export const useLogout = (): UseLogoutReturn => {
       // 2. Очищаем подборки
       dispatch(clearSelectionCache())
       console.log('✅ Подборки очищены')
-
-      // 3. 🔑 Очищаем кэш треков (И редьюсер, И localStorage)
-      dispatch(clearTracksCache())
-      console.log('✅ Кэш треков полностью очищен')
 
       // 4. Сбрасываем форму авторизации
       dispatch(resetFormData())
