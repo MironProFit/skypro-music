@@ -46,9 +46,6 @@ export const loginUser = createAsyncThunk<
           console.warn('⚠️ Ошибка загрузки подборок:', selectionError)
         }
 
-        // try {
-        //   await dispatch()
-        // }
 
         return data
       } else {
