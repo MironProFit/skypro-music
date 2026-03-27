@@ -6,10 +6,12 @@ import Link from 'next/link'
 import { useAuth } from '../context/AuthContext'
 import { useAppDispatch, useAppSelector } from 'src/store/store'
 import clsx from 'clsx'
-import { useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Loading from '@components/Loading/Loading'
 import { getUserToken, loginUser, resetFormData } from '@store/auth'
+import { toast } from 'react-toastify'
+import { clearError } from '@store/auth/slices/authSlice'
 
 export default function SigninPage() {
   const { handleChange, formData, errors, setErrors } = useAuth()
@@ -18,30 +20,56 @@ export default function SigninPage() {
   const isDisabled =
     !!errors.email || !!errors.password || !formData.email || !formData.password
 
+  const [toastShown, setToastShown] = useState(false)
+  const prevErrorRef = useRef<string | null>(null)
+
   useEffect(() => {
-    dispatch(resetFormData())    
+    dispatch(resetFormData())
     setErrors({ email: '', password: '' })
+    setToastShown(false)
+    prevErrorRef.current = null
   }, [dispatch, setErrors])
+
+  useEffect(() => {
+    if (errorMes && errorMes !== prevErrorRef.current && !toastShown) {
+      toast.error(errorMes, {
+        autoClose: 5000,
+        onClose: () => {
+          dispatch(clearError())
+        },
+      })
+      prevErrorRef.current = errorMes
+      setToastShown(true)
+      const timer = setTimeout(() => {
+        setToastShown(false)
+      }, 6000)
+      return () => clearTimeout(timer)
+    }
+    if (!errorMes && toastShown) {
+      setToastShown(false)
+      prevErrorRef.current = null
+    }
+  }, [errorMes, toastShown, dispatch])
 
   const router = useRouter()
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
+    setToastShown(false)
+    prevErrorRef.current = null
+
     dispatch(
-      loginUser({ email: formData.email, password: formData.password })
+      loginUser({ email: formData.email, password: formData.password }),
     ).then((resultAction) => {
       if (loginUser.fulfilled.match(resultAction)) {
-        // После успешного логина вызываем получение токенов
         dispatch(
-          getUserToken({ email: formData.email, password: formData.password })
+          getUserToken({ email: formData.email, password: formData.password }),
         ).then((tokenResult) => {
           if (getUserToken.fulfilled.match(tokenResult)) {
-            // После успешного получения токена переходим на главную
-            router.push('/')
+            toast.success('Успешный вход', { autoClose: 3000 })
+            router.push('/music/main')
           }
         })
-      } else {
-        console.error('Ошибка входа:', resultAction.payload)
       }
     })
   }
@@ -50,12 +78,9 @@ export default function SigninPage() {
     <>
       <Loading />
       <form onSubmit={handleSubmit} className={styles.modal__form}>
-        {/* Логотип */}
         <Link href={'/music/main'} className={styles.modal__logo}>
           <img src="/img/logo_modal.png" alt="logo" />
         </Link>
-
-        {/* Поле Email */}
         <input
           className={classNames(styles.modal__input, styles.marginBottom30)}
           type="text"
@@ -72,8 +97,6 @@ export default function SigninPage() {
         >
           {errors.email}
         </div>
-
-        {/* Поле Пароль */}
         <input
           className={classNames(styles.modal__input, styles.marginBottom30)}
           type="password"
@@ -90,10 +113,6 @@ export default function SigninPage() {
         >
           {errors.password}
         </div>
-
-        {/* Кнопка Войти */}
-        <div className={styles.warning}>{errorMes}</div>
-
         <button
           disabled={isDisabled}
           type="submit"
@@ -101,8 +120,6 @@ export default function SigninPage() {
         >
           Войти
         </button>
-
-        {/* Ссылка на регистрацию */}
         <Link href="/auth/signup" className={styles.modal__btnSignup}>
           Зарегистрироваться
         </Link>

@@ -1,0 +1,17 @@
+.toastContainer {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 16px;
+  width: 350px;
+  margin-top: 20px;
+}
+
+.toastBody {
+  padding: 16px 20px !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.toastProgress {
+  height: 4px !important;
+  background-color: rgba(255, 255, 255, 0.5) !important;
+}

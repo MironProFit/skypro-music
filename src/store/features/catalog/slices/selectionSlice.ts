@@ -17,6 +17,9 @@ const selectionsSlice = createSlice({
     setCurrentSelection: (state, action: PayloadAction<string>) => {
       state.currentCollection = action.payload
     },
+    clearSelectionCache: (state) => {
+      state.currentCollection = ''
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -27,19 +30,6 @@ const selectionsSlice = createSlice({
       .addCase(fetchAllSelections.fulfilled, (state, action) => {
         state.loading = false
         state.list = action.payload
-
-        if (action.payload.length > 0) {
-          try {
-            if (typeof window !== 'undefined') {
-              localStorage.setItem(
-                'selections_cache',
-                JSON.stringify(action.payload)
-              )
-            }
-          } catch (error) {
-            console.warn('Не удалось сохранить подборки в localStorage:', error)
-          }
-        }
       })
       .addCase(fetchAllSelections.rejected, (state, action) => {
         state.loading = false
@@ -47,5 +37,8 @@ const selectionsSlice = createSlice({
       })
   },
 })
-export const { setCurrentSelection } = selectionsSlice.actions
+
+export const { setCurrentSelection, clearSelectionCache } =
+  selectionsSlice.actions
+
 export const selectionsReducer = selectionsSlice.reducer

@@ -1,11 +1,7 @@
+// src/store/catalog/slices/tracksSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { Track } from '../model/types'
 import { fetchTracks } from '../api/tracksThunk'
-import {
-  addTrackToFavorites,
-  fetchFavoriteTracks,
-  removeTrackFromFavorites,
-} from '../api/favoritesThunk'
 
 type initialStateType = {
   list: Track[]
@@ -14,8 +10,6 @@ type initialStateType = {
   currentTrack: Track | null
   isPlayTrack: boolean
 }
-
-
 
 const initialState: initialStateType = {
   list: [],
@@ -35,9 +29,7 @@ const trackSlice = createSlice({
     setIsPlayTrack: (state, action: PayloadAction<boolean>) => {
       state.isPlayTrack = action.payload
     },
-    setTracksFromCache: (state, action: PayloadAction<Track[]>) => {
-      state.list = action.payload
-    },
+    // === УДАЛЕНО: setTracksFromCache ===
     setIsLoadingTrackList: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload
     },
@@ -51,28 +43,19 @@ const trackSlice = createSlice({
       .addCase(fetchTracks.fulfilled, (state, action) => {
         state.loading = false
         state.list = action.payload
-
-        if (typeof window !== 'undefined') {
-          try {
-            localStorage.setItem('tracks_cache', JSON.stringify(action.payload))
-          } catch (error) {
-            console.warn('Не удалось сохранить треки в localStorage:', error)
-          }
-        }
+        state.error = null
       })
       .addCase(fetchTracks.rejected, (state, action) => {
         state.loading = false
         state.error = action.payload ?? 'Неизвестная ошибка'
       })
-
-   
   },
 })
 
 export const {
   setCurrentTrack,
   setIsPlayTrack,
-  setTracksFromCache,
   setIsLoadingTrackList,
 } = trackSlice.actions
+
 export const trackSliceReducer = trackSlice.reducer

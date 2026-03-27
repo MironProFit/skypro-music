@@ -1,7 +1,8 @@
 /* Основной контейнер формы */
 .modal__form {
   width: 366px;
-  background-color: #ffffff;
+  background-color: #666666;
+  /* background-color: #ffffff; */
   border-radius: 12px;
   display: flex;
   flex-direction: column;
@@ -30,9 +31,22 @@
   font-size: 18px;
   line-height: 24px;
   letter-spacing: -0.05px;
-  color: #000;
+  color: #ffffff;
+  background-color: #666;
+
+  /* Плавные переходы */
+  transition: border-bottom-color 0.3s ease;
+
+  /* Убираем стандартный фокус */
+  outline: none;
 }
 
+/* Фокус на инпуте */
+.modal__input:focus {
+  border-bottom-color: #ffffff;
+}
+
+/* Плейсхолдер */
 .modal__input::placeholder {
   font-style: normal;
   font-weight: 400;
@@ -40,6 +54,34 @@
   line-height: 24px;
   letter-spacing: -0.05px;
   color: #d0cece;
+  opacity: 1; /* Важно для некоторых браузеров */
+}
+
+/* ===== РЕШЕНИЕ АВТОЗАПОЛНЕНИЯ ===== */
+.modal__input:-webkit-autofill,
+.modal__input:-webkit-autofill:hover,
+.modal__input:-webkit-autofill:focus,
+.modal__input:-webkit-autofill:active {
+  /* Фон */
+  -webkit-box-shadow: 0 0 0 30px #666 inset !important;
+  box-shadow: 0 0 0 30px #666 inset !important;
+
+  /* Цвет текста */
+  -webkit-text-fill-color: #ffffff !important;
+  color: #ffffff !important;
+
+  /* Убираем анимацию */
+  transition: background-color 5000s ease-in-out 0s !important;
+  animation: none !important;
+
+  /* Убираем градиент */
+  -webkit-background-clip: text !important;
+}
+
+/* Для остальных браузеров */
+.modal__input:-internal-autofill-selected {
+  background-color: #666 !important;
+  color: #ffffff !important;
 }
 
 /* Универсальный класс отступа */
@@ -56,7 +98,9 @@
   visibility: hidden;
   margin-top: 4px;
   margin-bottom: 12px;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    visibility 0.3s ease;
 }
 
 .errorContainer.active {

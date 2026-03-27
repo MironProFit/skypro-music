@@ -46,6 +46,7 @@ export const loginUser = createAsyncThunk<
           console.warn('⚠️ Ошибка загрузки подборок:', selectionError)
         }
 
+
         return data
       } else {
         // Обработка ошибки от сервера
@@ -85,9 +86,10 @@ export const loginUser = createAsyncThunk<
           errorMessage = '🔒 Ошибка CORS. Обратитесь к администратору сервера.'
         }
       }
+      console.log ('errorMessage', errorMessage);
 
-      console.error('💥 Итоговое сообщение об ошибке:', errorMessage)
-      return rejectWithValue(`💥 ${errorMessage}`)
+      // console.error(' Итоговое сообщение об ошибке:', errorMessage)
+      return rejectWithValue(` ${errorMessage}`)
     }
   },
 )

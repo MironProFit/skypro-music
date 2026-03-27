@@ -3,17 +3,16 @@
 import Image from 'next/image'
 import styles from './HeaderNav.module.css'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import clsx from 'clsx'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useAppDispatch, useAppSelector } from 'src/store/store'
-import { resetFormData } from '@store/auth'
-import { useParams, usePathname, useRouter } from 'next/navigation'
-import { clearFavorites } from '@store/catalog/slices/favoritesSlice'
+import { useAppDispatch } from 'src/store/store'
+import { useRouter } from 'next/navigation'
+import { toast } from 'react-toastify'
+import { useLogout } from 'src/hooks/useLogout'
 
 export default function HeaderNav() {
   const [isOpenBurger, setIsOpenBurger] = useState(false)
-  const isLoggedIn = useAppSelector((state) => state.auth.isLoggedIn)
   const dispatch = useAppDispatch()
 
   const router = useRouter()
@@ -22,11 +21,12 @@ export default function HeaderNav() {
     setIsOpenBurger((prev) => !prev)
   }
 
-  const handleLogout = () => {
+  const { logout, isLoggedIn } = useLogout()
+
+  const handleLogout = async () => {
     setIsOpenBurger(false)
     if (isLoggedIn) {
-      dispatch(resetFormData())
-      dispatch(clearFavorites())
+      await logout()
       router.push('/music/main')
     } else {
       router.push('/auth/signin')

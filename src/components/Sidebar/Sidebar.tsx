@@ -8,6 +8,8 @@ import { useEffect, useState } from 'react'
 import { fetchAllSelections } from '@store/catalog/api/selectionThunk'
 import { useRouter } from 'next/navigation'
 import { resetFormData } from '@store/auth/slices/authSlice'
+import { toast } from 'react-toastify'
+import { useLogout } from 'src/hooks/useLogout'
 
 export default function Sidebar() {
   const dispatch = useAppDispatch()
@@ -18,7 +20,7 @@ export default function Sidebar() {
 
   // Получаем данные из Redux для обновления после гидратации
   const reduxUserName = useAppSelector((state) => state.auth.userData?.username)
-  const isLoggedIn = useAppSelector((s) => s.auth.isLoggedIn)
+  const { logout, isLoggedIn } = useLogout()
 
   // Получаем подборки из Redux store
   const selections = useAppSelector((state) => state.selections.list)
@@ -35,7 +37,7 @@ export default function Sidebar() {
 
   // Загружаем подборки при монтировании (если ещё не загружены)
   useEffect(() => {
-    if (selections.length === 0 && !selectionsLoading) {
+    if (selections.length === 0 && !selectionsLoading && isLoggedIn) {
       dispatch(fetchAllSelections())
     }
   }, [dispatch, selections.length, selectionsLoading])
@@ -50,9 +52,9 @@ export default function Sidebar() {
     }
   }
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     if (isLoggedIn) {
-      dispatch(resetFormData())
+      await logout()
       router.push('/music/main')
     } else {
       router.push('/auth/signin')
@@ -72,7 +74,6 @@ export default function Sidebar() {
   return (
     <div className={styles.main__sidebar}>
       <div className={styles.sidebar__personal}>
-        {/* ✅ ТОЛЬКО ИМЯ ПОЛЬЗОВАТЕЛЯ (без лишних кнопок) */}
         <p className={styles.sidebar__personalName}>{userName}</p>
         <div onClick={handleLogout} className={styles.sidebar__icon}>
           <svg className={styles.sidebar__iconSvg}>
